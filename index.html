@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hipertrofia Pro - Software de Entrenamiento</title>
+  
+  <meta name="theme-color" content="#ff6b1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HipertrofiaPro">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- SDK EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ====== CONFIGURACIÓN SUPABASE (pegar los datos de tu proyecto) ======
+    const SUPABASE_URL = 'https://ovvdxsrjvbewqrzxxabe.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dmR4c3JqdmJld3Fyenh4YWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNzcwNTIsImV4cCI6MjEwNzc1MzA1Mn0.duDkWmigyLH7cF19HAmteG0N9s0mzqzxfyREYt5Kn8k';
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #09090b;
+      --surface: #121215;
+      --surface-elevated: #18181c;
+      --border: #27272a;
+      --border-focus: #ff6b1a;
+      --text: #f4f4f5;
+      --text-muted: #94a3b8;
+      --accent: #ff6b1a;
+      --accent-hover: #ff8533;
+      --accent-glow: rgba(255, 107, 26, 0.2);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 14px;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --orange-main: #ff6b1a;
+      --orange-light: #ffaa66;
+      --green-success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #20120a 0%, var(--bg) 50%);
+      color: var(--text);
+      padding: 16px 14px 100px;
+      max-width: 860px;
+      margin: 0 auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 18px 10px 14px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .date-badge {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* BARRA DE PERFIL */
+    .user-profile-bar {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .user-info-text {
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+    .user-info-text strong { color: var(--accent); }
+
+    /* BANNER DE NUTRICIÓN COMPACTO */
+    .nutrition-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      gap: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .nutrition-item {
+      background: var(--surface-elevated);
+      padding: 8px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .nutrition-item strong {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .nutrition-item span {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .hero-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    /* PWA BANNER */
+    .pwa-banner {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* BOTONES */
+    .btn-3d {
+      background: linear-gradient(135deg, var(--accent), #e05500);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 26, 0.25);
+    }
+    .btn-3d:active { transform: scale(0.98); }
+    .btn-secondary {
+      background: #27272a;
+      box-shadow: none;
+      border: 1px solid #3f3f46;
+    }
+    .btn-small { padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; }
+    .btn-complete {
+      background: linear-gradient(135deg, var(--success), #059669);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    /* PESTAÑAS DE NAVEGACIÓN */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 0 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .tab-content { display: none; animation: fadeIn 0.25s ease; }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SELECTOR DE DÍA */
+    .day-selector {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    select, input {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      width: 100%;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* ==============================================================
+       RED DISEÑO: CALENTAMIENTO Y ACTIVACIÓN (PROFESIONAL & CLEAN)
+       ============================================================== */
+    .warmup-box {
+      background: linear-gradient(165deg, #171513 0%, #101013 100%);
+      border: 1px solid rgba(255, 107, 26, 0.22);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      margin-bottom: 22px;
+      box-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+    }
+    .warmup-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), #f59e0b, transparent);
+    }
+    .warmup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .warmup-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .warmup-icon-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255, 107, 26, 0.15);
+      border: 1px solid rgba(255, 107, 26, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+    .warmup-header-title {
+      font-weight: 800;
+      color: #fff;
+      font-size: 0.98rem;
+      letter-spacing: -0.2px;
+    }
+    .warmup-tag {
+      font-size: 0.68rem;
+      background: rgba(255, 107, 26, 0.12);
+      color: #ffaa66;
+      border: 1px solid rgba(255, 107, 26, 0.35);
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .warmup-subtitle {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    /* Tarjetas de Fases */
+    .warmup-phases-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .warmup-phase-card {
+      background: rgba(24, 24, 28, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: border 0.2s ease, background 0.2s ease;
+    }
+    .warmup-phase-card:hover {
+      border-color: rgba(255, 107, 26, 0.25);
+      background: rgba(24, 24, 28, 0.9);
+    }
+    .phase-headline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .phase-badge-num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #d95305);
+      color: #ffffff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .phase-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #f4f4f5;
+    }
+    .phase-detail-txt {
+      font-size: 0.79rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    /* Temporizador Cardio Fase 1 */
+    .warmup-timer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .warmup-timer-digits {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ffaa66;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      min-width: 80px;
+    }
+    .warmup-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-timer-primary {
+      background: linear-gradient(135deg, var(--accent), #e05500);
+      color: white;
+      border: none;
+      font-weight: 700;
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 26, 0.25);
+    }
+    .btn-timer-primary.is-running {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    }
+    .btn-timer-primary:active { transform: scale(0.97); }
+    .btn-timer-finish {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      font-weight: 700;
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-timer-finish:active { transform: scale(0.97); }
+    .warmup-status-indicator {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    /* TARJETAS DE EJERCICIO */
+    .exercise-card {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      transition: border 0.2s ease;
+    }
+    .exercise-card.card-completed {
+      border-left: 4px solid var(--success);
+      opacity: 0.92;
+    }
+    .exercise-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .exercise-meta {
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .rec-box {
+      background: rgba(255, 107, 26, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #ffedd5;
+      margin-bottom: 10px;
+    }
+    .exercise-note {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      background: var(--bg);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .fst7-badge {
+      background: #dc2626;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .done-badge {
+      background: var(--success);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    /* TABLA DE SERIES */
+    .sets-table-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 10px 8px; font-size: 0.82rem; }
+    th {
+      background: var(--surface);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+    .set-row.completed-row {
+      background: rgba(16, 185, 129, 0.05);
+    }
+    .prev-ref {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* CRONOMETRO BURBUJA */
+    .timer-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--accent);
+      border-radius: 18px;
+      padding: 14px 18px;
+      text-align: center;
+      z-index: 9999;
+      display: none;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.7);
+    }
+    .timer-display {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-status {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* MODALES DE AUTENTICACIÓN Y EDICIÓN */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .auth-card {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px 18px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      margin: 10px auto 30px;
+    }
+    .auth-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 0.88rem;
+    }
+    .auth-tab.active { background: var(--accent); color: white; }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-form label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .category-desc {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: rgba(255, 107, 26, 0.08);
+      padding: 6px 10px;
+      border-radius: 8px;
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    /* REJILLA FORMULARIO */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 540px) {
+      body { padding: 10px 10px 90px; }
+      h1 { font-size: 1.5rem; }
+      .grid-2 { grid-template-columns: 1fr; gap: 12px; }
+      .nutrition-banner { grid-template-columns: repeat(2, 1fr); }
+      .day-selector { flex-direction: column; align-items: stretch; }
+      .warmup-timer-bar { flex-direction: column; align-items: stretch; }
+      .warmup-controls { justify-content: stretch; }
+      .warmup-controls button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MODAL DE AUTENTICACIÓN -->
+  <div id="auth-modal" class="auth-overlay">
+    <div class="auth-card">
+      <h2 style="color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.35rem; font-weight:800;">HIPERTROFIA PRO</h2>
+      
+      <div class="auth-tabs">
+        <button id="tab-login-btn" class="auth-tab active" onclick="showAuthTab('login')">Iniciar Sesión</button>
+        <button id="tab-register-btn" class="auth-tab" onclick="showAuthTab('register')">Registrarse</button>
+      </div>
+
+      <!-- FORMULARIO DE INICIO DE SESIÓN -->
+      <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+        <div>
+          <label>Correo Electrónico</label>
+          <input type="email" id="login-email" required placeholder="tu@email.com">
+        </div>
+        <div>
+          <label>Contraseña</label>
+          <input type="password" id="login-password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 6px;">Entrar a Mi Rutina</button>
+        <button type="button" class="btn-3d btn-secondary btn-small" style="width: 100%;" onclick="showForgotPassword()">¿Olvidaste tu contraseña?</button>
+      </form>
+
+      <!-- RECUPERAR CONTRASEÑA -->
+      <form id="forgot-form" class="auth-form" style="display: none;" onsubmit="handleForgotPassword(event)">
+        <div>
+          <label>Correo Registrado</label>
+          <input type="email" id="forgot-email" required placeholder="tu@email.com">
+        </div>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 6px;">Enviar código de recuperación</button>
+        <button type="button" class="btn-3d btn-secondary btn-small" style="width: 100%;" onclick="showAuthTab('login')">Volver</button>
+      </form>
+
+      <!-- CONFIRMAR RESTABLECIMIENTO -->
+      <form id="reset-form" class="auth-form" style="display: none;" onsubmit="handleConfirmReset(event)">
+        <div>
+          <label>Código del Correo</label>
+          <input type="text" id="reset-code" required placeholder="123456">
+        </div>
+        <div>
+          <label>Nueva Contraseña</label>
+          <input type="password" id="reset-newpass" required placeholder="Tu nueva clave">
+        </div>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 6px;">Cambiar Contraseña</button>
+        <button type="button" class="btn-3d btn-secondary btn-small" style="width: 100%;" onclick="showAuthTab('login')">Cancelar</button>
+      </form>
+
+      <!-- FORMULARIO DE REGISTRO COMPLETO -->
+      <form id="register-form" class="auth-form" onsubmit="handleRegister(event)" style="display: none;">
+        <div class="grid-2">
+          <div>
+            <label>Nombre</label>
+            <input type="text" id="reg-firstname" required placeholder="Harold">
+          </div>
+          <div>
+            <label>Apellido</label>
+            <input type="text" id="reg-lastname" required placeholder="Lezcano">
+          </div>
+        </div>
+
+        <div>
+          <label>Correo Electrónico</label>
+          <input type="email" id="reg-email" required placeholder="tu@email.com">
+        </div>
+
+        <div>
+          <label>Contraseña</label>
+          <input type="password" id="reg-password" required placeholder="Crea una contraseña segura">
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Género</label>
+            <select id="reg-gender" required onchange="filterCategoryOptions('reg-goal', this.value)">
+              <option value="">Selecciona...</option>
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+            </select>
+          </div>
+          <div>
+            <label>Nacimiento</label>
+            <input type="date" id="reg-birthdate" required onclick="this.showPicker && this.showPicker()">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Peso (kg)</label>
+            <input type="number" step="0.1" id="reg-weight" required placeholder="Ej: 80.5">
+          </div>
+          <div>
+            <label>Altura (cm)</label>
+            <input type="number" step="0.5" id="reg-height" required placeholder="Ej: 175">
+          </div>
+        </div>
+
+        <div>
+          <label>Categoría / Objetivo</label>
+          <select id="reg-goal" required onchange="updateGoalDescription(this.value, 'reg-goal-desc')">
+            <option value="">Selecciona tu género primero...</option>
+          </select>
+          <div id="reg-goal-desc" class="category-desc" style="display:none;"></div>
+        </div>
+
+        <div>
+          <label>Clave de Activación</label>
+          <input type="text" id="reg-accesskey" required placeholder="Ingresa tu clave de acceso">
+        </div>
+
+        <button type="button" class="btn-3d" style="width:100%; background: #25d366; border-color:#1e7e34; box-shadow:none;" onclick="requestKeyAndOpenWhatsApp(event)">
+          Comprar Clave vía WhatsApp
+        </button>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 4px;">Crear Cuenta y Activar</button>
+      </form>
+    </div>
+  </div>
+
+  <header>
+    <h1>Hipertrofia Pro Tracker</h1>
+    <div class="date-badge" id="current-date-display">Cargando fecha...</div>
+  </header>
+
+  <!-- PWA BANNER -->
+  <div id="pwa-install-banner" class="pwa-banner" style="display: none;">
+    <span style="font-size: 0.85rem; color: var(--orange-light); font-weight: 700;">📱 Instala la App en tu pantalla</span>
+    <button class="btn-3d btn-small" id="btn-install-pwa">Instalar</button>
+  </div>
+
+  <!-- PERFIL DEL USUARIO -->
+  <div class="user-profile-bar" id="user-profile-bar" style="display: none;">
+    <div class="user-info-text">
+      Atleta: <strong id="profile-name">-</strong><br>
+      <span id="profile-details" style="font-size:0.78rem; color:var(--text-muted);">-</span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-3d btn-secondary btn-small" onclick="openEditProfile()">Editar Perfil</button>
+      <button class="btn-3d btn-secondary btn-small" onclick="handleLogout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- BANNER DE NUTRICIÓN COMPACTO -->
+  <div class="nutrition-banner" id="nutrition-banner" style="display: none;">
+    <div class="nutrition-item">
+      <strong id="nut-water">-</strong>
+      <span>Agua / día</span>
+    </div>
+    <div class="nutrition-item">
+      <strong id="nut-protein">-</strong>
+      <span>Proteínas</span>
+    </div>
+    <div class="nutrition-item">
+      <strong id="nut-carbs">-</strong>
+      <span>Carbohidratos</span>
+    </div>
+    <div class="nutrition-item">
+      <strong id="nut-cardio">-</strong>
+      <span>Cardio diario</span>
+    </div>
+    <div class="nutrition-item">
+      <strong id="nut-goal" style="font-size: 0.8rem;">-</strong>
+      <span>Categoría</span>
+    </div>
+  </div>
+
+  <img id="hero-image" class="hero-image" src="https://entrenadorhl.neocities.org/gym-man.jpg" alt="Entrenamiento">
+
+  <!-- CRONÓMETRO FLOTANTE -->
+  <div class="timer-bubble" id="timer-bubble">
+    <div class="timer-status" id="timer-status">DESCANSO EN CURSO</div>
+    <div class="timer-display" id="timer-display">00:00</div>
+    <div style="display:flex; gap:6px; justify-content:center; margin-top:6px;">
+      <button class="btn-3d btn-small" onclick="addTimerTime(30)">+30s</button>
+      <button class="btn-3d btn-secondary btn-small" onclick="resetTimer()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- NAVEGACIÓN DE PESTAÑAS -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('workout-tab', this)">Rutina de Hoy</button>
+    <button class="tab-btn" onclick="switchTab('workout-history-tab', this)">Historial Cargas</button>
+    <button class="tab-btn" onclick="switchTab('body-tab', this)">Reg. Medidas</button>
+    <button class="tab-btn" onclick="switchTab('history-tab', this)">Hist. Medidas</button>
+    <button class="tab-btn" onclick="switchTab('science-tab', this)">Ciencia Open</button>
+    <button class="tab-btn" onclick="switchTab('backup-tab', this)">Copia / Datos</button>
+  </div>
+
+  <!-- PESTAÑA 1: RUTINA DEL DÍA CON CALENTAMIENTO OBLIGATORIO -->
+  <div id="workout-tab" class="tab-content active">
+    <div class="day-selector">
+      <span>Día Activo: <strong id="detected-day-name" style="color: var(--accent);">...</strong></span>
+      <div style="flex: 1; max-width: 320px;">
+        <select id="select-day" onchange="loadWorkoutDay(this.value)">
+          <option value="lunes">Lunes - Empuje A (Pecho pesado + Hombros + Tríceps)</option>
+          <option value="martes">Martes - Tirón A (Espalda amplitud + Bíceps + Trapecio)</option>
+          <option value="miercoles">Miércoles - Pierna A (Cuádriceps + Abdomen + Gemelos)</option>
+          <option value="jueves">Jueves - Empuje B (Hombro hipertrofia + Pecho + Tríceps FST-7)</option>
+          <option value="viernes">Viernes - Pierna B + Tirón Grosor (Isquios + Glúteos + Espalda media + Antebrazos)</option>
+          <option value="descanso">Sábado / Domingo - Descanso Activo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CALENTAMIENTO REDISEÑADO (SIN CHECKBOXES, DISEÑO ELEGANTE Y CONTROL DINÁMICO) -->
+    <div class="warmup-box" id="warmup-section">
+      <div class="warmup-header">
+        <div class="warmup-title-wrap">
+          <div class="warmup-icon-badge">⚡</div>
+          <span class="warmup-header-title">Activación Miofascial & Puesta a Punto</span>
+        </div>
+        <span class="warmup-tag">Protocolo Previo</span>
+      </div>
+      <p class="warmup-subtitle">
+        Optimiza la lubricación sinovial y la conducción nerviosa antes de cargar peso para prevenir lesiones y elevar el rendimiento.
+      </p>
+
+      <div class="warmup-phases-container">
+        <!-- FASE 1: CARDIO CON TEMPORIZADOR Y BOTONES SEPARADOS -->
+        <div class="warmup-phase-card">
+          <div class="phase-headline">
+            <span class="phase-badge-num">01</span>
+            <span class="phase-name">Cardio de Elevación Térmica (8 min)</span>
+          </div>
+          <p class="phase-detail-txt">
+            Caminadora con ligera inclinación o elíptica a ritmo moderado constante (RPE 4-5) para subir temperatura central.
+          </p>
+
+          <div class="warmup-timer-bar">
+            <div id="warmup-timer-display" class="warmup-timer-digits">08:00</div>
+            <div class="warmup-controls">
+              <!-- Botón dinámico Iniciar / Pausar -->
+              <button type="button" id="btn-warmup-toggle" class="btn-timer-primary" onclick="toggleWarmupTimer()">
+                <span>▶ Iniciar</span>
+              </button>
+              <!-- Botón terminar completamente aparte -->
+              <button type="button" id="btn-warmup-finish" class="btn-timer-finish" onclick="finishWarmupCardio()">
+                <span>✓ Terminar</span>
+              </button>
+            </div>
+            <div id="warmup-cardio-status" class="warmup-status-indicator">Listo para comenzar</div>
+          </div>
+        </div>
+
+        <!-- FASE 2: MOVILIDAD ARTICULAR -->
+        <div class="warmup-phase-card">
+          <div class="phase-headline">
+            <span class="phase-badge-num">02</span>
+            <span class="phase-name">Movilidad Articular Específica</span>
+          </div>
+          <p class="phase-detail-txt">
+            Rotadores externos en polea/banda, dislocaciones con pica y aperturas escapulares controladas según el grupo a entrenar hoy.
+          </p>
+        </div>
+
+        <!-- FASE 3: SERIES DE APROXIMACIÓN -->
+        <div class="warmup-phase-card">
+          <div class="phase-headline">
+            <span class="phase-badge-num">03</span>
+            <span class="phase-name">Series de Aproximación Neuromuscular</span>
+          </div>
+          <p class="phase-detail-txt" style="margin-bottom: 10px;">
+            Aclimatación al patrón de movimiento con el 40% y 60% de tu carga efectiva sin generar fatiga metabólica:
+          </p>
+
+          <div class="sets-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Serie</th>
+                  <th>Carga (kg)</th>
+                  <th>Reps</th>
+                  <th style="text-align: right;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="warmup-row-1">
+                  <td style="color:var(--accent); font-weight:700;">S1 (40%)</td>
+                  <td><input type="number" step="0.5" id="wu-w-1" placeholder="kg" style="width:100%;"></td>
+                  <td><input type="number" id="wu-r-1" placeholder="10-12" style="width:100%;"></td>
+                  <td style="text-align: right;">
+                    <button type="button" class="btn-3d btn-small" id="wu-btn-1" onclick="completeWarmupSet(1)">Completar</button>
+                  </td>
+                </tr>
+                <tr id="warmup-row-2">
+                  <td style="color:var(--accent); font-weight:700;">S2 (60%)</td>
+                  <td><input type="number" step="0.5" id="wu-w-2" placeholder="kg" style="width:100%;"></td>
+                  <td><input type="number" id="wu-r-2" placeholder="6-8" style="width:100%;"></td>
+                  <td style="text-align: right;">
+                    <button type="button" class="btn-3d btn-small" id="wu-btn-2" onclick="completeWarmupSet(2)">Completar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="rest-day-message" class="warmup-box" style="display: none; border-color: #3b82f6;">
+      🏆 <strong>¡Día de descanso metabólico y síntesis proteica!</strong><br>
+      Permite que los depósitos de glucógeno y el sistema nervioso central se recuperen por completo (>36h). Si hoy deseas entrenar, puedes cambiar el día manualmente en el selector.
+    </div>
+
+    <!-- CONTENEDOR DE EJERCICIOS -->
+    <div id="exercises-container"></div>
+  </div>
+
+  <!-- PESTAÑA 2: HISTORIAL DE CARGAS -->
+  <div id="workout-history-tab" class="tab-content">
+    <div class="exercise-card">
+      <h2 style="color: var(--accent); margin-bottom: 8px; font-size: 1.2rem;">Historial de Cargas y Repeticiones</h2>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 14px;">
+        Registro progresivo de tus marcas en cada ejercicio.
+      </p>
+      <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+        <input type="text" id="filter-exercise" placeholder="Buscar ejercicio..." onkeyup="renderWorkoutHistory()">
+        <button class="btn-3d btn-secondary btn-small" style="background:#dc2626;" onclick="clearWorkoutHistory()">Limpiar</button>
+      </div>
+      <div class="sets-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Día</th>
+              <th>Ejercicio</th>
+              <th>Serie</th>
+              <th>Peso</th>
+              <th>Reps</th>
+            </tr>
+          </thead>
+          <tbody id="workout-history-body">
+            <tr><td colspan="6" style="color: var(--text-muted); text-align:center;">Sin registros guardados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 3: REGISTRO DE MEDIDAS -->
+  <div id="body-tab" class="tab-content">
+    <div class="exercise-card">
+      <h2 style="color: var(--accent); margin-bottom: 12px; font-size: 1.2rem;">Registrar Nuevas Medidas Corporales</h2>
+      <form id="body-form" onsubmit="saveBodyMetrics(event)">
+        <div class="grid-2">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Fecha</label>
+            <input type="date" id="body-date" required onclick="this.showPicker && this.showPicker()">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Peso Corporal (kg)</label>
+            <input type="number" step="0.1" id="body-weight" placeholder="Ej: 82.5" required>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top:10px;">
+          <div><input type="number" step="0.1" id="m-chest" placeholder="Pecho (cm)"></div>
+          <div><input type="number" step="0.1" id="m-waist" placeholder="Cintura / Ombligo (cm)"></div>
+          <div><input type="number" step="0.1" id="m-biceps" placeholder="Brazo contraído (cm)"></div>
+          <div><input type="number" step="0.1" id="m-thigh" placeholder="Muslo / Cuádriceps (cm)"></div>
+          <div><input type="number" step="0.1" id="m-glutes" placeholder="Glúteos / Cadera (cm)"></div>
+          <div><input type="number" step="0.1" id="m-calf" placeholder="Pantorrilla (cm)"></div>
+        </div>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 14px;">Guardar Registro de Medidas</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: HISTORIAL DE MEDIDAS -->
+  <div id="history-tab" class="tab-content">
+    <div class="exercise-card">
+      <h2 style="color: var(--accent); margin-bottom: 12px; font-size: 1.2rem;">Evolución Antropométrica</h2>
+      <div class="sets-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Peso</th>
+              <th>Pecho</th>
+              <th>Cintura</th>
+              <th>Brazo</th>
+              <th>Muslo</th>
+              <th>Glúteo</th>
+              <th>Gemelo</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-history-body">
+            <tr><td colspan="8" style="color: var(--text-muted); text-align:center;">Sin registros aún.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 5: FUNDAMENTOS CIENTÍFICOS -->
+  <div id="science-tab" class="tab-content">
+    <div class="exercise-card" style="line-height: 1.6; font-size:0.86rem;">
+      <h2 style="color: var(--accent); margin-bottom: 10px;">Bases de Hipertrofia (Categoría Open & Evidencia)</h2>
+      <p style="margin-bottom: 10px; color: var(--text-muted);">
+        La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>:
+      </p>
+      <ul style="padding-left: 18px; margin-bottom: 12px; color: #e2e8f0;">
+        <li><strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.</li>
+        <li><strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.</li>
+        <li><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
+        <li><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 6: COPIA DE SEGURIDAD -->
+  <div id="backup-tab" class="tab-content">
+    <div class="exercise-card">
+      <h2 style="color: var(--accent); margin-bottom: 10px; font-size: 1.2rem;">Copia de Seguridad y Datos</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 14px;">
+        Descarga tus registros en JSON o expórtalos en formato Excel/CSV.
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+        <button class="btn-3d" onclick="exportData()">Descargar Copia JSON</button>
+        <button class="btn-3d btn-secondary" onclick="document.getElementById('import-file').click()">Restaurar Copia</button>
+        <input type="file" id="import-file" style="display: none;" onchange="importData(event)">
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-3d" style="background:#15803d;" onclick="exportWorkoutExcel()">📊 Exportar Rutinas a Excel</button>
+        <button class="btn-3d" style="background:#15803d;" onclick="exportMetricsExcel()">📊 Exportar Medidas a Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDICIÓN DE PERFIL -->
+  <div id="edit-profile-modal" class="auth-overlay" style="display:none;">
+    <div class="auth-card">
+      <h2 style="color:var(--accent); text-align:center; margin-bottom:14px; font-size:1.3rem;">Editar Perfil</h2>
+      <form class="auth-form" onsubmit="saveProfileEdit(event)">
+        <div class="grid-2">
+          <div>
+            <label>Nombre</label>
+            <input type="text" id="edit-firstname" required>
+          </div>
+          <div>
+            <label>Apellido</label>
+            <input type="text" id="edit-lastname" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Peso actual (kg)</label>
+            <input type="number" step="0.1" id="edit-weight" required>
+          </div>
+          <div>
+            <label>Altura (cm)</label>
+            <input type="number" step="0.5" id="edit-height" required>
+          </div>
+        </div>
+
+        <div>
+          <label>Categoría / Objetivo</label>
+          <select id="edit-goal" required onchange="updateGoalDescription(this.value, 'edit-goal-desc')"></select>
+          <div id="edit-goal-desc" class="category-desc"></div>
+        </div>
+
+        <!-- SECCIÓN DE FECHA Y GÉNERO -->
+        <div id="permanent-fields-section" class="grid-2" style="background: rgba(0,0,0,0.3); padding:8px; border-radius:10px; border:1px solid #333;">
+          <div>
+            <label>Género</label>
+            <select id="edit-gender" onchange="filterCategoryOptions('edit-goal', this.value)">
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+            </select>
+          </div>
+          <div>
+            <label>Fecha de Nacimiento</label>
+            <input type="date" id="edit-birthdate" onclick="this.showPicker && this.showPicker()">
+          </div>
+          <span id="permanent-note" style="grid-column: 1 / -1; font-size: 0.68rem; color: var(--text-muted);">
+            ℹ️ Género y fecha de nacimiento solo pueden ser registrados una sola vez.
+          </span>
+        </div>
+
+        <button type="submit" class="btn-3d" style="width:100%; margin-top:10px;">Guardar Cambios</button>
+        <button type="button" class="btn-3d btn-secondary" style="width:100%;" onclick="document.getElementById('edit-profile-modal').style.display='none'">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // MAPA DE DESCRIPCIONES DE CATEGORÍAS Y FISIONOMÍA
+    const CATEGORY_DETAILS = {
+      open: "Men's Open: Máximo volumen muscular, densidad extrema y simetría total sin límite de peso.",
+      classic: "Classic Physique: Estética dorada (Golden Era), cintura ultra estrecha, V-Taper y vacío abdominal.",
+      mens_physique: "Men's Physique: Tren superior estético con hombros anchos 3D y cintura diminuta con bermudas.",
+      ganar_masa: "Masa General Masculina: Hipertrofia progresiva equilibrada en todo el cuerpo con sobrecarga.",
+      wellness: "Wellness: Enfoque prioritario en masa y densidad masiva de glúteos e isquiotibiales.",
+      bikini: "Bikini: Silueta suave, glúteo elevado y firme, porcentaje graso bajo sin rocosidad excesiva.",
+      mujer_gluteos: "Enfoque Glúteos & Cadena Posterior: Frecuencia 3 semanal de estímulo con tensión continua.",
+      mujer_tonificar: "Tonificación Femenina: Quema de tejido adiposo y preservación de masa muscular magra.",
+      figure: "Figure: V-Taper marcado en espalda y hombros con piernas tonificadas y definidas.",
+      womens_physique: "Women's Physique: Alta masa muscular y definición atlética profunda."
+    };
+
+    // RUTINA PROGRAMADA OPEN Y VARIACIONES POR CATEGORÍA
+    const MASTER_PROGRAMS = {
+      open: {
+        lunes: {
+          title: "LUNES: EMPUJE A (PECHO PESADO, HOMBROS LATERALES Y TRÍCEPS)",
+          exercises: [
+            { name: "Press Inclinado Máquina Convergente", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Bajada en 3s controlada, estiramiento profundo del pectoral.", sets: 4, baseMultiplier: 0.8 },
+            { name: "Press Plano con Mancuernas o Polea Cruzada", target: "4 series x 8-10 reps", rest: "RIR 0-1 | 2 min", restSeconds: 120, note: "Apertura amplia con compresión en el punto concéntrico.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Elevaciones Laterales en Polea Baja", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Tensión continua desde abajo. Mantén codos alineados.", sets: 4, baseMultiplier: 0.15 },
+            { name: "Extensión Tríceps sobre Cabeza en Polea", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Énfasis en la cabeza larga en máxima elongación.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Pushdown de Tríceps con Barra V (FST-7)", target: "7 series x 10-12 reps", rest: "30s estricto", restSeconds: 30, note: "FST-7: congestión fascial masiva.", sets: 7, isFst7: true, baseMultiplier: 0.4 }
+          ]
+        },
+        martes: {
+          title: "MARTES: TIRÓN A (ESPALDA AMPLITUD, BÍCEPS, TRAPECIO Y POSTERIOR)",
+          exercises: [
+            { name: "Jalón al Pecho Agarre Neutro Medio", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Máxima activación de dorsal sin arquear lumbar.", sets: 4, baseMultiplier: 0.75 },
+            { name: "Remo en Máquina con Apoyo de Pecho", target: "4 series x 8-10 reps", rest: "RIR 0-1 | 2 min", restSeconds: 120, note: "Tirón pegado a costillas para grosor de espalda.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Pullover en Polea Alta con Cuerda", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Aislamiento estricto de dorsales sin flexión de codo.", sets: 3, baseMultiplier: 0.35 },
+            { name: "Pájaros / Deltoides Posterior en Peck Deck", target: "4 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Reclutamiento de deltoides posterior sin trapecio.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Curl de Bíceps en Banco Scott con Polea", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Tensión mecánica pura en rango completo.", sets: 4, baseMultiplier: 0.3 },
+            { name: "Encogimientos de Trapecio con Barra o Máquina", target: "4 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Pausa de 2 segundos en contracción superior.", sets: 4, baseMultiplier: 0.8 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: PIERNA A (CUÁDRICEPS PESADO, GEMELOS Y ABDOMEN)",
+          exercises: [
+            { name: "Sentadilla Hack o Prensa Inclinada 45°", target: "4 series x 6-8 reps", rest: "RIR 1 | 3 min", restSeconds: 180, note: "Profundidad máxima respetando curvatura lumbar neutra.", sets: 4, baseMultiplier: 1.2 },
+            { name: "Prensa de Piernas (Pies Bajos)", target: "4 series x 8-10 reps", rest: "RIR 0-1 | 2 min", restSeconds: 120, note: "Enfocado en vasto externo e intermedio.", sets: 4, baseMultiplier: 1.4 },
+            { name: "Extensión de Cuádriceps en Máquina (FST-7)", target: "7 series x 10-12 reps", rest: "30s estricto", restSeconds: 30, note: "Pausa isométrica de 1 segundo arriba.", sets: 7, isFst7: true, baseMultiplier: 0.5 },
+            { name: "Elevación de Talones de Pie para Pantorrilla", target: "5 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Pausa profunda de 3 segundos en máximo estiramiento.", sets: 5, baseMultiplier: 0.7 },
+            { name: "Crunch Abdominal en Polea Alta", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Flexión espinal consciente expulsando todo el aire.", sets: 4, baseMultiplier: 0.4 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: EMPUJE B (HOMBROS 3D, PECHO CLAVICULAR Y TRÍCEPS)",
+          exercises: [
+            { name: "Press Militar en Máquina o Multipower", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Estabilidad del core sin arquear columna.", sets: 4, baseMultiplier: 0.65 },
+            { name: "Cruce de Poleas de Abajo hacia Arriba", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Fibras claviculares superiores del pectoral.", sets: 4, baseMultiplier: 0.25 },
+            { name: "Elevaciones Laterales con Mancuerna o Cable", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Cadencia 2-0-2.", sets: 4, baseMultiplier: 0.15 },
+            { name: "Aperturas en Peck Deck (FST-7)", target: "7 series x 10-12 reps", rest: "30s", restSeconds: 30, note: "FST-7 para bombeo sanguíneo pectoral profundo.", sets: 7, isFst7: true, baseMultiplier: 0.4 },
+            { name: "Extensión Katana Tríceps en Polea", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Brazos cruzados en ángulo escapular.", sets: 4, baseMultiplier: 0.25 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: PIERNA B (ISQUIOS, GLÚTEOS, ABDUCTORES) + GROSOR DE ESPALDA Y ANTEBRAZO",
+          exercises: [
+            { name: "Peso Muerto Rumano con Barra (RDL)", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Cadera hacia atrás, estiramiento profundo de isquios.", sets: 4, baseMultiplier: 1.0 },
+            { name: "Curl Femoral Sentado en Máquina (FST-7)", target: "7 series x 8-10 reps", rest: "30s estricto", restSeconds: 30, note: "FST-7: cadera pegada firmemente al respaldo.", sets: 7, isFst7: true, baseMultiplier: 0.5 },
+            { name: "Hip Thrust Pesado en Máquina o Multipower", target: "4 series x 8-10 reps", rest: "RIR 0 | 2 min", restSeconds: 120, note: "Bloqueo pélvico arriba de 1 segundo.", sets: 4, baseMultiplier: 1.1 },
+            { name: "Abducción de Cadera en Máquina", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Glúteo medio y estabilidad lateral de cadera.", sets: 4, baseMultiplier: 0.6 },
+            { name: "Remo Unilateral en Polea Baja (Grosor)", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Trapecio medio y romboides en contracción completa.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Curl de Muñeca para Antebrazos en Polea", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Flexores de muñeca para antebrazos macizos.", sets: 4, baseMultiplier: 0.3 }
+          ]
+        }
+      },
+      wellness: {
+        lunes: {
+          title: "LUNES: GLÚTEO ESTRUCTURAL Y CADENA POSTERIOR",
+          exercises: [
+            { name: "Hip Thrust con Barra / Multipower", target: "4 series x 8-10 reps", rest: "RIR 0-1 | 2.5 min", restSeconds: 150, note: "Retroversión pélvica arriba, empuje desde talones.", sets: 4, baseMultiplier: 0.9 },
+            { name: "Peso Muerto Rumano con Mancuernas", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Flexión de cadera profunda sin flexionar rodillas en exceso.", sets: 4, baseMultiplier: 0.5 },
+            { name: "Patada de Glúteo en Polea", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Línea diagonal a 45 grados.", sets: 4, baseMultiplier: 0.2 },
+            { name: "Abducción de Cadera en Máquina (FST-7)", target: "7 series x 12-15 reps", rest: "30s", restSeconds: 30, note: "FST-7 para expansión de glúteo medio.", sets: 7, isFst7: true, baseMultiplier: 0.5 }
+          ]
+        },
+        martes: {
+          title: "MARTES: ESPALDA V-TAPER, HOMBROS Y ABDOMEN",
+          exercises: [
+            { name: "Jalón al Pecho Agarre Abierto", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Creación de silueta en V para afinar cintura visualmente.", sets: 4, baseMultiplier: 0.5 },
+            { name: "Remo con Mancuerna Unilateral", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Codo pegado al torso.", sets: 3, baseMultiplier: 0.25 },
+            { name: "Elevaciones Laterales en Cable", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Deltoides lateral redondo.", sets: 4, baseMultiplier: 0.1 },
+            { name: "Vacío Abdominal y Plancha Dinámica", target: "4 series x 30-40s", rest: "RIR 0 | 60s", restSeconds: 60, note: "Activación del transverso abdominal para cintura ceñida.", sets: 4, baseMultiplier: 0 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: CUÁDRICEPS ENFOQUE Y PANTORRILLAS",
+          exercises: [
+            { name: "Sentadilla Búlgara con Mancuernas", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Torso erguido para cargar cuádriceps.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Prensa de Piernas Inclinada", target: "4 series x 10-12 reps", rest: "RIR 0-1 | 2 min", restSeconds: 120, note: "Pies juntos y bajos en la plataforma.", sets: 4, baseMultiplier: 1.1 },
+            { name: "Extensión de Cuádriceps (FST-7)", target: "7 series x 12 reps", rest: "30s", restSeconds: 30, note: "Bombeo metabólico sin balanceo.", sets: 7, isFst7: true, baseMultiplier: 0.4 },
+            { name: "Elevación de Talones en Máquina", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Estiramiento profundo.", sets: 4, baseMultiplier: 0.5 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: DESCANSO O CARDIO LISS",
+          exercises: []
+        },
+        viernes: {
+          title: "VIERNES: GLÚTEOS TOTALES E ISQUIOTIBIALES",
+          exercises: [
+            { name: "Hip Thrust Unilateral o en Smith", target: "4 series x 10-12 reps", rest: "RIR 0 | 2 min", restSeconds: 120, note: "Contracción máxima en el ápice.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Curl Femoral Tumbado o Sentado", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Mantén tobillos dorsiflexionados.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Prensa Pies Altos y Separados", target: "4 series x 10-12 reps", rest: "RIR 0 | 2 min", restSeconds: 120, note: "Énfasis en glúteo mayor.", sets: 4, baseMultiplier: 1.0 },
+            { name: "Patada en Polea Cruzada (FST-7)", target: "7 series x 12-15 reps", rest: "30s", restSeconds: 30, note: "Congestión total de glúteo.", sets: 7, isFst7: true, baseMultiplier: 0.2 }
+          ]
+        }
+      },
+
+      classic: {
+        lunes: {
+          title: "LUNES: DELTOIDES + PECTORAL SUPERIOR (Classic)",
+          exercises: [
+            { name: "Press Militar en Multipower", target: "4 series x 6-8 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "V-taper y hombros redondos.", sets: 4, baseMultiplier: 0.5 },
+            { name: "Elevaciones Laterales en Polea", target: "5 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Ancho de hombros prioritario.", sets: 5, baseMultiplier: 0.12 },
+            { name: "Press Inclinado con Mancuernas 30°", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Pecho superior.", sets: 4, baseMultiplier: 0.65 },
+            { name: "Aberturas Inclinadas en Polea", target: "3 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Estiramiento clavicular.", sets: 3, baseMultiplier: 0.2 },
+            { name: "Vacío Abdominal", target: "4 series x 20-30s", rest: "60s", restSeconds: 60, note: "Cintura estrecha.", sets: 4, baseMultiplier: 0 }
+          ]
+        },
+        martes: {
+          title: "MARTES: ESPALDA V-TAPER + BÍCEPS (Classic)",
+          exercises: [
+            { name: "Jalón Agarre Neutro Cerrado", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Amplitud de dorsales.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Remo Unilateral con Mancuerna", target: "4 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Grosor controlado.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Pullover con Mancuerna", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Expansión torácica.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Curl Araña con Barra Z", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Bíceps en estiramiento.", sets: 4, baseMultiplier: 0.28 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: CUÁDRICEPS + GEMELOS (Classic)",
+          exercises: [
+            { name: "Sentadilla Frontal o Péndulo", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Teardrop y proporciones.", sets: 4, baseMultiplier: 0.9 },
+            { name: "Extensiones de Cuádriceps", target: "4 series x 12-15 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Pausa de 1s arriba.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Sissy Squat o Máquina", target: "3 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Cuádriceps inferior.", sets: 3, baseMultiplier: 0.2 },
+            { name: "Elevación de Talones de Pie", target: "5 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Gemelos definidos.", sets: 5, baseMultiplier: 0.55 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: TORSO COMPLETO (Classic)",
+          exercises: [
+            { name: "Press de Pecho en Máquina", target: "3 series x 8-10 reps", rest: "RIR 1 | 90s", restSeconds: 90, note: "Densidad de pecho.", sets: 3, baseMultiplier: 0.6 },
+            { name: "Remo en Polea con Cuerda", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Espalda media.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Elevaciones Laterales Sentado", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Ancho de hombros.", sets: 4, baseMultiplier: 0.1 },
+            { name: "Extensión Unilateral de Tríceps", target: "4 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Detalle de tríceps.", sets: 4, baseMultiplier: 0.25 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: CADENA POSTERIOR (Classic)",
+          exercises: [
+            { name: "Peso Muerto Rumano con Barra", target: "4 series x 6-8 reps", rest: "RIR 1 | 2.5 min", restSeconds: 150, note: "Isquios y glúteos.", sets: 4, baseMultiplier: 0.85 },
+            { name: "Curl Femoral Sentado", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Femorales definidos.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Zancadas Búlgaras", target: "3 series x 10 reps/pierna", rest: "RIR 0 | 90s", restSeconds: 90, note: "Estabilidad y glúteo.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Encogimientos de Trapecio", target: "3 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Trapecio superior controlado.", sets: 3, baseMultiplier: 0.5 }
+          ]
+        }
+      },
+
+      mens_physique: {
+        lunes: {
+          title: "LUNES: DELTOIDES COMPLETO (Physique)",
+          exercises: [
+            { name: "Elevación Lateral en Polea Cruzada", target: "5 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros 3D prioritarios.", sets: 5, baseMultiplier: 0.12 },
+            { name: "Press con Mancuernas Sentado", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Deltoides anterior controlado.", sets: 4, baseMultiplier: 0.45 },
+            { name: "Pájaros en Banco Inclinado", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Deltoides posterior.", sets: 4, baseMultiplier: 0.15 },
+            { name: "Elevaciones Frontales en Polea", target: "3 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Completar el deltoides.", sets: 3, baseMultiplier: 0.1 }
+          ]
+        },
+        martes: {
+          title: "MARTES: ESPALDA V-SHAPE (Physique)",
+          exercises: [
+            { name: "Jalón Abierto al Pecho", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Amplitud máxima.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Remo en Polea Alta Agarre Neutro", target: "4 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Grosor superior.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Pullover en Polea Alta", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Expansión de dorsales.", sets: 4, baseMultiplier: 0.3 },
+            { name: "Remo en Máquina Hammer", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Densidad de espalda.", sets: 3, baseMultiplier: 0.55 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: PECHO SUPERIOR + BRAZOS (Physique)",
+          exercises: [
+            { name: "Press Inclinado en Multipower", target: "4 series x 6-8 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Pecho superior.", sets: 4, baseMultiplier: 0.65 },
+            { name: "Cruces en Polea de Abajo hacia Arriba", target: "4 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Haz clavicular.", sets: 4, baseMultiplier: 0.2 },
+            { name: "Curl de Bíceps con Barra", target: "4 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Bíceps visible.", sets: 4, baseMultiplier: 0.3 },
+            { name: "Extensión de Tríceps en Polea", target: "4 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Tríceps definido.", sets: 4, baseMultiplier: 0.3 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: PIERNA FUNCIONAL (Mantenimiento)",
+          exercises: [
+            { name: "Prensa de Piernas", target: "3 series x 10-12 reps", rest: "RIR 1 | 90s", restSeconds: 90, note: "Volumen de mantenimiento.", sets: 3, baseMultiplier: 1.0 },
+            { name: "Curl Femoral Sentado", target: "3 series x 12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Isquios funcionales.", sets: 3, baseMultiplier: 0.35 },
+            { name: "Extensiones de Cuádriceps", target: "3 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Tono de cuádriceps.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Gemelos de Pie", target: "3 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Gemelos visibles.", sets: 3, baseMultiplier: 0.5 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: DENSIDAD DE TORSO + ABDOMEN (Physique)",
+          exercises: [
+            { name: "Elevaciones Laterales en Máquina", target: "5 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros redondos.", sets: 5, baseMultiplier: 0.15 },
+            { name: "Jalón al Pecho Agarre V", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Dorsales densos.", sets: 3, baseMultiplier: 0.65 },
+            { name: "Press Inclinado con Mancuernas", target: "3 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Pecho superior.", sets: 3, baseMultiplier: 0.55 },
+            { name: "Crunch en Polea Alta", target: "4 series x 15-20 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Abdomen marcado.", sets: 4, baseMultiplier: 0 },
+            { name: "Elevaciones de Piernas en Paralelas", target: "4 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Core estricto.", sets: 4, baseMultiplier: 0 }
+          ]
+        }
+      },
+
+      bikini: {
+        lunes: {
+          title: "LUNES: GLÚTEO + ISQUIOS (Bikini)",
+          exercises: [
+            { name: "Hip Thrust con Barra + Banda", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Glúteo redondo y elevado.", sets: 4, baseMultiplier: 0.9 },
+            { name: "Peso Muerto Rumano con Mancuernas", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Cadera atrás.", sets: 4, baseMultiplier: 0.45 },
+            { name: "Patada de Glúteo en Polea", target: "3 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Aislamiento.", sets: 3, baseMultiplier: 0.12 },
+            { name: "Curl Femoral Tumbado", target: "3 series x 12-15 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Femorales definidos.", sets: 3, baseMultiplier: 0.3 }
+          ]
+        },
+        martes: {
+          title: "MARTES: HOMBROS + ESPALDA (Bikini)",
+          exercises: [
+            { name: "Elevaciones Laterales en Polea", target: "5 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros redondos sin exceso.", sets: 5, baseMultiplier: 0.08 },
+            { name: "Face Pull con Cuerda", target: "4 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Deltoides posterior.", sets: 4, baseMultiplier: 0.15 },
+            { name: "Jalón al Pecho Agarre Neutro", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Espalda estética.", sets: 3, baseMultiplier: 0.45 },
+            { name: "Remo en Polea Baja", target: "3 series x 12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Espalda media.", sets: 3, baseMultiplier: 0.25 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: GLÚTEO MEDIO + ABDUCTORES (Bikini)",
+          exercises: [
+            { name: "Abductores en Máquina", target: "4 series x 15-20 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Glúteo medio elevado.", sets: 4, baseMultiplier: 0.2 },
+            { name: "Zancadas Búlgaras Inclinadas", target: "3 series x 10-12 reps/pierna", rest: "RIR 0 | 90s", restSeconds: 90, note: "Foco en glúteo.", sets: 3, baseMultiplier: 0.2 },
+            { name: "Puente de Glúteos Unilateral", target: "3 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Aislamiento unilateral.", sets: 3, baseMultiplier: 0.15 },
+            { name: "Hiperextensiones a 45°", target: "3 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Glúteo sin erectores.", sets: 3, baseMultiplier: 0 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: HOMBROS 3D + BRAZOS LIVIANOS (Bikini)",
+          exercises: [
+            { name: "Elevaciones Laterales Sentado", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros redondos.", sets: 4, baseMultiplier: 0.08 },
+            { name: "Press Militar con Mancuernas", target: "3 series x 10-12 reps", rest: "RIR 1 | 90s", restSeconds: 90, note: "Deltoides controlado.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Extensión de Tríceps en Polea", target: "2 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Tono de tríceps.", sets: 2, baseMultiplier: 0.2 },
+            { name: "Curl de Bíceps con Mancuernas", target: "2 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Tono de bíceps.", sets: 2, baseMultiplier: 0.15 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: FULL GLÚTEO Y FEMORAL (Bikini)",
+          exercises: [
+            { name: "Kas Glute Bridge", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Glúteo con tensión continua.", sets: 4, baseMultiplier: 0.7 },
+            { name: "Curl Femoral Sentado", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Isquios.", sets: 4, baseMultiplier: 0.3 },
+            { name: "Step-ups en Cajón", target: "3 series x 12 reps/lado", rest: "RIR 0 | 60s", restSeconds: 60, note: "Glúteo funcional.", sets: 3, baseMultiplier: 0.15 },
+            { name: "Cable Pull-Through", target: "3 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Cadena posterior.", sets: 3, baseMultiplier: 0.2 }
+          ]
+        }
+      },
+
+      figure: {
+        lunes: {
+          title: "LUNES: HOMBROS Y PECTORAL SUPERIOR (Figure)",
+          exercises: [
+            { name: "Press Militar con Mancuernas", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Hombros prominentes.", sets: 4, baseMultiplier: 0.4 },
+            { name: "Elevaciones Laterales en Polea", target: "4 series x 10-12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Ancho de hombros.", sets: 4, baseMultiplier: 0.1 },
+            { name: "Press Inclinado en Máquina", target: "3 series x 8-10 reps", rest: "RIR 1 | 90s", restSeconds: 90, note: "Pecho superior.", sets: 3, baseMultiplier: 0.5 },
+            { name: "Pájaros en Peck Deck", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Deltoides posterior.", sets: 4, baseMultiplier: 0.2 }
+          ]
+        },
+        martes: {
+          title: "MARTES: ESPALDA COMPLETA (Figure)",
+          exercises: [
+            { name: "Dominadas o Jalón Asistido", target: "4 series x 6-8 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Amplitud de dorsales.", sets: 4, baseMultiplier: 0.6 },
+            { name: "Remo con Apoyo en Pecho", target: "4 series x 8-10 reps", rest: "RIR 0 | 2 min", restSeconds: 120, note: "Grosor de espalda.", sets: 4, baseMultiplier: 0.5 },
+            { name: "Jalón Frontal Agarre Amplio", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Amplitud.", sets: 3, baseMultiplier: 0.55 },
+            { name: "Pullover en Polea", target: "3 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Expansión.", sets: 3, baseMultiplier: 0.25 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: TREN INFERIOR CUÁDRICEPS (Figure)",
+          exercises: [
+            { name: "Hack Squat", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Cuádriceps definidos.", sets: 4, baseMultiplier: 0.85 },
+            { name: "Prensa 45°", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Volumen de piernas.", sets: 4, baseMultiplier: 1.1 },
+            { name: "Extensiones de Cuádriceps", target: "4 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Corte de cuádriceps.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Gemelos en Máquina", target: "4 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Gemelos.", sets: 4, baseMultiplier: 0.45 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: BRAZOS Y HOMBROS (Figure)",
+          exercises: [
+            { name: "Elevaciones Laterales con Mancuernas", target: "4 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros.", sets: 4, baseMultiplier: 0.1 },
+            { name: "Fondos en Máquina", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Tríceps.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Extensión en Polea con Barra V", target: "3 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Detalle de tríceps.", sets: 3, baseMultiplier: 0.25 },
+            { name: "Curl en Banco Scott", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Bíceps.", sets: 3, baseMultiplier: 0.22 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: CADENA POSTERIOR (Figure)",
+          exercises: [
+            { name: "Peso Muerto Rumano con Barra", target: "4 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Isquios y glúteos.", sets: 4, baseMultiplier: 0.75 },
+            { name: "Curl Femoral Acostado", target: "4 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Femorales.", sets: 4, baseMultiplier: 0.35 },
+            { name: "Hip Thrust con Barra", target: "3 series x 8-10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Glúteos firmes.", sets: 3, baseMultiplier: 0.85 },
+            { name: "Zancadas hacia Atrás", target: "3 series x 10 reps/lado", rest: "RIR 0 | 90s", restSeconds: 90, note: "Equilibrio y glúteo.", sets: 3, baseMultiplier: 0.2 }
+          ]
+        }
+      },
+
+      tonificacion: {
+        lunes: {
+          title: "LUNES: TORSO COMPLETO (Tonificación)",
+          exercises: [
+            { name: "Press de Banca con Mancuernas", target: "3 series x 8-10 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Pecho equilibrado.", sets: 3, baseMultiplier: 0.5 },
+            { name: "Jalón al Pecho Agarre Neutro", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Espalda.", sets: 3, baseMultiplier: 0.5 },
+            { name: "Elevaciones Laterales en Polea", target: "2 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Hombros.", sets: 2, baseMultiplier: 0.08 },
+            { name: "Extensión de Tríceps + Curl Bíceps", target: "2 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Brazos ligeros.", sets: 2, baseMultiplier: 0.2 }
+          ]
+        },
+        martes: {
+          title: "MARTES: TREN INFERIOR (Tonificación)",
+          exercises: [
+            { name: "Prensa de Piernas", target: "3 series x 10-12 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Piernas equilibradas.", sets: 3, baseMultiplier: 0.9 },
+            { name: "Hip Thrust con Barra", target: "3 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Glúteos.", sets: 3, baseMultiplier: 0.7 },
+            { name: "Curl Femoral Sentado", target: "2 series x 12-15 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Isquios.", sets: 2, baseMultiplier: 0.3 },
+            { name: "Elevación de Talones", target: "2 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Gemelos.", sets: 2, baseMultiplier: 0.4 }
+          ]
+        },
+        miercoles: {
+          title: "MIÉRCOLES: EMPUJE + CORE (Tonificación)",
+          exercises: [
+            { name: "Press Inclinado en Máquina", target: "2 series x 10-12 reps", rest: "RIR 1 | 90s", restSeconds: 90, note: "Pecho.", sets: 2, baseMultiplier: 0.45 },
+            { name: "Press Militar con Mancuernas", target: "3 series x 10 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Hombros.", sets: 3, baseMultiplier: 0.3 },
+            { name: "Fondos en Máquina", target: "2 series x 12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Tríceps.", sets: 2, baseMultiplier: 0.25 },
+            { name: "Elevaciones de Piernas", target: "3 series x 15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Core.", sets: 3, baseMultiplier: 0 }
+          ]
+        },
+        jueves: {
+          title: "JUEVES: TIRÓN + DELTOIDES POSTERIOR (Tonificación)",
+          exercises: [
+            { name: "Remo en Polea Baja", target: "3 series x 10-12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Espalda.", sets: 3, baseMultiplier: 0.35 },
+            { name: "Pullover en Polea", target: "2 series x 12-15 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Dorsales.", sets: 2, baseMultiplier: 0.25 },
+            { name: "Face Pulls", target: "3 series x 15-20 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Deltoides posterior.", sets: 3, baseMultiplier: 0.12 },
+            { name: "Curl Martillo", target: "2 series x 12 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Bíceps.", sets: 2, baseMultiplier: 0.18 }
+          ]
+        },
+        viernes: {
+          title: "VIERNES: CADENA POSTERIOR Y GLÚTEO (Tonificación)",
+          exercises: [
+            { name: "Peso Muerto Rumano con Mancuernas", target: "3 series x 10-12 reps", rest: "RIR 1 | 2 min", restSeconds: 120, note: "Isquios y glúteos.", sets: 3, baseMultiplier: 0.4 },
+            { name: "Sentadilla Goblet", target: "2 series x 12 reps", rest: "RIR 0 | 90s", restSeconds: 90, note: "Cuádriceps y core.", sets: 2, baseMultiplier: 0.25 },
+            { name: "Abductores en Máquina", target: "2 series x 15-20 reps", rest: "RIR 0 | 60s", restSeconds: 60, note: "Glúteo medio.", sets: 2, baseMultiplier: 0.15 },
+            { name: "Plancha Abdominal", target: "3 series x 45s", rest: "RIR 0 | 60s", restSeconds: 60, note: "Core isométrico.", sets: 3, baseMultiplier: 0 }
+          ]
+        }
+      }
+    };
+
+    // Función que elige el programa correcto según la categoría del usuario
+    function getProgramForUser(userData) {
+      const goal = (userData && userData.goal) || 'open';
+      const map = {
+        open: 'open',
+        '212': 'open',
+        classic: 'classic',
+        mens_physique: 'mens_physique',
+        muscular_physique: 'mens_physique',
+        ganar_masa: 'tonificacion',
+        wellness: 'wellness',
+        bikini: 'bikini',
+        mujer_gluteos: 'wellness',
+        mujer_tonificar: 'tonificacion',
+        figure: 'figure',
+        womens_physique: 'figure',
+        ms_olympia: 'open',
+        fitness: 'figure'
+      };
+      const key = map[goal] || 'open';
+      return MASTER_PROGRAMS[key] || MASTER_PROGRAMS.open;
+    }
+
+    let currentUser = null;
+    let timerInterval = null;
+    let timerSeconds = 0;
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7LFb_dF9hmOUousmZpCaqksPoyZ78Q3bvUKhIj4VmmLjHoqxTFTIJF0dz6gxYpNbXaw/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      displayCurrentDate();
+      checkActiveUserSession();
+    });
+
+    function displayCurrentDate() {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const todayStr = new Date().toLocaleDateString('es-ES', options);
+      document.getElementById('current-date-display').innerText = todayStr.charAt(0).toUpperCase() + todayStr.slice(1);
+    }
+
+    // ====== CAPA DE NUBE (Supabase) ======
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    let cloudUserId = null;
+    let profileCache = null;           // perfil del usuario activo
+    const dataCache = new Map();       // clave -> string JSON (misma forma que el antiguo localStorage)
+
+    // Almacén con la misma API que localStorage, respaldado en Supabase (tabla user_data)
+    const cloudStore = {
+      getItem(k) { return dataCache.has(k) ? dataCache.get(k) : null; },
+      setItem(k, v) {
+        v = String(v); dataCache.set(k, v);
+        let val; try { val = JSON.parse(v); } catch { val = v; }
+        sb.from('user_data').upsert({ user_id: cloudUserId, key: k, value: val, updated_at: new Date().toISOString() })
+          .then(({ error }) => { if (error) { console.error(error); alert('⚠️ No se pudo guardar en la nube. Revisa tu conexión.'); } });
+      },
+      removeItem(k) {
+        dataCache.delete(k);
+        sb.from('user_data').delete().eq('user_id', cloudUserId).eq('key', k)
+          .then(({ error }) => { if (error) console.error(error); });
+      },
+      keys() { return Array.from(dataCache.keys()); }
+    };
+
+    async function loadCloudData() {
+      const { data, error } = await sb.from('user_data').select('key,value').eq('user_id', cloudUserId);
+      if (error) throw error;
+      dataCache.clear();
+      (data || []).forEach(r => dataCache.set(r.key, typeof r.value === 'string' ? r.value : JSON.stringify(r.value)));
+    }
+
+    function profileFromRow(r, email) {
+      return {
+        firstname: r.first_name || '', lastname: r.last_name || '',
+        fullname: `${r.first_name || ''} ${r.last_name || ''}`.trim() || email,
+        gender: r.gender || '', birthdate: r.birth_date || '',
+        age: calculateAge(r.birth_date), weight: r.weight, height: r.height, goal: r.goal || ''
+      };
+    }
+
+    // Compatibilidad: el resto de la app sigue usando getUsersDB()[currentUser]
+    function getUsersDB() {
+      return (currentUser && profileCache) ? { [currentUser]: profileCache } : {};
+    }
+
+    function saveUsersDB(db) {
+      const u = db[currentUser]; if (!u) return;
+      profileCache = u;
+      sb.from('profiles').update({
+        first_name: u.firstname, last_name: u.lastname, gender: u.gender || null,
+        birth_date: u.birthdate || null, weight: isNaN(u.weight) ? null : u.weight,
+        height: isNaN(u.height) ? null : u.height, goal: u.goal
+      }).eq('id', cloudUserId).then(({ error }) => { if (error) { console.error(error); alert('⚠️ No se pudo guardar el perfil en la nube.'); } });
+    }
+
+    function calculateAge(dobString) {
+      if (!dobString) return '-';
+      const today = new Date();
+      const birthDate = new Date(dobString);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    function getTodayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getISOWeek(date = new Date()) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    }
+
+    // FILTRO DINÁMICO DE CATEGORÍAS SEGÚN GÉNERO
+    function filterCategoryOptions(selectId, gender) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      select.innerHTML = '<option value="">Selecciona objetivo...</option>';
+
+      if (gender === 'hombre') {
+        select.innerHTML += `
+          <option value="open">Men's Open Bodybuilding</option>
+          <option value="classic">Classic Physique</option>
+          <option value="mens_physique">Men's Physique</option>
+          <option value="ganar_masa">Masa Muscular General</option>
+        `;
+      } else if (gender === 'mujer') {
+        select.innerHTML += `
+          <option value="wellness">Wellness (Glúteos & Isquios)</option>
+          <option value="bikini">Bikini (Estética y Cintura Fina)</option>
+          <option value="mujer_gluteos">Enfoque Exclusivo Glúteos</option>
+          <option value="mujer_tonificar">Tonificación y Pérdida Grasa</option>
+          <option value="figure">Figure</option>
+          <option value="womens_physique">Women's Physique</option>
+        `;
+      }
+    }
+
+    function updateGoalDescription(goalVal, descId) {
+      const descEl = document.getElementById(descId);
+      if (!descEl) return;
+      if (CATEGORY_DETAILS[goalVal]) {
+        descEl.style.display = 'block';
+        descEl.innerText = CATEGORY_DETAILS[goalVal];
+      } else {
+        descEl.style.display = 'none';
+      }
+    }
+
+    // ==============================================================
+    // CALENTAMIENTO - CRONÓMETRO CARDIO CON TOGGLE INMEDIATO
+    // ==============================================================
+    let warmupTimerInterval = null;
+    let warmupTimerSeconds = 480; // 8 minutos
+    let warmupTimerRunning = false;
+    let warmupTimerStartedOnce = false;
+
+    function updateWarmupTimerDisplay() {
+      const m = Math.floor(warmupTimerSeconds / 60);
+      const s = warmupTimerSeconds % 60;
+      const el = document.getElementById('warmup-timer-display');
+      if (el) el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    // Función Toggle: cambia inmediatamente entre Iniciar/Pausar/Reanudar
+    function toggleWarmupTimer() {
+      const btn = document.getElementById('btn-warmup-toggle');
+      const status = document.getElementById('warmup-cardio-status');
+
+      if (!warmupTimerRunning) {
+        // INICIAR O REANUDAR
+        if (warmupTimerSeconds <= 0) {
+          warmupTimerSeconds = 480; // reinicia si ya concluyó
+          updateWarmupTimerDisplay();
+        }
+        warmupTimerRunning = true;
+        warmupTimerStartedOnce = true;
+
+        if (btn) {
+          btn.innerHTML = '<span>⏸ Pausar</span>';
+          btn.classList.add('is-running');
+        }
+        if (status) {
+          status.innerText = 'Cardio en curso... Mantén cadencia constante.';
+          status.style.color = 'var(--orange-light)';
+        }
+
+        warmupTimerInterval = setInterval(() => {
+          if (warmupTimerSeconds > 0) {
+            warmupTimerSeconds--;
+            updateWarmupTimerDisplay();
+          } else {
+            clearInterval(warmupTimerInterval);
+            warmupTimerRunning = false;
+            if (btn) {
+              btn.innerHTML = '<span>▶ Iniciar</span>';
+              btn.classList.remove('is-running');
+            }
+            if (status) {
+              status.innerText = '¡Fase de cardio completada con éxito!';
+              status.style.color = 'var(--success)';
+            }
+            playBeep();
+          }
+        }, 1000);
+      } else {
+        // PAUSAR INMEDIATAMENTE
+        clearInterval(warmupTimerInterval);
+        warmupTimerInterval = null;
+        warmupTimerRunning = false;
+
+        if (btn) {
+          btn.innerHTML = '<span>▶ Reanudar</span>';
+          btn.classList.remove('is-running');
+        }
+        if (status) {
+          status.innerText = 'Cardio en pausa.';
+          status.style.color = '#f59e0b';
+        }
+      }
+    }
+
+    // Terminar cardio (botón separado)
+    function finishWarmupCardio() {
+      if (warmupTimerInterval) {
+        clearInterval(warmupTimerInterval);
+        warmupTimerInterval = null;
+      }
+      warmupTimerRunning = false;
+
+      const btn = document.getElementById('btn-warmup-toggle');
+      if (btn) {
+        btn.innerHTML = '<span>▶ Iniciar</span>';
+        btn.classList.remove('is-running');
+      }
+
+      const status = document.getElementById('warmup-cardio-status');
+      if (status) {
+        status.innerText = '✓ Fase de cardio registrada como terminada.';
+        status.style.color = 'var(--success)';
+      }
+      sessionStorage.setItem('warmup_cardio_done_' + getTodayISO(), 'true');
+    }
+
+    // SERIES DE APROXIMACIÓN DEL CALENTAMIENTO
+    function completeWarmupSet(setNum) {
+      const btn = document.getElementById('wu-btn-' + setNum);
+      const row = document.getElementById('warmup-row-' + setNum);
+      if (!btn || !row) return;
+
+      btn.classList.add('btn-complete');
+      btn.innerText = '✓ Lista';
+      row.style.background = 'rgba(16, 185, 129, 0.08)';
+
+      // Iniciar descanso de 30 segundos
+      if (setNum < 2) {
+        startTimer(30, 'DESCANSO APROXIMACIÓN');
+      }
+    }
+
+    // OBTENER RECOMENDACIÓN DE CARGA
+    function getRecommendedWeight(exName, multiplier, userWeight) {
+      if (!currentUser) return 20;
+      const historyKey = `gym_workout_history_${currentUser}`;
+      const history = JSON.parse(cloudStore.getItem(historyKey) || '[]');
+      
+      const records = history
+        .filter(item => item.exercise === exName && item.weight && parseFloat(item.weight) > 0)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if (records.length > 0) {
+        const lastWeight = parseFloat(records[0].weight);
+        const lastReps = parseInt(records[0].reps || 8);
+        if (lastReps >= 10) {
+          return `${lastWeight + 2.5} kg (Progresión: +2.5kg por superar reps)`;
+        }
+        return `${lastWeight} kg (Mantener carga anterior)`;
+      }
+
+      // Estimado inicial muy conservador para principiantes absolutos (nunca entrenaron)
+      // Se reduce el multiplicador base para evitar cargas exageradas en la primera sesión
+      const beginnerFactor = 0.40; // ~40% del multiplicador original
+      const adjustedMultiplier = (multiplier || 0.4) * beginnerFactor;
+      let initial = Math.round((userWeight || 70) * adjustedMultiplier * 2) / 2;
+
+      // Piso mínimo seguro según tipo de ejercicio
+      if (multiplier >= 0.6) {
+        initial = Math.max(initial, 15); // compuestos / máquinas grandes
+      } else if (multiplier >= 0.3) {
+        initial = Math.max(initial, 7.5); // aislamiento medio
+      } else {
+        initial = Math.max(initial, 5);   // laterales, abducción, etc.
+      }
+
+      return `${initial} kg (Estimado inicial - principiante)`;
+    }
+
+    function getPreviousExerciseData(exName, setNum) {
+      if (!currentUser) return { weight: '-', reps: '-' };
+      const historyKey = `gym_workout_history_${currentUser}`;
+      const history = JSON.parse(cloudStore.getItem(historyKey) || '[]');
+      const todayStr = getTodayISO();
+
+      const pastRecords = history
+        .filter(item => item.exercise === exName && item.setNum === setNum && item.date !== todayStr)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if (pastRecords.length > 0) {
+        return { weight: pastRecords[0].weight, reps: pastRecords[0].reps };
+      }
+      return { weight: '-', reps: '-' };
+    }
+
+    // CARGAR RUTINA DEL DÍA
+    function loadWorkoutDay(dayKey) {
+      if (!currentUser) return;
+
+      const container = document.getElementById('exercises-container');
+      const restMsg = document.getElementById('rest-day-message');
+      const detectedLabel = document.getElementById('detected-day-name');
+      const warmupSec = document.getElementById('warmup-section');
+
+      const dayNames = {
+        lunes: "Lunes", martes: "Martes", miercoles: "Miércoles",
+        jueves: "Jueves", viernes: "Viernes", descanso: "Día de Descanso"
+      };
+
+      detectedLabel.innerText = dayNames[dayKey] || dayKey;
+      container.innerHTML = '';
+
+      const usersDB = getUsersDB();
+      const userData = usersDB[currentUser] || {};
+      const program = getProgramForUser(userData);
+
+      if (dayKey === 'descanso' || !program[dayKey] || program[dayKey].exercises.length === 0) {
+        restMsg.style.display = 'block';
+        warmupSec.style.display = 'none';
+        container.style.display = 'none';
+        return;
+      } else {
+        restMsg.style.display = 'none';
+        warmupSec.style.display = 'block';
+        container.style.display = 'block';
+      }
+
+      const dayData = program[dayKey];
+
+      dayData.exercises.forEach((ex, exIdx) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.id = `card_${dayKey}_${exIdx}`;
+
+        let setsRows = '';
+        let completedSetsCount = 0;
+        const recommended = getRecommendedWeight(ex.name, ex.baseMultiplier, userData.weight);
+
+        for (let s = 1; s <= ex.sets; s++) {
+          const savedData = getSavedSetData(dayKey, exIdx, s);
+          const prevData = getPreviousExerciseData(ex.name, s);
+          const isDone = savedData.completed;
+
+          if (isDone) completedSetsCount++;
+
+          setsRows += `
+            <tr id="row_${dayKey}_${exIdx}_${s}" class="set-row ${isDone ? 'completed-row' : ''}">
+              <td style="color: var(--accent); font-weight: 700;">S${s}</td>
+              <td>
+                <span class="prev-ref">Ant: ${prevData.weight}kg</span>
+                <input type="number" step="0.5" id="w_${dayKey}_${exIdx}_${s}" value="${savedData.weight}" placeholder="kg">
+              </td>
+              <td>
+                <span class="prev-ref">Ant: ${prevData.reps} reps</span>
+                <input type="number" id="r_${dayKey}_${exIdx}_${s}" value="${savedData.reps}" placeholder="reps">
+              </td>
+              <td>
+                <button class="btn-3d btn-small ${isDone ? 'btn-complete' : ''}" id="btn_${dayKey}_${exIdx}_${s}" onclick="completeSetWorkflow('${dayKey}', ${exIdx}, ${s})">
+                  ${isDone ? '✓ Lista' : 'Marcar'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+
+        const isExCompleted = completedSetsCount === ex.sets;
+        if (isExCompleted) card.classList.add('card-completed');
+
+        const searchUrl = 'https://www.google.com/search?q=' + encodeURIComponent(ex.name + ' técnica biomecánica hipertrofia');
+
+        card.innerHTML = `
+          <div class="exercise-title">
+            <span>${ex.name}</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+              ${ex.isFst7 ? '<span class="fst7-badge">FST-7</span>' : ''}
+              <span id="badge_done_${dayKey}_${exIdx}" class="done-badge" style="display: ${isExCompleted ? 'inline-block' : 'none'};">LISTO</span>
+            </div>
+          </div>
+          <div class="exercise-meta">${ex.target} | ${ex.rest}</div>
+          <div class="rec-box">🎯 Carga sugerida: <strong>${recommended}</strong></div>
+          <div class="exercise-note">💡 ${ex.note}</div>
+          
+          <div style="margin-bottom: 12px;">
+            <a href="${searchUrl}" target="_blank" class="btn-3d btn-secondary btn-small" style="text-decoration:none; width:100%;">
+              🔍 Ver técnica en Google
+            </a>
+          </div>
+
+          <div class="sets-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Serie</th>
+                  <th>Carga (kg)</th>
+                  <th>Reps</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${setsRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function completeSetWorkflow(dayKey, exIdx, setNum) {
+      if (!currentUser) return;
+      if (document.activeElement) document.activeElement.blur();
+
+      const weightInput = document.getElementById(`w_${dayKey}_${exIdx}_${setNum}`);
+      const repsInput = document.getElementById(`r_${dayKey}_${exIdx}_${setNum}`);
+
+      const weight = weightInput.value;
+      const reps = repsInput.value;
+
+      const storageKey = `gym_log_${currentUser}_${dayKey}_${exIdx}_${setNum}`;
+      const logData = { weight, reps, completed: true, date: new Date().toISOString(), weekKey: getISOWeek() };
+      cloudStore.setItem(storageKey, JSON.stringify(logData));
+
+      saveToWorkoutHistory(dayKey, exIdx, setNum, weight, reps);
+
+      const row = document.getElementById(`row_${dayKey}_${exIdx}_${setNum}`);
+      const btn = document.getElementById(`btn_${dayKey}_${exIdx}_${setNum}`);
+      row.classList.add('completed-row');
+      btn.classList.add('btn-complete');
+      btn.innerText = '✓ Lista';
+
+      const usersDB = getUsersDB();
+      const userData = usersDB[currentUser] || {};
+      const program = getProgramForUser(userData);
+      const exObj = program[dayKey].exercises[exIdx];
+
+      startTimer(exObj.restSeconds || 90, `DESCANSO: ${exObj.name}`);
+
+      if (setNum === exObj.sets) {
+        document.getElementById(`card_${dayKey}_${exIdx}`).classList.add('card-completed');
+        document.getElementById(`badge_done_${dayKey}_${exIdx}`).style.display = 'inline-block';
+        const nextCard = document.getElementById(`card_${dayKey}_${exIdx + 1}`);
+        if (nextCard) {
+          setTimeout(() => nextCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 500);
+        }
+      }
+    }
+
+    function saveToWorkoutHistory(dayKey, exIdx, setNum, weight, reps) {
+      if (!currentUser) return;
+      const historyKey = `gym_workout_history_${currentUser}`;
+      let history = JSON.parse(cloudStore.getItem(historyKey) || '[]');
+      
+      const usersDB = getUsersDB();
+      const userData = usersDB[currentUser] || {};
+      const program = getProgramForUser(userData);
+      const exObj = program[dayKey].exercises[exIdx];
+      const todayStr = getTodayISO();
+      const dayNames = { lunes: "Lunes", martes: "Martes", miercoles: "Miércoles", jueves: "Jueves", viernes: "Viernes" };
+      
+      const existingIdx = history.findIndex(item => item.date === todayStr && item.exercise === exObj.name && item.setNum === setNum);
+      const newEntry = {
+        date: todayStr,
+        dayName: dayNames[dayKey] || dayKey,
+        exercise: exObj.name,
+        setNum: setNum,
+        weight: weight || '0',
+        reps: reps || '0'
+      };
+
+      if (existingIdx !== -1) {
+        history[existingIdx] = newEntry;
+      } else {
+        history.unshift(newEntry);
+      }
+
+      cloudStore.setItem(historyKey, JSON.stringify(history));
+      renderWorkoutHistory();
+    }
+
+    function renderWorkoutHistory() {
+      if (!currentUser) return;
+      const tbody = document.getElementById('workout-history-body');
+      const historyKey = `gym_workout_history_${currentUser}`;
+      let history = JSON.parse(cloudStore.getItem(historyKey) || '[]');
+      
+      const filterInput = document.getElementById('filter-exercise');
+      const filterText = filterInput ? filterInput.value.toLowerCase().trim() : '';
+
+      if (filterText) {
+        history = history.filter(item => item.exercise.toLowerCase().includes(filterText));
+      }
+
+      if (history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color: var(--text-muted); text-align:center;">Sin registros guardados.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = history.map(item => {
+        let displayDate = item.date;
+        if (item.date && item.date.includes('-')) {
+          const [y, m, d] = item.date.split('-');
+          displayDate = `${d}/${m}/${y}`;
+        }
+        return `
+          <tr>
+            <td>${displayDate}</td>
+            <td style="color: var(--accent); font-weight: 700;">${item.dayName}</td>
+            <td>${item.exercise}</td>
+            <td>Serie ${item.setNum}</td>
+            <td style="color: var(--orange-light); font-weight: 700;">${item.weight} kg</td>
+            <td style="color: var(--success); font-weight: 700;">${item.reps} reps</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function clearWorkoutHistory() {
+      if (!currentUser) return;
+      if (confirm("¿Deseas vaciar todo el historial de ejercicios registrados en este dispositivo?")) {
+        cloudStore.removeItem(`gym_workout_history_${currentUser}`);
+        renderWorkoutHistory();
+      }
+    }
+
+    function getSavedSetData(dayKey, exIdx, setNum) {
+      if (!currentUser) return { weight: '', reps: '', completed: false };
+      const storageKey = `gym_log_${currentUser}_${dayKey}_${exIdx}_${setNum}`;
+      const saved = cloudStore.getItem(storageKey);
+      if (!saved) return { weight: '', reps: '', completed: false };
+      
+      const data = JSON.parse(saved);
+      if (data.weekKey && data.weekKey !== getISOWeek()) {
+        return { weight: '', reps: '', completed: false };
+      }
+      return { weight: data.weight || '', reps: data.reps || '', completed: !!data.completed };
+    }
+
+    // NUTRICIÓN Y CARDIO PERSONALIZADOS
+    function calculateNutrition(user) {
+      if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', cardio: '-' };
+      const w = parseFloat(user.weight);
+      const isMale = user.gender === 'hombre';
+      const goal = user.goal || 'open';
+
+      let protein = Math.round(w * 2.2);
+      let carbs = Math.round(w * 3.8);
+      let cardio = '20 min moderado';
+      let water = (w * 0.04).toFixed(1) + ' L';
+
+      if (goal === 'bikini' || goal === 'mujer_tonificar') {
+        protein = Math.round(w * 2.0);
+        carbs = Math.round(w * 2.2);
+        cardio = '35-45 min LISS';
+      } else if (goal === 'wellness' || goal === 'open') {
+        protein = Math.round(w * 2.3);
+        carbs = Math.round(w * 4.5);
+        cardio = '15-20 min post';
+      }
+
+      return {
+        water,
+        protein: protein + ' g',
+        carbs: carbs + ' g',
+        cardio,
+        goalLabel: CATEGORY_DETAILS[goal] ? goal.toUpperCase() : goal
+      };
+    }
+
+    function updateNutritionAndHero(user) {
+      const nut = calculateNutrition(user);
+      document.getElementById('nut-water').innerText = nut.water;
+      document.getElementById('nut-protein').innerText = nut.protein;
+      document.getElementById('nut-carbs').innerText = nut.carbs;
+      document.getElementById('nut-cardio').innerText = nut.cardio;
+      document.getElementById('nut-goal').innerText = user.goal ? user.goal.toUpperCase() : '-';
+
+      const hero = document.getElementById('hero-image');
+      hero.src = user.gender === 'mujer' ? 'https://entrenadorhl.neocities.org/women-physique.jpg' : 'https://entrenadorhl.neocities.org/gym-man.jpg';
+      hero.style.display = 'block';
+    }
+
+    // GESTIÓN DE SESIÓN
+    async function checkActiveUserSession() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && !window._inRecovery) {
+        try {
+          cloudUserId = session.user.id;
+          const email = session.user.email.toLowerCase();
+          const { data: prof, error } = await sb.from('profiles').select('*').eq('id', cloudUserId).maybeSingle();
+          if (error) throw error;
+          if (!prof) {
+            const ok = await completePendingProfile(session.user);
+            if (!ok) { await sb.auth.signOut(); return checkActiveUserSession(); }
+            return checkActiveUserSession();
+          }
+          profileCache = profileFromRow(prof, email);
+          currentUser = email;
+          await loadCloudData();
+          await offerLocalMigration(email);
+        } catch (err) {
+          console.error(err);
+          alert('Error al conectar con la nube: ' + (err.message || err));
+          return;
+        }
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('user-profile-bar').style.display = 'flex';
+        const userData = profileCache;
+        document.getElementById('profile-name').innerText = userData.fullname || currentUser;
+        const age = calculateAge(userData.birthdate);
+        document.getElementById('profile-details').innerText = 
+          `${userData.gender ? userData.gender.toUpperCase() : ''} | ${age} AÑOS | ${userData.weight}kg | ${userData.height}cm | ${userData.goal || ''}`;
+        updateNutritionAndHero(userData);
+        document.getElementById('nutrition-banner').style.display = 'grid';
+        detectAndSetDay();
+        renderWorkoutHistory();
+        renderMetricsHistory();
+        document.getElementById('body-date').valueAsDate = new Date();
+      } else {
+        document.getElementById('auth-modal').style.display = 'flex';
+        document.getElementById('user-profile-bar').style.display = 'none';
+        document.getElementById('nutrition-banner').style.display = 'none';
+        document.getElementById('hero-image').style.display = 'none';
+      }
+    }
+
+    // Crea el perfil y canjea la clave (solo una vez, tras confirmar el correo si aplica)
+    async function completePendingProfile(user) {
+      const pending = user.user_metadata && user.user_metadata.pending_profile;
+      if (!pending) { alert('Tu cuenta no tiene perfil ni clave de activación. Regístrate de nuevo o contacta soporte.'); return false; }
+      const { error } = await sb.rpc('redeem_activation_key', {
+        p_key: pending.accessKey, p_first_name: pending.firstname, p_last_name: pending.lastname,
+        p_gender: pending.gender, p_birth_date: pending.birthdate || null,
+        p_weight: pending.weight, p_height: pending.height, p_goal: pending.goal
+      });
+      if (error) { alert('❌ ' + (error.message || 'Clave no válida o ya utilizada.')); return false; }
+      return true;
+    }
+
+    // MIGRACIÓN: datos antiguos guardados en este dispositivo (localStorage)
+    async function offerLocalMigration(email) {
+      const flag = 'cloud_migrated_' + email;
+      if (localStorage.getItem(flag)) return;
+      const oldKeys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k !== flag && k.endsWith('_' + email)) oldKeys.push(k);
+      }
+      if (!oldKeys.length) return;
+      if (!confirm('Encontramos datos guardados en este dispositivo para ' + email + '. ¿Subirlos a tu cuenta en la nube? (solo se hace una vez)')) {
+        localStorage.setItem(flag, 'skipped'); return;
+      }
+      const rows = oldKeys.map(k => {
+        const raw = localStorage.getItem(k); let val; try { val = JSON.parse(raw); } catch { val = raw; }
+        return { user_id: cloudUserId, key: k, value: val, updated_at: new Date().toISOString() };
+      });
+      const { error } = await sb.from('user_data').upsert(rows);
+      if (error) { alert('No se pudieron subir los datos: ' + error.message); return; }
+      localStorage.setItem(flag, new Date().toISOString());
+      await loadCloudData();
+      alert('¡Datos subidos a la nube correctamente!');
+    }
+
+    function detectAndSetDay() {
+      const dayNum = new Date().getDay();
+      const dayMap = { 1: 'lunes', 2: 'martes', 3: 'miercoles', 4: 'jueves', 5: 'viernes' };
+      const currentDayKey = dayMap[dayNum] || 'descanso';
+      document.getElementById('select-day').value = currentDayKey;
+      loadWorkoutDay(currentDayKey);
+    }
+
+    function showAuthTab(tab) {
+      document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+      document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
+      document.getElementById('register-form').style.display = tab === 'register' ? 'flex' : 'none';
+      document.getElementById('forgot-form').style.display = 'none';
+      document.getElementById('reset-form').style.display = 'none';
+    }
+
+    function showForgotPassword() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register-form').style.display = 'none';
+      document.getElementById('forgot-form').style.display = 'flex';
+      document.getElementById('reset-form').style.display = 'none';
+    }
+
+    // RECUPERACIÓN DE CONTRASEÑA (Supabase: código de 6 dígitos por correo)
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+      if (!email) return;
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerText;
+      btn.disabled = true; btn.innerText = 'Enviando...';
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+      btn.disabled = false; btn.innerText = originalText;
+      if (error) { alert('Error: ' + (error.message || 'No se pudo enviar el código.')); return; }
+      alert('Código enviado a tu correo. Revisa tu bandeja de entrada o spam.');
+      document.getElementById('forgot-form').style.display = 'none';
+      document.getElementById('reset-form').style.display = 'flex';
+      window._resetEmail = email;
+    }
+
+    async function handleConfirmReset(e) {
+      e.preventDefault();
+      const codigo = document.getElementById('reset-code').value.trim();
+      const newPass = document.getElementById('reset-newpass').value;
+      const email = window._resetEmail;
+      if ((!window._inRecovery && (!email || !codigo)) || !newPass) { alert('Completa todos los campos obligatorios.'); return; }
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerText;
+      btn.disabled = true; btn.innerText = 'Verificando...';
+      if (!window._inRecovery) {
+        const { error } = await sb.auth.verifyOtp({ email, token: codigo, type: 'recovery' });
+        if (error) { btn.disabled = false; btn.innerText = originalText; alert('Código inválido o expirado.'); return; }
+      }
+      const { error: upErr } = await sb.auth.updateUser({ password: newPass });
+      btn.disabled = false; btn.innerText = originalText;
+      if (upErr) { alert('Error: ' + upErr.message); return; }
+      window._inRecovery = false;
+      alert('¡Contraseña actualizada!');
+      checkActiveUserSession();
+    }
+
+    // Si el usuario abre el enlace del correo en lugar de usar el código
+    sb.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window._inRecovery = true;
+        document.getElementById('auth-modal').style.display = 'flex';
+        showForgotPassword();
+        document.getElementById('forgot-form').style.display = 'none';
+        document.getElementById('reset-form').style.display = 'flex';
+        const rc = document.getElementById('reset-code');
+        rc.required = false; rc.parentElement.style.display = 'none';
+      }
+    });
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const password = document.getElementById('reg-password').value;
+      const accessKey = document.getElementById('reg-accesskey').value.trim().toUpperCase();
+      const firstname = document.getElementById('reg-firstname').value.trim();
+      const lastname = document.getElementById('reg-lastname').value.trim();
+      const gender = document.getElementById('reg-gender').value;
+      const birthdate = document.getElementById('reg-birthdate').value;
+      const weight = parseFloat(document.getElementById('reg-weight').value);
+      const height = parseFloat(document.getElementById('reg-height').value);
+      const goal = document.getElementById('reg-goal').value;
+
+      const btn = document.querySelector('#register-form button[type="submit"]');
+      const originalBtnText = btn.innerText;
+      btn.disabled = true; btn.innerText = 'Validando clave...';
+      try {
+        // Pre-chequeo (no consume la clave); el canje real ocurre en redeem_activation_key
+        const { data: valid, error: vErr } = await sb.rpc('check_activation_key', { p_key: accessKey, p_email: email });
+        if (vErr) throw vErr;
+        if (!valid) { alert('❌ Clave no válida o ya utilizada.'); return; }
+        const pending_profile = { accessKey, firstname, lastname, gender, birthdate, weight, height, goal };
+        const { data, error } = await sb.auth.signUp({
+          email, password,
+          options: { data: { pending_profile }, emailRedirectTo: location.origin + location.pathname }
+        });
+        if (error) { alert(/registered/i.test(error.message) ? 'Este correo ya está registrado.' : 'Error: ' + error.message); return; }
+        if (!data.session) {
+          alert('¡Cuenta creada! Te enviamos un correo para confirmarla. Ábrelo y luego inicia sesión.');
+          showAuthTab('login'); document.getElementById('login-email').value = email; return;
+        }
+        alert('¡Cuenta creada correctamente!');
+        await checkActiveUserSession();
+      } catch (err) {
+        alert('Error de conexión con el servidor: ' + (err.message || err));
+      } finally {
+        btn.disabled = false; btn.innerText = originalBtnText;
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        alert(/confirm/i.test(error.message) ? 'Confirma tu correo antes de iniciar sesión.' : 'Correo o contraseña incorrectos.');
+        return;
+      }
+      checkActiveUserSession();
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      currentUser = null;
+      location.reload();
+    }
+
+    // EDICIÓN DE PERFIL
+    function openEditProfile() {
+      const db = getUsersDB();
+      const u = db[currentUser];
+      if (!u) return;
+
+      document.getElementById('edit-firstname').value = u.firstname || '';
+      document.getElementById('edit-lastname').value = u.lastname || '';
+      document.getElementById('edit-weight').value = u.weight || '';
+      document.getElementById('edit-height').value = u.height || '';
+
+      filterCategoryOptions('edit-goal', u.gender || 'hombre');
+      document.getElementById('edit-goal').value = u.goal || 'open';
+      updateGoalDescription(u.goal || 'open', 'edit-goal-desc');
+
+      const gSelect = document.getElementById('edit-gender');
+      const bInput = document.getElementById('edit-birthdate');
+
+      if (u.birthdate && u.gender) {
+        gSelect.value = u.gender;
+        bInput.value = u.birthdate;
+        gSelect.disabled = true;
+        bInput.disabled = true;
+        document.getElementById('permanent-note').innerText = '🔒 Género y fecha de nacimiento bloqueados (ya definidos).';
+      } else {
+        gSelect.disabled = false;
+        bInput.disabled = false;
+        if (u.gender) gSelect.value = u.gender;
+        if (u.birthdate) bInput.value = u.birthdate;
+      }
+
+      document.getElementById('edit-profile-modal').style.display = 'flex';
+    }
+
+    function saveProfileEdit(e) {
+      e.preventDefault();
+      const db = getUsersDB();
+      const u = db[currentUser];
+      if (!u) return;
+
+      u.firstname = document.getElementById('edit-firstname').value.trim();
+      u.lastname = document.getElementById('edit-lastname').value.trim();
+      u.fullname = `${u.firstname} ${u.lastname}`;
+      u.weight = parseFloat(document.getElementById('edit-weight').value);
+      u.height = parseFloat(document.getElementById('edit-height').value);
+      u.goal = document.getElementById('edit-goal').value;
+
+      if (!u.birthdate) {
+        const b = document.getElementById('edit-birthdate').value;
+        if (b) { u.birthdate = b; u.age = calculateAge(b); }
+      }
+      if (!u.gender) {
+        u.gender = document.getElementById('edit-gender').value;
+      }
+
+      saveUsersDB(db);
+      document.getElementById('edit-profile-modal').style.display = 'none';
+      checkActiveUserSession();
+      alert('¡Perfil actualizado con éxito!');
+    }
+
+    function requestKeyAndOpenWhatsApp(event) {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerText = 'Generando enlace...';
+
+      const callbackName = 'jsonpKey_' + Date.now();
+      window[callbackName] = function(res) {
+        btn.disabled = false;
+        btn.innerText = 'Comprar Clave vía WhatsApp';
+        delete window[callbackName];
+        document.getElementById('jsonp-key-script')?.remove();
+        window.open('https://wa.me/595972173847?text=Hola,%20deseo%20adquirir%20mi%20clave%20de%20Hipertrofia%20Pro', '_blank');
+      };
+
+      const script = document.createElement('script');
+      script.id = 'jsonp-key-script';
+      script.src = `${SCRIPT_URL}?action=request_key&callback=${callbackName}`;
+      script.onerror = function() {
+        btn.disabled = false;
+        btn.innerText = 'Comprar Clave vía WhatsApp';
+        window.open('https://wa.me/595972173847?text=Hola,%20deseo%20adquirir%20mi%20clave%20de%20Hipertrofia%20Pro', '_blank');
+      };
+      document.body.appendChild(script);
+    }
+
+    // CRONÓMETRO DE DESCANSO
+    function startTimer(seconds, label) {
+      clearInterval(timerInterval);
+      timerSeconds = seconds;
+      document.getElementById('timer-status').innerText = label;
+      document.getElementById('timer-bubble').style.display = 'block';
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        updateTimerDisplay();
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer-status').innerText = '¡DESCANSO COMPLETADO!';
+          playBeep();
+        }
+      }, 1000);
+    }
+
+    function addTimerTime(sec) {
+      timerSeconds += sec;
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      document.getElementById('timer-bubble').style.display = 'none';
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timer-display').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = 850;
+        gain.gain.value = 0.2;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      } catch (e) {}
+    }
+
+    // REGISTRO DE MEDIDAS
+    function saveBodyMetrics(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const metrics = {
+        date: document.getElementById('body-date').value,
+        weight: document.getElementById('body-weight').value,
+        chest: document.getElementById('m-chest').value || '-',
+        waist: document.getElementById('m-waist').value || '-',
+        biceps: document.getElementById('m-biceps').value || '-',
+        thigh: document.getElementById('m-thigh').value || '-',
+        glutes: document.getElementById('m-glutes').value || '-',
+        calf: document.getElementById('m-calf').value || '-'
+      };
+
+      const storageKey = `body_metrics_${currentUser}`;
+      let history = JSON.parse(cloudStore.getItem(storageKey) || '[]');
+      history.unshift(metrics);
+      cloudStore.setItem(storageKey, JSON.stringify(history));
+
+      renderMetricsHistory();
+      alert('Medidas registradas con éxito.');
+      document.getElementById('body-form').reset();
+      document.getElementById('body-date').valueAsDate = new Date();
+    }
+
+    function renderMetricsHistory() {
+      if (!currentUser) return;
+      const tbody = document.getElementById('metrics-history-body');
+      const storageKey = `body_metrics_${currentUser}`;
+      const history = JSON.parse(cloudStore.getItem(storageKey) || '[]');
+
+      if (history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color: var(--text-muted); text-align:center;">Sin registros guardados.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = history.map(item => `
+        <tr>
+          <td>${item.date}</td>
+          <td style="color: var(--accent); font-weight: 700;">${item.weight} kg</td>
+          <td>${item.chest} cm</td>
+          <td>${item.waist} cm</td>
+          <td>${item.biceps} cm</td>
+          <td>${item.thigh} cm</td>
+          <td>${item.glutes} cm</td>
+          <td>${item.calf} cm</td>
+        </tr>
+      `).join('');
+    }
+
+    // NAVEGACIÓN
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // EXPORTACIÓN A EXCEL Y RESPALDO
+    function downloadCSV(filename, rows) {
+      const csvContent = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function exportWorkoutExcel() {
+      if (!currentUser) return;
+      const history = JSON.parse(cloudStore.getItem(`gym_workout_history_${currentUser}`) || '[]');
+      if (history.length === 0) return alert('No hay entrenamientos para exportar.');
+      const rows = [['Fecha', 'Día', 'Ejercicio', 'Serie', 'Peso (kg)', 'Reps']];
+      history.forEach(i => rows.push([i.date, i.dayName, i.exercise, i.setNum, i.weight, i.reps]));
+      downloadCSV(`rutinas_${currentUser}_${getTodayISO()}.csv`, rows);
+    }
+
+    function exportMetricsExcel() {
+      if (!currentUser) return;
+      const history = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]');
+      if (history.length === 0) return alert('No hay medidas para exportar.');
+      const rows = [['Fecha', 'Peso', 'Pecho', 'Cintura', 'Bíceps', 'Muslo', 'Glúteos', 'Gemelos']];
+      history.forEach(i => rows.push([i.date, i.weight, i.chest, i.waist, i.biceps, i.thigh, i.glutes, i.calf]));
+      downloadCSV(`medidas_${currentUser}_${getTodayISO()}.csv`, rows);
+    }
+
+    function exportData() {
+      if (!currentUser) return;
+      const data = {};
+      cloudStore.keys().forEach(k => { if (k.includes(currentUser)) data[k] = cloudStore.getItem(k); });
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `backup_${currentUser}_${getTodayISO()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importData(event) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          const rows = Object.keys(data).filter(k => k.endsWith('_' + currentUser)).map(k => {
+            let val; try { val = JSON.parse(data[k]); } catch { val = data[k]; }
+            return { user_id: cloudUserId, key: k, value: val, updated_at: new Date().toISOString() };
+          });
+          const { error } = await sb.from('user_data').upsert(rows);
+          if (error) throw error;
+          alert('¡Copia de seguridad restaurada!');
+          location.reload();
+        } catch (err) {
+          alert('Archivo de copia no válido.');
+        }
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+  </script>
+</body>
+</html>
