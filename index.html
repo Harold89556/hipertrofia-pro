@@ -680,6 +680,39 @@
       .auth-card { padding: 22px 16px; }
       .auth-overlay { align-items: flex-start; }
     }
+
+    /* ENTRENADOR IA */
+    .coach-fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;z-index:9000;display:none;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;background:linear-gradient(135deg,var(--accent),#e05500);box-shadow:0 8px 24px var(--accent-glow),0 4px 14px rgba(0,0,0,.6);transition:transform .2s,bottom .2s}
+    .coach-fab:hover{transform:scale(1.07)}
+    body.coach-on{padding-bottom:84px}
+    body:has(.timer-bubble[style*="block"]) .coach-fab{bottom:calc(140px + env(safe-area-inset-bottom))}
+    .coach-panel{position:fixed;right:18px;bottom:88px;width:380px;max-width:calc(100vw - 24px);height:min(600px,calc(100vh - 110px));background:var(--surface-elevated);border:1px solid var(--border);border-radius:18px;z-index:9500;display:none;flex-direction:column;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.75)}
+    .coach-panel.open{display:flex}
+    @media (max-width:520px){.coach-panel{inset:0;width:100%;max-width:100%;height:100%;border-radius:0}}
+    .coach-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,107,26,.18),transparent)}
+    .coach-head strong{flex:1;font-size:1rem}.coach-head small{display:block;color:var(--text-muted);font-weight:400;font-size:.72rem}
+    .coach-x{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;padding:4px 8px}
+    .coach-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .cm{max-width:86%;padding:10px 13px;border-radius:14px;font-size:.9rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+    .cm.bot{background:rgba(255,255,255,.06);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px}
+    .cm.me{background:var(--accent);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .cm.err{border-color:#ef4444;color:#fca5a5}
+    .cm-ex{margin-top:8px}.cm-ex h4{color:var(--accent);margin:6px 0;font-size:.9rem}
+    .cm-ex .imgs{display:flex;gap:6px}.cm-ex img{width:50%;border-radius:10px;cursor:zoom-in;background:#fff;aspect-ratio:4/3;object-fit:cover}
+    .cm-ex ol{margin:8px 0 0 18px;padding:0}.cm-ex li{margin-bottom:4px}
+    .coach-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}
+    .coach-chips button{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:6px 11px;font-size:.78rem;cursor:pointer}
+    .coach-typing{align-self:flex-start;display:flex;gap:4px;padding:12px 14px}
+    .coach-typing span{width:7px;height:7px;border-radius:50%;background:var(--text-muted);animation:cdot 1.2s infinite}
+    .coach-typing span:nth-child(2){animation-delay:.2s}.coach-typing span:nth-child(3){animation-delay:.4s}
+    @keyframes cdot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+    .coach-form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+    .coach-form textarea{flex:1;resize:none;max-height:110px;min-height:42px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.3);color:inherit;font:inherit;font-size:16px}
+    .coach-form button{width:44px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:1.1rem;cursor:pointer}
+    .coach-form button:disabled{opacity:.5}
+    .coach-disc{font-size:.68rem;color:var(--text-muted);text-align:center;padding:0 12px 6px}
+    .coach-zoom{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:11000;display:none;align-items:center;justify-content:center;padding:16px}
+    .coach-zoom img{max-width:100%;max-height:100%;border-radius:12px;background:#fff}
   </style>
 </head>
 <body>
@@ -2689,6 +2722,77 @@ ${timedSecs ? `
       };
       reader.readAsText(event.target.files[0]);
     }
+  </script>
+<!-- ENTRENADOR IA -->
+  <button id="coach-fab" class="coach-fab" aria-label="Abrir Entrenador IA" onclick="coachToggle(true)">💬</button>
+  <div id="coach-panel" class="coach-panel" role="dialog" aria-label="Entrenador IA">
+    <div class="coach-head"><span style="font-size:1.5rem">🏋️</span><strong>Entrenador IA<small>Entrenamiento y nutrición deportiva</small></strong><button class="coach-x" aria-label="Cerrar" onclick="coachToggle(false)">✕</button></div>
+    <div id="coach-msgs" class="coach-msgs"></div>
+    <div id="coach-chips" class="coach-chips">
+      <button>¿Cómo hago una sentadilla correctamente?</button>
+      <button>¿Qué como antes y después de entrenar?</button>
+      <button>Explicame mi rutina de hoy</button>
+      <button>¿Cómo reparto mis calorías en el día?</button>
+    </div>
+    <div class="coach-disc">Orientación general con IA. No reemplaza a un médico ni a un profesional de salud.</div>
+    <form id="coach-form" class="coach-form" onsubmit="coachSend(event)">
+      <textarea id="coach-input" rows="1" placeholder="Escribí tu consulta…" maxlength="1500"></textarea>
+      <button id="coach-send" type="submit" aria-label="Enviar">➤</button>
+    </form>
+  </div>
+  <div id="coach-zoom" class="coach-zoom" onclick="this.style.display='none'"><img alt=""></div>
+  <script>
+    (function(){
+      const hist = []; let busy = false, greeted = false;
+      const $ = id => document.getElementById(id);
+      const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const fmt = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      function loggedIn(){ const m = $('auth-modal'); return !!currentUser && (!m || getComputedStyle(m).display === 'none'); }
+      setInterval(() => { const on = loggedIn(); $('coach-fab').style.display = on ? 'flex' : 'none'; document.body.classList.toggle('coach-on', on); if (!on) $('coach-panel').classList.remove('open'); }, 800);
+      function context(){
+        const u = (getUsersDB()[currentUser]) || {}; const n = calculateNutrition(u);
+        const day = ($('select-day') || {}).value; let routine = 'descanso';
+        try { const p = getProgramForUser(u)[day]; if (p && p.exercises && p.exercises.length) routine = (p.title || p.name || day) + ': ' + p.exercises.map(e => e.name).join(', '); } catch(_){}
+        return { name: u.fullname || u.firstName || '', sex: u.gender, age: u.birthdate ? calculateAge(u.birthdate) : '', weight: u.weight, height: u.height,
+          category: n.goalLabel || u.goal, calories: n.calories, protein: n.protein, carbs: n.carbs, water: n.water, routine };
+      }
+      function add(role, text, extra){
+        const d = document.createElement('div'); d.className = 'cm ' + (role === 'me' ? 'me' : 'bot') + (extra === 'err' ? ' err' : '');
+        d.innerHTML = fmt(text);
+        if (extra && extra.images){
+          const ex = extra, w = document.createElement('div'); w.className = 'cm-ex';
+          w.innerHTML = '<h4>' + esc(ex.name) + '</h4><div class="imgs">' + ex.images.map(s => '<img loading="lazy" src="' + esc(s) + '" alt="' + esc(ex.name) + '">').join('') + '</div>' +
+            (ex.steps && ex.steps.length ? '<ol>' + ex.steps.map(s => '<li>' + esc(s) + '</li>').join('') + '</ol>' : '');
+          w.querySelectorAll('img').forEach(i => i.onclick = () => { const z = $('coach-zoom'); z.querySelector('img').src = i.src; z.style.display = 'flex'; });
+          d.appendChild(w);
+        }
+        $('coach-msgs').appendChild(d); $('coach-msgs').scrollTop = 1e9;
+      }
+      window.coachToggle = function(open){
+        $('coach-panel').classList.toggle('open', open);
+        if (open && !greeted){ greeted = true; const u = (getUsersDB()[currentUser]) || {};
+          add('bot', '¡Hola' + (u.fullname ? ', ' + u.fullname.split(' ')[0] : '') + '! 💪 Soy tu Entrenador IA. Preguntame lo que quieras sobre entrenamiento, técnica, nutrición o tus objetivos físicos. Ya conozco tu perfil y tu rutina de hoy.'); }
+        if (open) setTimeout(() => $('coach-input').focus(), 50);
+      };
+      $('coach-chips').querySelectorAll('button').forEach(b => b.onclick = () => { $('coach-input').value = b.textContent; coachSend(); });
+      $('coach-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); coachSend(); } });
+      window.coachSend = async function(e){
+        if (e) e.preventDefault(); const inp = $('coach-input'); const text = inp.value.trim(); if (!text || busy) return;
+        busy = true; $('coach-send').disabled = true; inp.value = ''; $('coach-chips').style.display = 'none';
+        add('me', text);
+        const t = document.createElement('div'); t.className = 'cm bot coach-typing'; t.innerHTML = '<span></span><span></span><span></span>';
+        $('coach-msgs').appendChild(t); $('coach-msgs').scrollTop = 1e9;
+        try {
+          const { data, error } = await sb.functions.invoke('coach', { body: { message: text, history: hist.slice(-10), context: context() } });
+          let msg = data && data.error;
+          if (error){ try { msg = (await error.context.json()).error; } catch(_){} }
+          if (error || !data || data.error) throw new Error(msg || 'No pude responder ahora. Probá de nuevo en un momento.');
+          t.remove(); add('bot', data.reply, data.exercise);
+          hist.push({ role: 'user', text }, { role: 'assistant', text: data.reply }); hist.splice(0, Math.max(0, hist.length - 10));
+        } catch(err){ t.remove(); add('bot', err.message || 'Error de conexión.', 'err'); }
+        busy = false; $('coach-send').disabled = false; inp.focus();
+      };
+    })();
   </script>
 </body>
 </html>
