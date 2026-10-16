@@ -831,6 +831,10 @@
   <!-- BANNER DE NUTRICIÓN COMPACTO -->
   <div class="nutrition-banner" id="nutrition-banner" style="display: none;">
     <div class="nutrition-item">
+      <strong id="nut-calories">-</strong>
+      <span>Calorías / día</span>
+    </div>
+    <div class="nutrition-item">
       <strong id="nut-water">-</strong>
       <span>Agua / día</span>
     </div>
@@ -2147,9 +2151,24 @@ ${timedSecs ? `
       return { weight: data.weight || '', reps: data.reps || '', completed: !!data.completed };
     }
 
+    // CALORÍAS: Mifflin-St Jeor x 1.55 (4-5 entrenamientos/semana) x ajuste por categoría
+    const CALORIE_GOAL_FACTORS = {
+      ganar_masa: 1.15, open: 1.15, '212': 1.12, muscular_physique: 1.12, classic: 1.10,
+      womens_physique: 1.10, ms_olympia: 1.10, mens_physique: 1.08, wellness: 1.08, mujer_gluteos: 1.08,
+      figure: 1.07, fitness: 1.05, bikini: 1.05, tonificacion: 0.85, mujer_tonificar: 0.80
+    };
+    function calculateCalories(user) {
+      const w = parseFloat(user && user.weight), h = parseFloat(user && user.height);
+      const age = user && user.birthdate ? calculateAge(user.birthdate) : parseFloat(user && user.age);
+      if (!(w > 0) || !(h > 0) || !(age > 0)) return null;
+      const bmr = 10 * w + 6.25 * h - 5 * age + (user.gender === 'mujer' ? -161 : 5);
+      const factor = CALORIE_GOAL_FACTORS[String(user.goal || 'open').toLowerCase()] || 1.10;
+      return Math.round(bmr * 1.55 * factor / 50) * 50;
+    }
+
     // NUTRICIÓN Y CARDIO PERSONALIZADOS
     function calculateNutrition(user) {
-      if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', cardio: '-' };
+      if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', cardio: '-', calories: '-' };
       const w = parseFloat(user.weight);
       const isMale = user.gender === 'hombre';
       const goal = user.goal || 'open';
@@ -2174,12 +2193,14 @@ ${timedSecs ? `
         protein: protein + ' g',
         carbs: carbs + ' g',
         cardio,
+        calories: (function(){ const k = calculateCalories(user); return k ? k.toLocaleString('es-PY') + ' kcal' : '-'; })(),
         goalLabel: goalLabel(goal)
       };
     }
 
     function updateNutritionAndHero(user) {
       const nut = calculateNutrition(user);
+      document.getElementById('nut-calories').innerText = nut.calories;
       document.getElementById('nut-water').innerText = nut.water;
       document.getElementById('nut-protein').innerText = nut.protein;
       document.getElementById('nut-carbs').innerText = nut.carbs;
