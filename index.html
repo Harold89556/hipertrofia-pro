@@ -1021,7 +1021,7 @@
     <section class="exercise-card plan-card"><h2 class="pc-title" data-i18n="plan.title">Tu plan semanal</h2><div id="plan-controls"></div></section>
     <details class="exercise-card plan-card" id="wp-details"><summary class="pc-title" data-i18n="wp.title">🎯 Puntos a mejorar</summary><div id="weakpoints-card"></div></details>
     <div class="day-selector">
-      <span><span data-i18n="day.active">Día Activo:</span> <strong id="detected-day-name" style="color: var(--accent);">...</strong></span>
+      <span><span data-i18n="day.active">Día Activo:</span> <strong id="detected-day-name" style="color: var(--accent);"></strong></span>
       <div style="flex: 1; max-width: 320px;">
         <select id="select-day" data-i18n-aria="day.aria" aria-label="Día de la rutina" onchange="loadWorkoutDay(this.value)">
         </select>
@@ -3143,6 +3143,18 @@
       if (want !== LANG) { LANG = want; try { localStorage.setItem('hp_lang', want); } catch (e) {} applyStaticI18n(); }
       if (saved !== LANG) cloudStore.setItem(langKey(), LANG);
     }
+    // Antes de iniciar sesión (o mientras carga la nube) el selector de día no queda vacío ni en "...": muestra los días en el idioma activo
+    function prefillDaySelect() {
+      const sel = document.getElementById('select-day'), lbl = document.getElementById('detected-day-name');
+      if (!sel || typeof WEEKDAYS === 'undefined') return;
+      const today = WEEKDAYS[(new Date().getDay() + 6) % 7];
+      if (!currentUser || !sel.options.length) {
+        const v = sel.value;
+        sel.innerHTML = WEEKDAYS.map(d => `<option value="${d}">${tc(WEEKDAY_LABEL[d])}</option>`).join('');
+        sel.value = v && [...sel.options].some(o => o.value === v) ? v : today;
+      }
+      if (lbl && (!currentUser || !lbl.textContent.trim() || lbl.textContent.trim() === '...')) lbl.textContent = tc(WEEKDAY_LABEL[sel.value] || WEEKDAY_LABEL[today]);
+    }
     // Re-dibuja la vista actual en el nuevo idioma sin recargar ni perder estado (pestaña, día, inputs, temporizadores)
     function rerenderDynamic() {
       displayCurrentDate();
@@ -3153,6 +3165,7 @@
         updateGoalDescription(rg.value, 'reg-goal-desc');
       }
       ['reg-birthdate', 'body-date'].forEach(id => { const el = document.getElementById(id); if (el && el.value) showDateHint(el); });
+      prefillDaySelect();
       if (!currentUser) return;
       const u = getUsersDB()[currentUser]; if (!u) return;
       const y = window.scrollY;
@@ -3574,6 +3587,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       applyStaticI18n();
+      prefillDaySelect();
       displayCurrentDate();
       checkActiveUserSession();
     });
@@ -4168,10 +4182,9 @@ ${timedSecs ? `
         document.getElementById('user-profile-bar').style.display = 'flex';
         const userData = profileCache;
         document.getElementById('profile-name').innerText = userData.fullname || currentUser;
-        renderProfileDetails(userData);
-        updateNutritionAndHero(userData);
+        try { renderProfileDetails(userData); updateNutritionAndHero(userData); } catch (e) { console.error(e); }
         document.getElementById('nutrition-banner').style.display = 'grid';
-        detectAndSetDay();
+        try { detectAndSetDay(); } catch (e) { console.error(e); prefillDaySelect(); }
         renderWorkoutHistory();
         renderMetricsHistory();
         document.getElementById('body-date').valueAsDate = new Date();
