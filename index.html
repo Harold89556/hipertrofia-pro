@@ -107,6 +107,23 @@
       line-height: 1.4;
     }
     .user-info-text strong { color: var(--accent); }
+    .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+    .adm-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center}
+    .adm-stat b{display:block;font-size:1.6rem;color:var(--accent)} .adm-stat span{font-size:.75rem;color:var(--text-muted)}
+    .adm-h{font-size:1rem;margin-bottom:10px}
+    .adm-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+    .adm-form label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--text-muted);flex:1;min-width:120px}
+    .adm-form input,.adm-search{background:#141417;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;font-size:16px;width:100%;margin-bottom:8px}
+    .adm-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .adm-table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:640px}
+    .adm-table th,.adm-table td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;white-space:nowrap}
+    .adm-table th{color:var(--text-muted);font-weight:600}
+    .adm-badge{padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700}
+    .adm-libre{background:#14532d;color:#86efac}.adm-usada{background:#1e3a8a;color:#93c5fd}.adm-revocada{background:#7f1d1d;color:#fca5a5}
+    .adm-mini{background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:5px 9px;font-size:.75rem;cursor:pointer;margin-right:4px}
+    .adm-mini.danger{border-color:#ef4444;color:#fca5a5}
+    .adm-newkey{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:rgba(255,107,26,.08);border:1px solid var(--accent-glow);border-radius:10px;padding:10px;margin-top:8px}
+    .adm-newkey code{font-size:1rem;color:var(--accent);font-weight:700;flex:1}
 
     /* BANNER DE NUTRICIÓN COMPACTO */
     .nutrition-banner {
@@ -988,6 +1005,7 @@
     <button class="tab-btn" onclick="switchTab('history-tab', this)">Historial de medidas</button>
     <button class="tab-btn" onclick="switchTab('science-tab', this)">Guía científica</button>
     <button class="tab-btn" onclick="switchTab('backup-tab', this)">Copias y datos</button>
+    <button class="tab-btn" id="admin-tab-btn" style="display:none" onclick="switchTab('admin-tab', this)">🛡️ Admin</button>
   </div>
 
   <!-- PESTAÑA 1: RUTINA DEL DÍA CON CALENTAMIENTO OBLIGATORIO -->
@@ -1235,6 +1253,39 @@
         <li><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
         <li><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
       </ul>
+    </div>
+  </div>
+
+  <!-- PESTAÑA ADMIN (solo is_admin; los datos los protege el servidor) -->
+  <div id="admin-tab" class="tab-content">
+    <div class="exercise-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="color: var(--accent); font-size: 1.2rem;">Panel de administrador</h2>
+        <button class="btn-3d btn-secondary" onclick="adminLoad()">Actualizar</button>
+      </div>
+      <div id="adm-stats" class="adm-stats"></div>
+    </div>
+    <div class="exercise-card">
+      <h3 class="adm-h">Generar claves</h3>
+      <div class="adm-form">
+        <label>Cantidad<input type="number" id="adm-count" min="1" max="50" value="1"></label>
+        <label style="flex:2">Reservar para correo (opcional)<input type="email" id="adm-email" placeholder="cliente@gmail.com"></label>
+        <button class="btn-3d" onclick="adminCreate()">Generar</button>
+      </div>
+      <div id="adm-new"></div>
+    </div>
+    <div class="exercise-card">
+      <h3 class="adm-h">Usuarios</h3>
+      <input type="search" id="adm-usearch" class="adm-search" placeholder="Buscar por nombre, correo o clave…" oninput="adminRenderUsers()">
+      <div class="adm-scroll"><table class="adm-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Sexo</th><th>Categoría</th><th>Clave</th><th>Alta</th><th>Última actividad</th><th>Coach hoy</th></tr></thead><tbody id="adm-users"></tbody></table></div>
+    </div>
+    <div class="exercise-card">
+      <h3 class="adm-h">Claves</h3>
+      <div class="adm-form">
+        <input type="search" id="adm-ksearch" class="adm-search" style="flex:2" placeholder="Buscar clave o correo…" oninput="adminRenderKeys()">
+        <select id="adm-kfilter" class="adm-search" onchange="adminRenderKeys()"><option value="">Todas</option><option value="libre">Libres</option><option value="usada">Usadas</option><option value="revocada">Revocadas</option></select>
+      </div>
+      <div class="adm-scroll"><table class="adm-table"><thead><tr><th>Clave</th><th>Estado</th><th>Reservada para</th><th>Usada por</th><th>Fecha de uso</th><th></th></tr></thead><tbody id="adm-keys"></tbody></table></div>
     </div>
   </div>
 
@@ -2381,6 +2432,15 @@ ${timedSecs ? `
             if (!ok) { await sb.auth.signOut(); return checkActiveUserSession(); }
             return checkActiveUserSession();
           }
+          const { data: acc, error: accErr } = await sb.rpc('my_access');
+          if (accErr) throw accErr;
+          if (acc && acc.revoked) {
+            await sb.auth.signOut();
+            alert('Tu clave de acceso fue desactivada. Contactá al administrador.');
+            return checkActiveUserSession();
+          }
+          window._isAdmin = !!(acc && acc.is_admin);
+          document.getElementById('admin-tab-btn').style.display = window._isAdmin ? '' : 'none';
           profileCache = profileFromRow(prof, email);
           currentUser = email;
           await loadCloudData();
@@ -2406,6 +2466,8 @@ ${timedSecs ? `
         showDateHint(document.getElementById('body-date'));
       } else {
         document.getElementById('auth-modal').style.display = 'flex';
+        window._isAdmin = false;
+        document.getElementById('admin-tab-btn').style.display = 'none';
         document.getElementById('user-profile-bar').style.display = 'none';
         document.getElementById('nutrition-banner').style.display = 'none';
         document.getElementById('hero-image').style.display = 'none';
@@ -2778,6 +2840,76 @@ ${timedSecs ? `
       if (tabId === 'history-tab') renderCharts();
       if (tabId === 'diet-tab') { renderDiet(); renderSupplements(); }
       if (tabId === 'body-tab') renderWeakPoints();
+      if (tabId === 'admin-tab') adminLoad();
+    }
+
+    // PANEL ADMIN
+    const APP_URL = 'https://harold89556.github.io/hipertrofia-pro/';
+    let admUsers = [], admKeys = [];
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const admDate = d => d ? new Date(d).toLocaleString('es-PY', { timeZone: 'America/Asuncion', dateStyle: 'short', timeStyle: 'short' }) : '—';
+    async function adminLoad() {
+      if (!window._isAdmin) return;
+      const [st, us, ks] = await Promise.all([sb.rpc('admin_stats'), sb.rpc('admin_list_users'), sb.rpc('admin_list_keys')]);
+      const err = st.error || us.error || ks.error;
+      if (err) { showToast('Error: ' + err.message); return; }
+      const s = st.data;
+      document.getElementById('adm-stats').innerHTML = [
+        ['Usuarios', s.total_users], ['Activos 7 días', s.active_week], ['Claves libres', s.keys_free],
+        ['Claves usadas', s.keys_used], ['Revocadas', s.keys_revoked], ['Mensajes coach hoy', s.coach_today]
+      ].map(([l, v]) => `<div class="adm-stat"><b>${esc(v)}</b><span>${l}</span></div>`).join('');
+      admUsers = us.data || []; admKeys = ks.data || [];
+      adminRenderUsers(); adminRenderKeys();
+    }
+    function adminRenderUsers() {
+      const q = document.getElementById('adm-usearch').value.toLowerCase().trim();
+      const rows = admUsers.filter(u => !q || [u.first_name, u.last_name, u.email, u.activation_key].join(' ').toLowerCase().includes(q));
+      document.getElementById('adm-users').innerHTML = rows.map(u => `<tr>
+        <td>${esc(u.first_name)} ${esc(u.last_name)}${u.is_admin ? ' 🛡️' : ''}</td><td>${esc(u.email)}</td><td>${esc(u.gender)}</td>
+        <td>${esc(typeof goalLabel === 'function' ? goalLabel(u.goal) : u.goal)}</td>
+        <td>${esc(u.activation_key)}${u.key_revoked ? ' <span class="adm-badge adm-revocada">revocada</span>' : ''}</td>
+        <td>${admDate(u.created_at)}</td><td>${admDate(u.last_activity || u.last_sign_in)}</td><td>${esc(u.coach_today)}</td></tr>`).join('')
+        || '<tr><td colspan="8">Sin resultados</td></tr>';
+    }
+    function adminRenderKeys() {
+      const q = document.getElementById('adm-ksearch').value.toLowerCase().trim();
+      const f = document.getElementById('adm-kfilter').value;
+      const rows = admKeys.filter(k => (!f || k.status === f) && (!q || [k.key, k.reserved_email, k.redeemed_by].join(' ').toLowerCase().includes(q)));
+      document.getElementById('adm-keys').innerHTML = rows.map(k => `<tr>
+        <td><code>${esc(k.key)}</code></td><td><span class="adm-badge adm-${esc(k.status)}">${esc(k.status)}</span></td>
+        <td>${esc(k.reserved_email || '—')}</td><td>${esc(k.redeemed_by || '—')}</td><td>${admDate(k.redeemed_at)}</td>
+        <td><button class="adm-mini" onclick="adminCopy('${esc(k.key)}')">Copiar</button>${k.status === 'libre' ? `<button class="adm-mini" onclick="adminCopyWA('${esc(k.key)}')">WhatsApp</button>` : ''}${k.status !== 'revocada' ? `<button class="adm-mini danger" onclick="adminRevoke('${esc(k.key)}')">Revocar</button>` : ''}</td></tr>`).join('')
+        || '<tr><td colspan="6">Sin resultados</td></tr>';
+    }
+    async function adminCopyText(t, msg) {
+      try { await navigator.clipboard.writeText(t); }
+      catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+      showToast(msg);
+    }
+    const adminCopy = k => adminCopyText(k, 'Clave copiada');
+    const adminCopyWA = k => adminCopyText(
+      `¡Hola! 💪 Bienvenido/a a Hipertrofia Pro.\n\n1) Entrá a: ${APP_URL}\n2) Tocá "Registrarse" y completá tus datos.\n3) Usá esta clave de acceso: ${k}\n4) Confirmá tu correo con el enlace que te llega por email.\n\nLa clave es personal y de un solo uso. ¡A entrenar!`,
+      'Mensaje para WhatsApp copiado');
+    async function adminCreate() {
+      const count = parseInt(document.getElementById('adm-count').value, 10) || 1;
+      const email = document.getElementById('adm-email').value.trim();
+      if (email && count !== 1) { showToast('Una clave reservada por correo: poné cantidad 1'); return; }
+      const { data, error } = await sb.rpc('admin_create_keys', { p_count: count, p_reserved_email: email || null });
+      if (error) { showToast('Error: ' + error.message); return; }
+      document.getElementById('adm-new').innerHTML = (data || []).map(k => `<div class="adm-newkey"><code>${esc(k)}</code>
+        <button class="adm-mini" onclick="adminCopy('${esc(k)}')">Copiar</button>
+        <button class="adm-mini" onclick="adminCopyWA('${esc(k)}')">Copiar mensaje para WhatsApp</button></div>`).join('');
+      document.getElementById('adm-email').value = '';
+      showToast(`${(data || []).length} clave(s) generada(s)`);
+      adminLoad();
+    }
+    async function adminRevoke(k) {
+      const k2 = admKeys.find(x => x.key === k);
+      const who = k2 && k2.redeemed_by ? `\n\nEl usuario ${k2.redeemed_by} perderá el acceso a la app y al entrenador.` : '';
+      if (!confirm(`¿Revocar la clave ${k}? Esta acción no se puede deshacer desde el panel.${who}`)) return;
+      const { error } = await sb.rpc('admin_revoke_key', { p_key: k });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Clave revocada'); adminLoad();
     }
 
     // EXPORTACIÓN A EXCEL Y RESPALDO
