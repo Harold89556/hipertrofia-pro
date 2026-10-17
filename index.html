@@ -747,6 +747,41 @@
     .coach-disc{font-size:.68rem;color:var(--text-muted);text-align:center;padding:0 12px 6px}
     .coach-zoom{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:11000;display:none;align-items:center;justify-content:center;padding:16px}
     .coach-zoom img{max-width:100%;max-height:100%;border-radius:12px;background:#fff}
+    /* ===== PLAN PRO ===== */
+    .plan-card { padding: 14px; }
+    .pc-title { color: var(--accent); font-size: 1.1rem; margin: 0 0 10px; cursor: pointer; }
+    details.plan-card > summary.pc-title { list-style: none; margin: 0; }
+    details.plan-card[open] > summary.pc-title { margin-bottom: 10px; }
+    .pc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 6px 0; }
+    .pc-label { font-weight: 700; color: var(--text-muted); font-size: .9rem; min-width: 120px; margin: 0 !important; }
+    .pc-row select { flex: 1; min-width: 200px; }
+    .pc-note { color: var(--text-muted); font-size: .875rem; line-height: 1.45; margin: 6px 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-elevated); color: var(--text); font-weight: 700; cursor: pointer; font-size: .95rem; }
+    .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
+    .pc-vol summary { cursor: pointer; color: var(--text); font-weight: 700; font-size: .9rem; margin-top: 6px; }
+    .vchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .vchip { font-size: .8rem; padding: 4px 9px; border-radius: 8px; background: var(--surface-elevated); border: 1px solid var(--border); }
+    .vchip b { color: var(--accent); } .vchip.weak { border-color: var(--warning); } .vchip.weak::before { content: '⭐ '; } .vchip.strong { opacity: .75; }
+    .wp-item { border-left: 3px solid var(--border); padding: 6px 10px; margin: 8px 0; background: var(--surface-elevated); border-radius: 0 8px 8px 0; }
+    .wp-item.weak { border-color: var(--warning); } .wp-item.ok { border-color: var(--success); } .wp-item.strong { border-color: #60a5fa; }
+    .wp-item small { display: block; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+    .smart-alert { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(255,107,26,.15), rgba(245,158,11,.08)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+    .smart-alert p { margin: 4px 0 0; font-size: .9rem; color: var(--text); }
+    .alert-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+    .macro-grid div { background: var(--surface-elevated); border-radius: 10px; padding: 8px; text-align: center; }
+    .macro-grid strong { display: block; color: var(--accent); font-size: 1.05rem; } .macro-grid span { font-size: .8rem; color: var(--text-muted); }
+    .meal { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+    .meal-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; } .meal-head small { color: var(--text-muted); }
+    .meal ul { list-style: none; padding: 0; margin: 6px 0 0; }
+    .meal li { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px dashed rgba(255,255,255,.06); font-size: .9rem; }
+    .meal li span { flex: 1; } .meal li b { color: var(--orange-light, #ffb37a); white-space: nowrap; }
+    .swap { background: none; border: 1px solid var(--border); border-radius: 8px; min-width: 40px; min-height: 40px; cursor: pointer; font-size: 1rem; }
+    .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
+    .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
+    .chart-box { position: relative; height: 240px; margin: 8px 0 16px; }
+    @media (max-width: 540px) { .macro-grid { grid-template-columns: repeat(2, 1fr); } .pc-label { min-width: 0; width: 100%; } }
   </style>
 </head>
 <body>
@@ -914,6 +949,10 @@
       <span>Carbohidratos</span>
     </div>
     <div class="nutrition-item">
+      <strong id="nut-fat">-</strong>
+      <span>Grasas</span>
+    </div>
+    <div class="nutrition-item">
       <strong id="nut-cardio">-</strong>
       <span>Cardio diario</span>
     </div>
@@ -943,6 +982,7 @@
   <!-- NAVEGACIÓN DE PESTAÑAS -->
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('workout-tab', this)">Rutina de Hoy</button>
+    <button class="tab-btn" onclick="switchTab('diet-tab', this)">Mi Dieta</button>
     <button class="tab-btn" onclick="switchTab('workout-history-tab', this)">Historial de cargas</button>
     <button class="tab-btn" onclick="switchTab('body-tab', this)">Registrar medidas</button>
     <button class="tab-btn" onclick="switchTab('history-tab', this)">Historial de medidas</button>
@@ -952,10 +992,13 @@
 
   <!-- PESTAÑA 1: RUTINA DEL DÍA CON CALENTAMIENTO OBLIGATORIO -->
   <div id="workout-tab" class="tab-content active">
+    <div id="smart-alert" class="smart-alert" role="status" style="display:none"></div>
+    <section class="exercise-card plan-card"><h2 class="pc-title">Tu plan semanal</h2><div id="plan-controls"></div></section>
+    <details class="exercise-card plan-card" id="wp-details"><summary class="pc-title">🎯 Puntos a mejorar</summary><div id="weakpoints-card"></div></details>
     <div class="day-selector">
       <span>Día Activo: <strong id="detected-day-name" style="color: var(--accent);">...</strong></span>
       <div style="flex: 1; max-width: 320px;">
-        <select id="select-day" onchange="loadWorkoutDay(this.value)">
+        <select id="select-day" aria-label="Día de la rutina" onchange="loadWorkoutDay(this.value)">
           <option value="lunes">Lunes - Empuje A (Pecho pesado + Hombros + Tríceps)</option>
           <option value="martes">Martes - Tirón A (Espalda amplitud + Bíceps + Trapecio)</option>
           <option value="miercoles">Miércoles - Pierna A (Cuádriceps + Abdomen + Gemelos)</option>
@@ -1104,6 +1147,12 @@
     </div>
   </div>
 
+  <!-- PESTAÑA: MI DIETA -->
+  <div id="diet-tab" class="tab-content">
+    <div class="exercise-card"><h2 class="pc-title">🍽️ Mi Dieta</h2><div id="diet-content"></div></div>
+    <div class="exercise-card"><h2 class="pc-title">💊 Suplementos y vitaminas</h2><div id="supp-content"></div></div>
+  </div>
+
   <!-- PESTAÑA 3: REGISTRO DE MEDIDAS -->
   <div id="body-tab" class="tab-content">
     <div class="exercise-card">
@@ -1127,14 +1176,26 @@
           <div><label for="m-thigh" class="field-label">Muslo / Cuádriceps (cm)</label><input type="number" step="0.1" id="m-thigh" inputmode="decimal" placeholder="Ej: 0.0"></div>
           <div><label for="m-glutes" class="field-label">Glúteos / Cadera (cm)</label><input type="number" step="0.1" id="m-glutes" inputmode="decimal" placeholder="Ej: 0.0"></div>
           <div><label for="m-calf" class="field-label">Pantorrilla (cm)</label><input type="number" step="0.1" id="m-calf" inputmode="decimal" placeholder="Ej: 0.0"></div>
+          <div><label for="m-shoulders" class="field-label">Hombros (contorno, cm)</label><input type="number" step="0.1" id="m-shoulders" inputmode="decimal" placeholder="Ej: 0.0"></div>
+          <div><label for="m-wrist" class="field-label">Muñeca (cm)</label><input type="number" step="0.1" id="m-wrist" inputmode="decimal" placeholder="Ej: 0.0"></div>
         </div>
+        <p class="field-hint">Hombros: cinta alrededor de la parte más ancha de los hombros, brazos relajados. Muñeca: justo arriba del hueso. Medite siempre a la mañana, en ayunas.</p>
         <button type="submit" class="btn-3d" style="width: 100%; margin-top: 14px;">Guardar Registro de Medidas</button>
       </form>
     </div>
+    <div class="exercise-card"><h2 class="pc-title">🎯 Puntos a mejorar</h2><div id="weakpoints-card-2"></div></div>
   </div>
 
   <!-- PESTAÑA 4: HISTORIAL DE MEDIDAS -->
   <div id="history-tab" class="tab-content">
+    <div class="exercise-card">
+      <h2 style="color: var(--accent); margin-bottom: 12px; font-size: 1.2rem;">Gráficos de progreso</h2>
+      <p id="charts-empty" class="pc-note" style="display:none">Registrá al menos 2 mediciones para ver tus gráficos.</p>
+      <div id="charts-wrap" style="display:none">
+        <div class="chart-box"><canvas id="chart-weight" aria-label="Gráfico de peso"></canvas></div>
+        <div class="chart-box"><canvas id="chart-measures" aria-label="Gráfico de medidas"></canvas></div>
+      </div>
+    </div>
     <div class="exercise-card">
       <h2 style="color: var(--accent); margin-bottom: 12px; font-size: 1.2rem;">Evolución Antropométrica</h2>
       <div class="sets-table-wrapper">
@@ -1149,6 +1210,8 @@
               <th>Muslo</th>
               <th>Glúteo</th>
               <th>Gemelo</th>
+              <th>Hombros</th>
+              <th>Muñeca</th>
             </tr>
           </thead>
           <tbody id="metrics-history-body">
@@ -1639,28 +1702,6 @@
     };
 
     // Función que elige el programa correcto según la categoría del usuario
-    function getProgramForUser(userData) {
-      const goal = (userData && userData.goal) || 'open';
-      const map = {
-        open: 'open',
-        '212': 'open',
-        classic: 'classic',
-        mens_physique: 'mens_physique',
-        muscular_physique: 'mens_physique',
-        ganar_masa: 'tonificacion',
-        wellness: 'wellness',
-        bikini: 'bikini',
-        mujer_gluteos: 'wellness',
-        mujer_tonificar: 'tonificacion',
-        figure: 'figure',
-        womens_physique: 'figure',
-        ms_olympia: 'open',
-        fitness: 'figure'
-      };
-      const key = map[goal] || 'open';
-      return MASTER_PROGRAMS[key] || MASTER_PROGRAMS.open;
-    }
-
     let currentUser = null;
     let timerInterval = null;
     let timerSeconds = 0;
@@ -1970,7 +2011,7 @@
 
       const dayNames = {
         lunes: "Lunes", martes: "Martes", miercoles: "Miércoles",
-        jueves: "Jueves", viernes: "Viernes", descanso: "Día de Descanso"
+        jueves: "Jueves", viernes: "Viernes", sabado: "Sábado", domingo: "Domingo", descanso: "Día de Descanso"
       };
 
       detectedLabel.innerText = dayNames[dayKey] || dayKey;
@@ -2086,6 +2127,8 @@ ${timedSecs ? `
     // EJERCICIOS POR TIEMPO (isométricos)
     function getTimedSeconds(ex) {
       const t = String(ex.target || '');
+      const mm = t.match(/x\s*(\d+)\s*min\b/i);
+      if (mm) return parseInt(mm[1], 10) * 60;
       const m = t.match(/x\s*(\d+)(?:\s*-\s*(\d+))?\s*(?:s|seg|segundos)\b/i);
       if (m) return parseInt(m[2] || m[1], 10);
       if (/plancha|isom[eé]tric|hold/i.test(ex.name || '')) return 45;
@@ -2157,7 +2200,7 @@ ${timedSecs ? `
       const program = getProgramForUser(userData);
       const exObj = program[dayKey].exercises[exIdx];
       const todayStr = getTodayISO();
-      const dayNames = { lunes: "Lunes", martes: "Martes", miercoles: "Miércoles", jueves: "Jueves", viernes: "Viernes" };
+      const dayNames = WEEKDAY_LABEL;
       
       const existingIdx = history.findIndex(item => item.date === todayStr && item.exercise === exObj.name && item.setNum === setNum);
       const newEntry = {
@@ -2243,59 +2286,7 @@ ${timedSecs ? `
       womens_physique: 1.10, ms_olympia: 1.10, mens_physique: 1.08, wellness: 1.08, mujer_gluteos: 1.08,
       figure: 1.07, fitness: 1.05, bikini: 1.05, tonificacion: 0.85, mujer_tonificar: 0.80
     };
-    function calculateCalories(user) {
-      const w = parseFloat(user && user.weight), h = parseFloat(user && user.height);
-      const age = user && user.birthdate ? calculateAge(user.birthdate) : parseFloat(user && user.age);
-      if (!(w > 0) || !(h > 0) || !(age > 0)) return null;
-      const bmr = 10 * w + 6.25 * h - 5 * age + (user.gender === 'mujer' ? -161 : 5);
-      const factor = CALORIE_GOAL_FACTORS[String(user.goal || 'open').toLowerCase()] || 1.10;
-      return Math.round(bmr * 1.55 * factor / 50) * 50;
-    }
-
     // NUTRICIÓN Y CARDIO PERSONALIZADOS
-    function calculateNutrition(user) {
-      if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', cardio: '-', calories: '-' };
-      const w = parseFloat(user.weight);
-      const isMale = user.gender === 'hombre';
-      const goal = user.goal || 'open';
-
-      let protein = Math.round(w * 2.2);
-      let carbs = Math.round(w * 3.8);
-      let cardio = '20 min moderado';
-      let water = (w * 0.04).toFixed(1) + ' L';
-
-      if (goal === 'bikini' || goal === 'mujer_tonificar') {
-        protein = Math.round(w * 2.0);
-        carbs = Math.round(w * 2.2);
-        cardio = '35-45 min LISS';
-      } else if (goal === 'wellness' || goal === 'open') {
-        protein = Math.round(w * 2.3);
-        carbs = Math.round(w * 4.5);
-        cardio = '15-20 min post';
-      }
-
-      return {
-        water,
-        protein: protein + ' g',
-        carbs: carbs + ' g',
-        cardio,
-        calories: (function(){ const k = calculateCalories(user); return k ? k.toLocaleString('es-PY') + ' kcal' : '-'; })(),
-        goalLabel: goalLabel(goal)
-      };
-    }
-
-    function updateNutritionAndHero(user) {
-      const nut = calculateNutrition(user);
-      document.getElementById('nut-calories').innerText = nut.calories;
-      document.getElementById('nut-water').innerText = nut.water;
-      document.getElementById('nut-protein').innerText = nut.protein;
-      document.getElementById('nut-carbs').innerText = nut.carbs;
-      document.getElementById('nut-cardio').innerText = nut.cardio;
-      document.getElementById('nut-goal').innerText = goalLabel(user.goal);
-
-      renderCategorySelector(user);
-    }
-
     // ===== SELECTOR DE CATEGORÍAS 3D =====
     function showToast(msg) {
       let t = document.getElementById('hp-toast');
@@ -2457,14 +2448,6 @@ ${timedSecs ? `
       localStorage.setItem(flag, new Date().toISOString());
       await loadCloudData();
       alert('¡Datos subidos a la nube correctamente!');
-    }
-
-    function detectAndSetDay() {
-      const dayNum = new Date().getDay();
-      const dayMap = { 1: 'lunes', 2: 'martes', 3: 'miercoles', 4: 'jueves', 5: 'viernes' };
-      const currentDayKey = dayMap[dayNum] || 'descanso';
-      document.getElementById('select-day').value = currentDayKey;
-      loadWorkoutDay(currentDayKey);
     }
 
     function showAuthTab(tab) {
@@ -2739,7 +2722,9 @@ ${timedSecs ? `
         biceps: document.getElementById('m-biceps').value || '-',
         thigh: document.getElementById('m-thigh').value || '-',
         glutes: document.getElementById('m-glutes').value || '-',
-        calf: document.getElementById('m-calf').value || '-'
+        calf: document.getElementById('m-calf').value || '-',
+        shoulders: document.getElementById('m-shoulders').value || '-',
+        wrist: document.getElementById('m-wrist').value || '-'
       };
 
       const storageKey = `body_metrics_${currentUser}`;
@@ -2748,7 +2733,8 @@ ${timedSecs ? `
       cloudStore.setItem(storageKey, JSON.stringify(history));
 
       renderMetricsHistory();
-      alert('Medidas registradas con éxito.');
+      refreshAll();
+      alert('Medidas registradas con éxito. Tu plan, tus puntos a mejorar y las alertas se actualizaron.');
       document.getElementById('body-form').reset();
       document.getElementById('body-date').valueAsDate = new Date();
       showDateHint(document.getElementById('body-date'));
@@ -2761,7 +2747,7 @@ ${timedSecs ? `
       const history = JSON.parse(cloudStore.getItem(storageKey) || '[]');
 
       if (history.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="color: var(--text-muted); text-align:center;">Sin registros guardados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="color: var(--text-muted); text-align:center;">Sin registros guardados.</td></tr>';
         return;
       }
 
@@ -2775,6 +2761,8 @@ ${timedSecs ? `
           <td>${item.thigh} cm</td>
           <td>${item.glutes} cm</td>
           <td>${item.calf} cm</td>
+          <td>${item.shoulders || '-'} cm</td>
+          <td>${item.wrist || '-'} cm</td>
         </tr>
       `).join('');
     }
@@ -2787,6 +2775,9 @@ ${timedSecs ? `
       btn.classList.add('active');
       document.body.classList.toggle('compact-header', tabId !== 'workout-tab');
       if (btn.blur) btn.blur();
+      if (tabId === 'history-tab') renderCharts();
+      if (tabId === 'diet-tab') { renderDiet(); renderSupplements(); }
+      if (tabId === 'body-tab') renderWeakPoints();
     }
 
     // EXPORTACIÓN A EXCEL Y RESPALDO
@@ -2815,8 +2806,8 @@ ${timedSecs ? `
       if (!currentUser) return;
       const history = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]');
       if (history.length === 0) return alert('No hay medidas para exportar.');
-      const rows = [['Fecha', 'Peso', 'Pecho', 'Cintura', 'Bíceps', 'Muslo', 'Glúteos', 'Gemelos']];
-      history.forEach(i => rows.push([i.date, i.weight, i.chest, i.waist, i.biceps, i.thigh, i.glutes, i.calf]));
+      const rows = [['Fecha', 'Peso', 'Pecho', 'Cintura', 'Bíceps', 'Muslo', 'Glúteos', 'Gemelos', 'Hombros', 'Muñeca']];
+      history.forEach(i => rows.push([i.date, i.weight, i.chest, i.waist, i.biceps, i.thigh, i.glutes, i.calf, i.shoulders || '-', i.wrist || '-']));
       downloadCSV(`medidas_${currentUser}_${getTodayISO()}.csv`, rows);
     }
 
@@ -2852,6 +2843,621 @@ ${timedSecs ? `
       };
       reader.readAsText(event.target.files[0]);
     }
+    // =====================================================================
+    // HIPERTROFIA PRO — MOTOR DE PLANIFICACIÓN (frecuencia, fases, dieta,
+    // alertas, puntos débiles, suplementos, gráficos)
+    // =====================================================================
+    const WEEKDAYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+    const WEEKDAY_LABEL = { lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles', jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo', descanso: 'Día de Descanso' };
+    // Días de entrenamiento por frecuencia (con descansos intercalados cuando se puede)
+    const FREQ_SCHEDULE = {
+      3: ['lunes', 'miercoles', 'viernes'],
+      4: ['lunes', 'martes', 'jueves', 'viernes'],
+      5: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'],
+      6: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'],
+      7: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+    };
+    const MUSCLE_LABEL = {
+      chest: 'Pecho', upper_chest: 'Pecho superior', lats: 'Dorsales (amplitud)', midback: 'Espalda media (grosor)',
+      front_delt: 'Hombro frontal (press)', side_delt: 'Hombro lateral', rear_delt: 'Hombro posterior',
+      biceps: 'Bíceps', triceps: 'Tríceps', quads: 'Cuádriceps', hams: 'Isquiotibiales', glutes: 'Glúteos',
+      abductors: 'Glúteo medio / abductores', calves: 'Pantorrillas', abs: 'Abdomen / core'
+    };
+    const COMPOUND_FIRST = ['glutes', 'quads', 'hams', 'chest', 'upper_chest', 'lats', 'midback', 'front_delt', 'side_delt', 'rear_delt', 'triceps', 'biceps', 'abductors', 'calves', 'abs'];
+    // Biblioteca: [nombre, multiplicadorCarga, reps, descansoSeg, nota]
+    const EX_LIB = {
+      chest: [['Press Plano con Mancuernas', 0.7, '6-10', 150, 'Escápulas retraídas, bajada controlada de 2-3 s y estiramiento profundo.'],
+        ['Press de Pecho en Máquina Convergente', 0.8, '8-12', 120, 'Empujá juntando los codos; no bloquees agresivo.'],
+        ['Fondos en Paralelas (torso inclinado)', 0.4, '8-12', 120, 'Inclinate adelante y bajá hasta sentir estiramiento en el pecho.'],
+        ['Aperturas en Peck Deck', 0.4, '10-15', 90, 'Tensión continua; pausa de 1 s con el pecho contraído.'],
+        ['Cruce de Poleas a la Altura del Pecho', 0.25, '12-15', 75, 'Codos semi-flexionados fijos; estiramiento máximo atrás.']],
+      upper_chest: [['Press Inclinado con Mancuernas 30°', 0.6, '6-10', 150, 'Banco a 30° (no más) para priorizar fibras claviculares.'],
+        ['Press Inclinado en Máquina o Multipower', 0.7, '8-10', 120, 'Barra hacia la parte alta del pecho, codos a 45-60°.'],
+        ['Cruce de Poleas de Abajo hacia Arriba', 0.25, '12-15', 75, 'Llevá las manos a la altura del mentón.']],
+      lats: [['Jalón al Pecho Agarre Neutro', 0.75, '8-10', 120, 'Llevá los codos hacia los bolsillos; pecho arriba, sin balanceo.'],
+        ['Dominadas (asistidas si hace falta)', 0.5, '6-10', 150, 'Rango completo; estiramiento total abajo.'],
+        ['Jalón Unilateral en Polea Alta', 0.35, '10-12', 90, 'Tirá desde el codo, rotando levemente el torso al final.'],
+        ['Pullover en Polea Alta con Cuerda', 0.35, '12-15', 75, 'Brazos casi rectos; aislás el dorsal sin bíceps.']],
+      midback: [['Remo con Apoyo de Pecho (máquina o T)', 0.7, '8-10', 120, 'Sin impulso; apretá las escápulas 1 s.'],
+        ['Remo Unilateral con Mancuerna', 0.45, '8-12', 90, 'Espalda neutra; codo pegado al cuerpo hacia la cadera.'],
+        ['Remo en Polea Baja Agarre Neutro', 0.6, '10-12', 90, 'Pecho arriba; no tires con la zona lumbar.']],
+      front_delt: [['Press Militar con Mancuernas Sentado', 0.35, '6-10', 120, 'Core firme; bajá hasta la altura de las orejas.'],
+        ['Press de Hombros en Máquina', 0.5, '8-12', 120, 'Trayectoria estable; empujá sin arquear la espalda.']],
+      side_delt: [['Elevaciones Laterales con Mancuernas', 0.12, '12-15', 60, 'Subí hasta la altura de los hombros, guiando con el codo.'],
+        ['Elevaciones Laterales en Polea Baja', 0.1, '12-15', 60, 'Tensión desde abajo; un brazo por vez.'],
+        ['Elevaciones Laterales en Máquina', 0.2, '12-20', 60, 'Pausa arriba; controlá la bajada.']],
+      rear_delt: [['Pájaros en Peck Deck Invertido', 0.3, '12-20', 60, 'Brazos largos; abrí sin subir los trapecios.'],
+        ['Face Pull con Cuerda', 0.25, '12-15', 60, 'Tirá hacia la frente separando la cuerda; rotación externa.']],
+      biceps: [['Curl Inclinado con Mancuernas', 0.15, '8-12', 75, 'Codo detrás del cuerpo: máximo estiramiento del bíceps.'],
+        ['Curl con Barra Z', 0.3, '8-12', 75, 'Sin balanceo; codos fijos al costado.'],
+        ['Curl en Banco Scott (polea o máquina)', 0.25, '10-12', 75, 'Bajá completo; no rebotes abajo.'],
+        ['Curl Martillo', 0.18, '10-12', 60, 'Trabaja braquial y antebrazo para dar grosor al brazo.']],
+      triceps: [['Extensión de Tríceps sobre la Cabeza en Polea', 0.3, '8-12', 75, 'Énfasis en la cabeza larga estirada.'],
+        ['Pushdown con Barra V', 0.4, '10-12', 60, 'Codos pegados; extensión completa.'],
+        ['Press Francés con Barra Z', 0.3, '8-10', 90, 'Bajá hacia la frente o detrás de la cabeza, codos quietos.']],
+      quads: [['Sentadilla Hack o Péndulo', 1.2, '6-10', 180, 'Profundidad completa con la espalda apoyada.'],
+        ['Prensa de Piernas 45°', 1.4, '8-12', 150, 'Bajá hasta donde mantengas la pelvis apoyada.'],
+        ['Extensión de Cuádriceps', 0.5, '10-15', 75, 'Pausa de 1 s arriba; bajada lenta.'],
+        ['Sentadilla Búlgara con Mancuernas', 0.25, '8-12', 120, 'Torso erguido para cuádriceps; inclinado para glúteo.']],
+      hams: [['Peso Muerto Rumano (RDL)', 1.0, '6-10', 150, 'Cadera atrás, espalda neutra, estiramiento profundo de isquios.'],
+        ['Curl Femoral Sentado', 0.5, '10-12', 90, 'Cadera pegada al respaldo; estiramiento mayor que el tumbado.'],
+        ['Curl Femoral Tumbado', 0.45, '10-12', 90, 'Sin levantar la cadera; bajada de 3 s.']],
+      glutes: [['Hip Thrust con Barra', 1.1, '8-10', 150, 'Mentón al pecho, retroversión pélvica y pausa de 1 s arriba.'],
+        ['Sentadilla Búlgara con Inclinación (glúteo)', 0.25, '8-12', 120, 'Torso inclinado adelante, paso largo.'],
+        ['Patada de Glúteo en Polea', 0.15, '12-15', 60, 'Extensión de cadera sin arquear la zona lumbar.'],
+        ['Hiperextensión 45° Enfoque Glúteo', 0.2, '12-15', 75, 'Espalda redondeada levemente, empujá con glúteo.'],
+        ['Puente de Glúteo en Máquina o Multipower', 0.9, '10-12', 120, 'Rango corto, máxima contracción.']],
+      abductors: [['Abducción de Cadera en Máquina', 0.6, '12-20', 60, 'Torso levemente inclinado adelante para glúteo superior.'],
+        ['Abducción en Polea de Pie', 0.1, '12-15', 60, 'Movimiento lento y controlado, sin compensar con el torso.']],
+      calves: [['Elevación de Talones de Pie', 0.7, '8-12', 75, 'Pausa de 2 s abajo en estiramiento máximo.'],
+        ['Elevación de Talones en Prensa', 0.9, '10-15', 60, 'Rango completo, sin rebote.']],
+      abs: [['Crunch en Polea Alta', 0.4, '10-15', 60, 'Flexioná la columna exhalando todo el aire.'],
+        ['Elevaciones de Piernas Colgado', 0, '10-15', 60, 'Retroversión pélvica al subir; sin balanceo.'],
+        ['Plancha Abdominal', 0, '45 s', 60, 'Core firme, glúteos apretados, cuerpo recto.'],
+        ['Vacío Abdominal', 0, '20 s', 45, 'Exhalá todo y meté el ombligo hacia la columna (transverso).']]
+    };
+    const DAY_TYPES = {
+      FB: { name: 'Cuerpo Completo', m: ['quads', 'hams', 'glutes', 'chest', 'upper_chest', 'lats', 'midback', 'front_delt', 'side_delt', 'rear_delt', 'biceps', 'triceps', 'abductors', 'calves', 'abs'] },
+      U: { name: 'Tren Superior', m: ['chest', 'upper_chest', 'lats', 'midback', 'front_delt', 'side_delt', 'rear_delt', 'biceps', 'triceps'] },
+      L: { name: 'Tren Inferior', m: ['quads', 'hams', 'glutes', 'abductors', 'calves', 'abs'] },
+      PUSH: { name: 'Empuje (Pecho, Hombros, Tríceps)', m: ['chest', 'upper_chest', 'front_delt', 'side_delt', 'triceps'] },
+      PULL: { name: 'Tirón (Espalda, Hombro Post., Bíceps)', m: ['lats', 'midback', 'rear_delt', 'biceps', 'abs'] },
+      LEGS: { name: 'Piernas', m: ['quads', 'hams', 'glutes', 'abductors', 'calves', 'abs'] },
+      SA: { name: 'Hombros y Brazos', m: ['side_delt', 'rear_delt', 'front_delt', 'biceps', 'triceps', 'abs'] },
+      HB: { name: 'Hombros y Espalda (V-Taper)', m: ['side_delt', 'lats', 'midback', 'rear_delt', 'front_delt', 'abs'] },
+      GH: { name: 'Glúteos e Isquios', m: ['glutes', 'hams', 'abductors', 'abs'] },
+      QG: { name: 'Cuádriceps y Glúteos', m: ['glutes', 'quads', 'abductors', 'calves'] },
+      GLU: { name: 'Glúteo Completo', m: ['glutes', 'abductors', 'hams', 'abs'] },
+      REC: { name: 'Recuperación Activa (Cardio suave + Movilidad)', m: [] }
+    };
+    const SPLITS = {
+      balanced: { 3: ['FB', 'FB', 'FB'], 4: ['U', 'L', 'U', 'L'], 5: ['U', 'L', 'PUSH', 'PULL', 'LEGS'], 6: ['PUSH', 'PULL', 'LEGS', 'PUSH', 'PULL', 'LEGS'] },
+      physique: { 3: ['FB', 'FB', 'FB'], 4: ['U', 'L', 'U', 'SA'], 5: ['PUSH', 'PULL', 'L', 'U', 'SA'], 6: ['PUSH', 'PULL', 'L', 'PUSH', 'PULL', 'SA'] },
+      vtaper: { 3: ['FB', 'FB', 'FB'], 4: ['U', 'L', 'HB', 'L'], 5: ['U', 'L', 'HB', 'L', 'SA'], 6: ['PUSH', 'PULL', 'LEGS', 'HB', 'L', 'SA'] },
+      glute: { 3: ['FB', 'FB', 'FB'], 4: ['GH', 'U', 'QG', 'HB'], 5: ['GH', 'U', 'QG', 'HB', 'GLU'], 6: ['GH', 'U', 'QG', 'GH', 'HB', 'QG'] },
+      tone: { 3: ['FB', 'FB', 'FB'], 4: ['U', 'L', 'U', 'L'], 5: ['U', 'L', 'FB', 'U', 'L'], 6: ['U', 'L', 'FB', 'U', 'L', 'FB'] }
+    };
+    // Series semanales objetivo por músculo (evidencia: ~10-20 series duras/semana para los prioritarios,
+    // 6-10 para mantener los secundarios). upper_chest suma al pecho; front_delt recibe trabajo indirecto de los press.
+    const CATEGORY_PLAN = {
+      open: { split: 'balanced', note: 'Masa máxima en todo el cuerpo, con simetría.', minFreq: 4,
+        v: { chest: 10, upper_chest: 6, lats: 10, midback: 8, front_delt: 4, side_delt: 14, rear_delt: 8, biceps: 12, triceps: 12, quads: 16, hams: 12, glutes: 6, abductors: 0, calves: 10, abs: 6 },
+        order: ['quads', 'chest', 'lats', 'side_delt', 'hams'] },
+      classic: { split: 'balanced', note: 'Equilibrio estético, piernas completas y cintura estrecha.', minFreq: 4,
+        v: { chest: 8, upper_chest: 8, lats: 12, midback: 6, front_delt: 3, side_delt: 14, rear_delt: 8, biceps: 10, triceps: 10, quads: 14, hams: 12, glutes: 6, abductors: 0, calves: 10, abs: 8 },
+        order: ['side_delt', 'upper_chest', 'lats', 'quads', 'hams'] },
+      mens_physique: { split: 'physique', note: 'Hombros anchos, pecho superior y dorsales; cintura chica y piernas de mantenimiento.', minFreq: 4,
+        v: { chest: 6, upper_chest: 10, lats: 14, midback: 6, front_delt: 3, side_delt: 18, rear_delt: 8, biceps: 10, triceps: 10, quads: 8, hams: 6, glutes: 0, abductors: 0, calves: 6, abs: 8 },
+        order: ['side_delt', 'upper_chest', 'lats', 'rear_delt', 'biceps'] },
+      ganar_masa: { split: 'balanced', note: 'Hipertrofia general equilibrada con sobrecarga progresiva.', minFreq: 3,
+        v: { chest: 8, upper_chest: 4, lats: 10, midback: 6, front_delt: 3, side_delt: 10, rear_delt: 6, biceps: 8, triceps: 8, quads: 12, hams: 10, glutes: 4, abductors: 0, calves: 6, abs: 6 },
+        order: ['quads', 'chest', 'lats', 'hams', 'side_delt'] },
+      wellness: { split: 'glute', note: 'Glúteos, isquios y cuádriceps grandes; tren superior proporcionado.', minFreq: 4,
+        v: { chest: 3, upper_chest: 3, lats: 8, midback: 4, front_delt: 3, side_delt: 8, rear_delt: 4, biceps: 3, triceps: 3, quads: 14, hams: 12, glutes: 18, abductors: 8, calves: 4, abs: 6 },
+        order: ['glutes', 'hams', 'quads', 'abductors', 'side_delt'] },
+      mujer_gluteos: { split: 'glute', note: 'Prioridad glúteo y cadena posterior con frecuencia 3 por semana.', minFreq: 3,
+        v: { chest: 2, upper_chest: 2, lats: 6, midback: 4, front_delt: 2, side_delt: 6, rear_delt: 4, biceps: 2, triceps: 2, quads: 10, hams: 10, glutes: 18, abductors: 8, calves: 2, abs: 6 },
+        order: ['glutes', 'hams', 'abductors', 'quads', 'lats'] },
+      bikini: { split: 'glute', note: 'Glúteo redondo y hombros redondeados; piernas y cintura livianas.', minFreq: 4,
+        v: { chest: 2, upper_chest: 3, lats: 8, midback: 4, front_delt: 2, side_delt: 14, rear_delt: 6, biceps: 3, triceps: 3, quads: 6, hams: 8, glutes: 16, abductors: 8, calves: 2, abs: 4 },
+        order: ['glutes', 'side_delt', 'abductors', 'hams', 'lats'] },
+      figure: { split: 'vtaper', note: 'V-taper: hombros y espalda amplios con piernas atléticas.', minFreq: 4,
+        v: { chest: 4, upper_chest: 4, lats: 14, midback: 8, front_delt: 3, side_delt: 16, rear_delt: 8, biceps: 6, triceps: 6, quads: 10, hams: 10, glutes: 10, abductors: 4, calves: 6, abs: 6 },
+        order: ['side_delt', 'lats', 'glutes', 'midback', 'quads'] },
+      womens_physique: { split: 'balanced', note: 'Masa muscular completa y proporcionada.', minFreq: 4,
+        v: { chest: 6, upper_chest: 6, lats: 12, midback: 8, front_delt: 3, side_delt: 14, rear_delt: 8, biceps: 8, triceps: 8, quads: 14, hams: 12, glutes: 12, abductors: 4, calves: 8, abs: 6 },
+        order: ['side_delt', 'lats', 'quads', 'glutes', 'hams'] },
+      mujer_tonificar: { split: 'tone', note: 'Cuerpo completo + cardio para perder grasa y conservar músculo.', minFreq: 3,
+        v: { chest: 4, upper_chest: 2, lats: 8, midback: 4, front_delt: 2, side_delt: 6, rear_delt: 4, biceps: 3, triceps: 3, quads: 10, hams: 8, glutes: 12, abductors: 4, calves: 2, abs: 6 },
+        order: ['glutes', 'quads', 'lats', 'hams', 'side_delt'] }
+    };
+    const CATEGORY_ALIAS = { '212': 'open', muscular_physique: 'mens_physique', ms_olympia: 'womens_physique', fitness: 'figure', tonificacion: 'mujer_tonificar' };
+    function planKey(goal) { const g = String(goal || '').toLowerCase(); return CATEGORY_PLAN[g] ? g : (CATEGORY_ALIAS[g] || 'ganar_masa'); }
+
+    // ===== FASES =====
+    const COMPETITIVE = ['open', 'classic', 'mens_physique', 'wellness', 'bikini', 'figure', 'womens_physique'];
+    const PHASES = {
+      recreativo: { label: 'No compito / recreativo', vol: 1.0 },
+      volumen: { label: 'Volumen (off-season)', vol: 1.0, kcal: 1.10, prot: 2.0, fat: 0.27, rate: [0.25, 0.5],
+        cardio: '2-3×20 min LISS/semana + 7-9k pasos', info: 'Superávit moderado (+10%). Buscá subir 0,25-0,5% de tu peso por semana para ganar músculo con poca grasa.' },
+      definicion: { label: 'Definición (cut)', vol: 0.9, kcal: 0.80, prot: 2.3, fat: 0.22, rate: [-1.0, -0.5],
+        cardio: '4-5×30-40 min LISS/semana + 10-12k pasos', info: 'Déficit de ~20%. Bajá 0,5-1% de tu peso por semana; la proteína alta y el entrenamiento pesado protegen tu músculo.' },
+      precontest: { label: 'Pre-contest / peak week', vol: 0.8, kcal: 0.75, prot: 2.5, fat: 0.20, rate: [-1.0, -0.5],
+        cardio: '5-6×30-45 min LISS/semana + 12-15k pasos', info: 'Últimas semanas: déficit de ~25%, mantené la intensidad de las cargas y bajá un poco el volumen. En la peak week no hagas cortes extremos de agua ni sodio: mantené hidratación normal y ajustá carbohidratos con tu coach.' },
+      mantenimiento: { label: 'Mantenimiento', vol: 0.8, kcal: 1.0, prot: 1.8, fat: 0.28, rate: [-0.25, 0.25],
+        cardio: '3×25 min/semana + 8-10k pasos', info: 'Calorías de mantenimiento. Tu peso debería quedarse estable (±0,25%/semana).' },
+      postshow: { label: 'Post-show / dieta inversa', vol: 0.8, kcal: 0.92, prot: 2.2, fat: 0.25, rate: [0, 0.5],
+        cardio: 'Bajá el cardio gradualmente: 3×20 min/semana', info: 'Dieta inversa: arrancás un poco debajo del mantenimiento y subís +100-150 kcal por semana para recuperar hormonas y energía sin rebote.' }
+    };
+    const FREQ_ACTIVITY = { 3: 1.45, 4: 1.5, 5: 1.55, 6: 1.65, 7: 1.7 };
+
+    // ===== CONFIGURACIÓN PERSISTENTE (user_data: hp_settings_<email>) =====
+    function settingsKey() { return `hp_settings_${currentUser}`; }
+    function getSettings() {
+      let s = {}; try { s = JSON.parse(cloudStore.getItem(settingsKey()) || '{}') || {}; } catch (e) {}
+      const u = (getUsersDB()[currentUser]) || {};
+      if (!FREQ_SCHEDULE[s.frequency]) s.frequency = 5;
+      if (!PHASES[s.phase] || (s.phase !== 'recreativo' && !COMPETITIVE.includes(planKey(u.goal)))) s.phase = 'recreativo';
+      s.kcalAdjust = Number(s.kcalAdjust) || 0;
+      s.adjustments = Array.isArray(s.adjustments) ? s.adjustments : [];
+      return s;
+    }
+    function saveSettings(s) { cloudStore.setItem(settingsKey(), JSON.stringify(s)); _programCache = null; }
+
+    // ===== PUNTOS DÉBILES (proporciones) =====
+    function latestMeasures() {
+      if (!currentUser) return null;
+      let h = []; try { h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]'); } catch (e) {}
+      const num = v => { const n = parseFloat(v); return n > 0 ? n : null; };
+      const sorted = h.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const out = {};
+      ['chest', 'waist', 'biceps', 'thigh', 'glutes', 'calf', 'shoulders', 'wrist'].forEach(f => {
+        const r = sorted.find(x => num(x[f])); if (r) out[f] = num(r[f]);
+      });
+      return Object.keys(out).length ? out : null;
+    }
+    function analyzeWeakPoints(user) {
+      const m = latestMeasures(); const res = { items: [], weak: [], strong: [], hasData: !!m };
+      if (!m || !user) return res;
+      const goal = planKey(user.goal), female = user.gender === 'mujer', H = parseFloat(user.height) || 0;
+      const wrist = m.wrist || (H ? H * (female ? 0.088 : 0.098) : null);
+      const add = (label, val, ideal, cmp, muscles, tip, opts = {}) => {
+        if (!(val > 0) || !(ideal > 0)) return;
+        const ratio = cmp === 'max' ? ideal / val : val / ideal; // >=1 es bueno
+        let status = 'ok';
+        if (ratio < 0.94) status = 'weak'; else if (ratio > (opts.domAt || 1.1) && opts.dominant) status = 'strong';
+        res.items.push({ label, val, ideal, status, tip, muscles, estimated: opts.estimated });
+        if (status === 'weak') muscles.forEach(x => res.weak.includes(x) || res.weak.push(x));
+        if (status === 'strong') (opts.dominant || []).forEach(x => res.strong.includes(x) || res.strong.push(x));
+      };
+      const r1 = v => Math.round(v * 10) / 10;
+      if (!female) {
+        const armK = { open: 2.5, classic: 2.5, mens_physique: 2.35, ganar_masa: 2.3 }[goal] || 2.4;
+        if (m.biceps && wrist) add('Brazo', m.biceps, r1(wrist * armK), 'min', ['biceps', 'triceps'], `Ideal ≈ ${armK}× tu muñeca${m.wrist ? '' : ' (muñeca estimada por altura)'}.`, { dominant: ['biceps', 'triceps'], domAt: 1.12, estimated: !m.wrist });
+        if (m.shoulders && m.waist) add('Hombros vs cintura', r1(m.shoulders / m.waist * 100) / 100, goal === 'mens_physique' ? 1.65 : 1.618, 'min', ['side_delt', 'lats'], 'Proporción áurea: hombros ≥ 1,618 × cintura. Se logra con hombro lateral, dorsales y cintura más chica.');
+        if (m.calf && m.biceps && goal !== 'mens_physique') add('Pantorrilla vs brazo', r1(m.calf / m.biceps * 100) / 100, 1.0, 'min', ['calves'], 'En la estética clásica la pantorrilla mide casi lo mismo que el brazo.', { dominant: ['calves'], domAt: 1.12 });
+        if (m.thigh && m.biceps && goal !== 'mens_physique') add('Muslo vs brazo', r1(m.thigh / m.biceps * 100) / 100, goal === 'open' ? 1.45 : 1.4, 'min', ['quads', 'hams'], 'Muslo ≈ 1,4-1,45 × brazo para piernas proporcionadas.', { dominant: ['quads'], domAt: 1.15 });
+        if (m.chest && wrist) add('Pecho', m.chest, r1(wrist * 6.5), 'min', ['chest', 'upper_chest', 'lats'], `Ideal clásico ≈ 6,5× tu muñeca${m.wrist ? '' : ' (estimada)'}.`, { estimated: !m.wrist });
+        if (m.waist && H) add('Cintura vs altura', r1(m.waist / H * 100) / 100, goal === 'open' ? 0.47 : 0.45, 'max', [], 'Cintura ≤ 45-47% de tu altura. Esto depende sobre todo de la grasa: se baja con dieta y cardio, no con más abdominales.');
+      } else {
+        if (m.waist && m.glutes) add('Cintura vs cadera', r1(m.waist / m.glutes * 100) / 100, goal === 'wellness' ? 0.65 : 0.70, 'max', ['glutes', 'abductors'], 'Cintura ≈ 0,65-0,70 × cadera. Mejora agrandando glúteos y bajando grasa de la cintura.');
+        if (m.shoulders && m.waist) add('Hombros vs cintura', r1(m.shoulders / m.waist * 100) / 100, goal === 'figure' || goal === 'womens_physique' ? 1.5 : 1.4, 'min', ['side_delt', 'lats'], 'Hombros más anchos que la cintura dan la silueta en V / reloj de arena.');
+        if (m.thigh && m.glutes && ['wellness', 'womens_physique', 'figure'].includes(goal)) add('Muslo vs cadera', r1(m.thigh / m.glutes * 100) / 100, 0.6, 'min', ['quads', 'hams'], 'Muslo ≈ 60% de la cadera para piernas atléticas.');
+        if (m.thigh && m.glutes && ['bikini', 'mujer_tonificar'].includes(goal)) add('Muslo vs cadera', r1(m.thigh / m.glutes * 100) / 100, 0.6, 'min', [], 'En Bikini se busca pierna firme pero no voluminosa.', { dominant: ['quads'], domAt: 1.08 });
+        if (m.biceps && wrist && goal === 'womens_physique') add('Brazo', m.biceps, r1(wrist * 2.2), 'min', ['biceps', 'triceps'], 'Ideal ≈ 2,2× tu muñeca.');
+        if (m.waist && H) add('Cintura vs altura', r1(m.waist / H * 100) / 100, 0.43, 'max', [], 'Cintura ≤ 43% de la altura. Se baja con dieta y cardio.');
+      }
+      return res;
+    }
+
+    // ===== GENERADOR DE RUTINAS =====
+    let _programCache = null, _programSig = '';
+    function weeklyTargets(goal, phase, wp) {
+      const plan = CATEGORY_PLAN[goal], v = Object.assign({}, plan.v), vf = (PHASES[phase] || PHASES.recreativo).vol;
+      for (const k in v) v[k] = Math.round(v[k] * vf);
+      (wp.weak || []).forEach(k => { if (k in v) v[k] = Math.min(20, Math.max(v[k] + 3, Math.round(v[k] * 1.25))); });
+      (wp.strong || []).forEach(k => { if (k in v && !(wp.weak || []).includes(k)) v[k] = Math.max(Math.min(v[k], 6), Math.round(v[k] * 0.65)); });
+      return v;
+    }
+    function buildProgram(user, settings) {
+      const goal = planKey(user.goal), plan = CATEGORY_PLAN[goal], freq = settings.frequency, phase = settings.phase;
+      const wp = analyzeWeakPoints(user);
+      const trainDays = Math.min(freq, 6);
+      const types = SPLITS[plan.split][trainDays].slice();
+      if (freq === 7) types.push('REC');
+      const target = weeklyTargets(goal, phase, wp);
+      if (trainDays === 3 && !wp.weak.includes('front_delt')) target.front_delt = 0; // con cuerpo completo, los press de pecho ya cubren el hombro frontal
+      const prio = [...wp.weak, ...plan.order, ...COMPOUND_FIRST].filter((x, i, a) => a.indexOf(x) === i);
+      const rank = k => prio.indexOf(k);
+      const days = types.map(t => ({ type: t, alloc: {} }));
+      // reparto: series semanales / sesiones que entrenan ese músculo (máx. ~10 por sesión)
+      for (const mus in target) {
+        const idx = days.map((d, i) => DAY_TYPES[d.type].m.includes(mus) ? i : -1).filter(i => i >= 0);
+        if (!idx.length || !target[mus]) continue;
+        let total = target[mus];
+        // con FB 3x: los músculos chicos no necesitan estar los 3 días si tienen poco volumen
+        let use = idx;
+        if (total < idx.length * 2) use = idx.filter((_, j) => j % Math.ceil(idx.length / Math.max(1, Math.floor(total / 2))) === 0);
+        const base = Math.floor(total / use.length); let rest = total - base * use.length;
+        use.forEach(i => { days[i].alloc[mus] = Math.min(10, base + (rest-- > 0 ? 1 : 0)); });
+      }
+      // tope de series por sesión (calidad > cantidad): recorta primero lo menos prioritario
+      const cap = { 3: 30, 4: 26, 5: 24, 6: 22 }[trainDays] || 24;
+      days.forEach(d => {
+        let sum = () => Object.values(d.alloc).reduce((a, b) => a + b, 0);
+        let guard = 200;
+        while (sum() > cap && guard--) {
+          // recorta del músculo con más series en la sesión (no prioritario primero) para repartir el recorte
+          const byLoad = arr => arr.sort((a, b) => (d.alloc[b] - d.alloc[a]) || (rank(b) - rank(a)))[0];
+          const keys = Object.keys(d.alloc), key = k => wp.weak.includes(k) || plan.order.includes(k);
+          const cand = byLoad(keys.filter(k => d.alloc[k] > 2 && !key(k)))
+            || byLoad(keys.filter(k => d.alloc[k] > 4 && !wp.weak.includes(k)))
+            || byLoad(keys.filter(k => d.alloc[k] > 2));
+          if (!cand) break; d.alloc[cand]--;
+        }
+      });
+      const occ = {}; const weekly = {};
+      const program = {};
+      const schedule = FREQ_SCHEDULE[freq];
+      const sameTypeCount = {};
+      days.forEach((d, i) => {
+        const dk = schedule[i];
+        if (d.type === 'REC') {
+          program[dk] = { short: 'Recuperación activa', title: `${WEEKDAY_LABEL[dk].toUpperCase()}: RECUPERACIÓN ACTIVA (NO ES DÍA PESADO)`, recovery: true,
+            exercises: [
+              { name: 'Caminata o Bici Suave (Zona 2)', target: '1 serie x 30 min', rest: 'Ritmo conversacional', restSeconds: 60, note: 'Podés hablar sin ahogarte (RPE 3-4). Mejora la recuperación y el gasto calórico sin fatigar.', sets: 1, baseMultiplier: 0 },
+              { name: 'Movilidad de Cadera y Columna Torácica', target: '2 series x 5 min', rest: 'Sin descanso', restSeconds: 30, note: 'Gato-camello, 90/90, rotaciones torácicas, estiramiento de flexores de cadera.', sets: 2, baseMultiplier: 0 },
+              { name: 'Estiramientos Suaves Globales', target: '1 serie x 10 min', rest: '-', restSeconds: 30, note: 'Respiración lenta; sin dolor.', sets: 1, baseMultiplier: 0 }
+            ] };
+          return;
+        }
+        sameTypeCount[d.type] = (sameTypeCount[d.type] || 0) + 1;
+        const variant = sameTypeCount[d.type];
+        const muscles = Object.keys(d.alloc).filter(k => d.alloc[k] > 0).sort((a, b) => {
+          const wa = wp.weak.includes(a) ? 0 : 1, wb = wp.weak.includes(b) ? 0 : 1;
+          if (wa !== wb) return wa - wb;
+          if (a === 'abs' || b === 'abs') return a === 'abs' ? 1 : -1;
+          return rank(a) - rank(b);
+        });
+        const exercises = [];
+        muscles.forEach(mus => {
+          let sets = d.alloc[mus]; weekly[mus] = (weekly[mus] || 0) + sets;
+          const lib = EX_LIB[mus]; const k = occ[mus] = (occ[mus] || 0) + 1;
+          const nEx = sets <= 4 ? 1 : sets <= 8 ? 2 : 3;
+          const per = []; for (let j = 0; j < nEx; j++) per.push(Math.floor(sets / nEx) + (j < sets % nEx ? 1 : 0));
+          per.forEach((s, j) => {
+            const e = lib[((k - 1) * nEx + j) % lib.length];
+            const timed = /\d+\s*s$/.test(e[2]);
+            const compound = e[1] >= 0.6;
+            const rir = phase === 'precontest' ? 'RIR 1-2' : compound ? 'RIR 1-2' : 'RIR 0-1';
+            const restTxt = e[3] >= 120 ? `${e[3] / 60} min` : `${e[3]}s`;
+            exercises.push({ name: e[0], target: `${s} series x ${timed ? e[2].replace(' ', '') : e[2] + ' reps'}`, rest: `${rir} | ${restTxt}`, restSeconds: e[3],
+              note: e[4] + (wp.weak.includes(mus) ? ' ⭐ Prioridad: punto a mejorar.' : ''), sets: s, baseMultiplier: e[1], muscle: mus, priority: wp.weak.includes(mus) });
+          });
+        });
+        // cardio de fase al final del día (definición/pre-contest/tonificación)
+        if (phase === 'definicion' || phase === 'precontest' || goal === 'mujer_tonificar') {
+          exercises.push({ name: 'Cardio LISS post-entreno', target: `1 serie x ${phase === 'precontest' ? 30 : 20} min`, rest: 'Zona 2', restSeconds: 60, note: 'Caminadora inclinada o bici a ritmo moderado (RPE 4-5).', sets: 1, baseMultiplier: 0 });
+        }
+        const letter = (SPLITS[plan.split][trainDays].filter(t => t === d.type).length > 1) ? ' ' + String.fromCharCode(64 + variant) : '';
+        const short = DAY_TYPES[d.type].name + letter;
+        program[dk] = { short, title: `${WEEKDAY_LABEL[dk].toUpperCase()}: ${short.toUpperCase()}`, exercises };
+      });
+      return { program, weekly, target, wp, freq, phase, goal, schedule };
+    }
+    function getPlan(user) {
+      user = user || (getUsersDB()[currentUser]) || {};
+      const s = currentUser ? getSettings() : { frequency: 5, phase: 'recreativo' };
+      const m = currentUser ? cloudStore.getItem(`body_metrics_${currentUser}`) : '';
+      const sig = [user.goal, user.gender, user.height, s.frequency, s.phase, m && m.length, m && m.slice(0, 200)].join('|');
+      if (!_programCache || _programSig !== sig) { _programCache = buildProgram(user, s); _programSig = sig; }
+      return _programCache;
+    }
+    function getProgramForUser(userData) { return getPlan(userData).program; }
+
+    function populateDaySelect() {
+      const plan = getPlan(); const sel = document.getElementById('select-day'); if (!sel) return;
+      const opts = WEEKDAYS.filter(d => plan.program[d]).map(d => `<option value="${d}">${WEEKDAY_LABEL[d]} - ${catEsc(plan.program[d].short)}</option>`);
+      const restDays = WEEKDAYS.filter(d => !plan.program[d]).map(d => WEEKDAY_LABEL[d]);
+      if (restDays.length) opts.push(`<option value="descanso">${restDays.join(' / ')} - Descanso</option>`);
+      sel.innerHTML = opts.join('');
+    }
+    function detectAndSetDay() {
+      populateDaySelect();
+      const dk = WEEKDAYS[(new Date().getDay() + 6) % 7];
+      const plan = getPlan(); const key = plan.program[dk] ? dk : 'descanso';
+      document.getElementById('select-day').value = key;
+      loadWorkoutDay(key);
+      renderPlanControls();
+    }
+
+    // ===== NUTRICIÓN =====
+    function refWeight(user) {
+      const w = parseFloat(user.weight), h = parseFloat(user.height) / 100;
+      if (!(w > 0)) return 0;
+      if (h > 0 && w / (h * h) > 30) return Math.round(27 * h * h); // con sobrepeso, proteína sobre un peso de referencia (~masa magra)
+      return w;
+    }
+    function computeTargets(user) {
+      const w = parseFloat(user && user.weight), h = parseFloat(user && user.height);
+      const age = user && user.birthdate ? calculateAge(user.birthdate) : parseFloat(user && user.age);
+      if (!(w > 0) || !(h > 0) || !(age > 0)) return null;
+      const s = currentUser ? getSettings() : { frequency: 5, phase: 'recreativo', kcalAdjust: 0 };
+      const goal = planKey(user.goal), female = user.gender === 'mujer', ph = PHASES[s.phase];
+      const bmr = 10 * w + 6.25 * h - 5 * age + (female ? -161 : 5);
+      const tdee = bmr * FREQ_ACTIVITY[s.frequency];
+      let factor, prot, fatPct, rate, cardio;
+      if (s.phase === 'recreativo') {
+        factor = CALORIE_GOAL_FACTORS[String(user.goal || '').toLowerCase()] || CALORIE_GOAL_FACTORS[goal] || 1.05;
+        const cut = factor < 1;
+        prot = cut ? 2.2 : 1.9; fatPct = cut ? 0.25 : 0.27;
+        rate = cut ? [-1.0, -0.5] : factor >= 1.1 ? [0.25, 0.5] : [0, 0.35];
+        cardio = cut ? '4-5×30-40 min LISS/semana + 10k pasos' : goal === 'mujer_gluteos' || goal === 'bikini' ? '3×25 min LISS/semana' : '2-3×20 min LISS/semana';
+      } else { factor = ph.kcal; prot = ph.prot; fatPct = ph.fat; rate = ph.rate; cardio = ph.cardio; }
+      let kcal = Math.round((tdee * factor + s.kcalAdjust) / 50) * 50;
+      kcal = Math.max(kcal, female ? 1200 : 1500);
+      const rw = refWeight(user);
+      const protein = Math.round(rw * prot);
+      let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * 0.6));
+      const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
+      return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw };
+    }
+    function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
+    function calculateNutrition(user) {
+      if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', fat: '-', cardio: '-', calories: '-' };
+      const t = computeTargets(user); const w = parseFloat(user.weight);
+      return {
+        water: (Math.min(w, 110) * 0.04 + 0.5).toFixed(1) + ' L',
+        protein: t ? t.protein + ' g' : '-', carbs: t ? t.carbs + ' g' : '-', fat: t ? t.fat + ' g' : '-',
+        cardio: t ? t.cardio : '-', calories: t ? t.kcal.toLocaleString('es-PY') + ' kcal' : '-', goalLabel: goalLabel(user.goal), targets: t
+      };
+    }
+    function updateNutritionAndHero(user) {
+      const nut = calculateNutrition(user);
+      document.getElementById('nut-calories').innerText = nut.calories;
+      document.getElementById('nut-water').innerText = nut.water;
+      document.getElementById('nut-protein').innerText = nut.protein;
+      document.getElementById('nut-carbs').innerText = nut.carbs;
+      const f = document.getElementById('nut-fat'); if (f) f.innerText = nut.fat;
+      document.getElementById('nut-cardio').innerText = nut.cardio;
+      document.getElementById('nut-goal').innerText = goalLabel(user.goal);
+      renderCategorySelector(user);
+      if (currentUser) { renderDiet(); renderSupplements(); checkWeightAlert(); }
+    }
+
+    // ===== CONTROLES: FRECUENCIA, FASE, PUNTOS A MEJORAR =====
+    function renderPlanControls() {
+      const box = document.getElementById('plan-controls'); if (!box || !currentUser) return;
+      const u = getUsersDB()[currentUser] || {}, s = getSettings(), goal = planKey(u.goal), plan = getPlan(u), cp = CATEGORY_PLAN[goal];
+      const competitive = COMPETITIVE.includes(goal);
+      const freqBtns = [3, 4, 5, 6, 7].map(f => `<button type="button" class="chip${f === s.frequency ? ' on' : ''}" aria-pressed="${f === s.frequency}" onclick="setFrequency(${f})">${f} días</button>`).join('');
+      let note = '';
+      const compPhase = competitive && s.phase !== 'recreativo';
+      if (s.frequency < cp.minFreq) note = compPhase
+        ? `⚠️ Para competir en ${goalLabel(goal)} recomendamos <strong>${cp.minFreq}+ días</strong>: con ${s.frequency} no entra el volumen que pide la categoría sin sesiones larguísimas. Igual armamos el mejor plan posible con ${s.frequency}.`
+        : `ℹ️ Con ${s.frequency} días entrenás cuerpo completo y ya progresás bien. Si podés, ${cp.minFreq} días permiten más volumen para esta categoría.`;
+      if (s.frequency === 7) note = '🔁 7 días = 6 de entrenamiento + 1 de recuperación activa (cardio suave y movilidad). Nunca 7 días pesados: el músculo crece cuando descansa.';
+      const phaseOpts = (competitive ? Object.keys(PHASES) : ['recreativo']).map(p => `<option value="${p}"${p === s.phase ? ' selected' : ''}>${PHASES[p].label}</option>`).join('');
+      const ph = PHASES[s.phase];
+      const vol = Object.keys(MUSCLE_LABEL).filter(k => plan.weekly[k]).map(k => `<span class="vchip${plan.wp.weak.includes(k) ? ' weak' : plan.wp.strong.includes(k) ? ' strong' : ''}">${MUSCLE_LABEL[k]} <b>${plan.weekly[k]}</b></span>`).join('');
+      box.innerHTML = `
+        <div class="pc-row"><span class="pc-label">Días por semana</span><div class="chips" role="group" aria-label="Días por semana">${freqBtns}</div></div>
+        ${note ? `<p class="pc-note">${note}</p>` : ''}
+        <div class="pc-row"><label class="pc-label" for="phase-select">Etapa</label>
+          <select id="phase-select" onchange="setPhase(this.value)" ${competitive ? '' : 'disabled'}>${phaseOpts}</select></div>
+        <p class="pc-note">${competitive ? (ph.info || 'Entrenás para verte y sentirte mejor; las calorías siguen tu categoría.') : 'Esta categoría no es de competencia: la nutrición sigue su objetivo (' + catEsc(cp.note) + ')'}</p>
+        <details class="pc-vol"><summary>Series semanales por músculo (tu plan)</summary><div class="vchips">${vol}</div>
+          <p class="pc-note">Basado en evidencia: 10-20 series duras por semana para los músculos prioritarios de tu categoría, cada músculo 2 veces por semana cuando la frecuencia lo permite. ⭐ = punto a mejorar (más series y primero en la sesión).</p></details>`;
+      renderWeakPoints();
+    }
+    function renderWeakPoints() {
+      const u = getUsersDB()[currentUser] || {}; const wp = analyzeWeakPoints(u);
+      const html = !wp.hasData
+        ? '<p class="pc-note">Registrá tus medidas (incluí <strong>hombros</strong> y <strong>muñeca</strong>) en "Registrar medidas" y la app detecta qué músculos están atrasados para tu categoría.</p>'
+        : (wp.items.length ? wp.items.map(it => `<div class="wp-item ${it.status}"><div><strong>${it.status === 'weak' ? '🔺 ' : it.status === 'strong' ? '🔻 ' : '✅ '}${it.label}</strong>: ${it.val} → ideal ${it.ideal}</div><small>${it.tip}${it.status === 'weak' && it.muscles.length ? ' <b>Plan:</b> más series de ' + it.muscles.map(x => MUSCLE_LABEL[x]).join(', ') + ' y al inicio de la sesión.' : ''}${it.status === 'strong' ? ' <b>Plan:</b> ya está adelantado, bajamos su volumen para que el resto lo alcance.' : ''}</small></div>`).join('')
+          : '<p class="pc-note">Cargá más medidas (cintura, hombros, brazo, muslo, pantorrilla, cadera, muñeca) para calcular tus proporciones.</p>');
+      ['weakpoints-card', 'weakpoints-card-2'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = html; });
+    }
+    function resetWeekLogsConfirm(msg) {
+      const keys = thisWeekSetLogKeys();
+      if (keys.length && !confirm(msg + ' Las series marcadas esta semana se reinician (tu historial de cargas NO se borra). ¿Continuar?')) return null;
+      return keys;
+    }
+    function setFrequency(f) {
+      const s = getSettings(); if (s.frequency === f) return;
+      const keys = resetWeekLogsConfirm(`Cambiar a ${f} días reorganiza tu rutina.`); if (keys === null) return;
+      keys.forEach(k => cloudStore.removeItem(k));
+      s.frequency = f; saveSettings(s);
+      refreshAll(); showToast(`Plan de ${f} días armado`);
+    }
+    function setPhase(p) {
+      const s = getSettings(); if (s.phase === p) return;
+      const keys = resetWeekLogsConfirm(`Cambiar de etapa ajusta volumen y nutrición.`); if (keys === null) { renderPlanControls(); return; }
+      keys.forEach(k => cloudStore.removeItem(k));
+      s.phase = p; s.kcalAdjust = 0; s.adjustments.push({ date: getTodayISO(), type: 'phase', phase: p }); saveSettings(s);
+      refreshAll(); showToast('Etapa: ' + PHASES[p].label);
+    }
+    function refreshAll() {
+      _programCache = null;
+      const u = getUsersDB()[currentUser]; if (!u) return;
+      updateNutritionAndHero(u); detectAndSetDay();
+    }
+
+    // ===== ALERTAS INTELIGENTES DE PESO =====
+    function weightTrend() {
+      let h = []; try { h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]'); } catch (e) {}
+      const pts = h.filter(x => parseFloat(x.weight) > 0 && /^\d{4}-\d{2}-\d{2}/.test(x.date)).map(x => ({ t: Date.parse(x.date) / 86400000, w: parseFloat(x.weight) })).sort((a, b) => a.t - b.t);
+      if (pts.length < 2) return null;
+      const last = pts[pts.length - 1].t; const win = pts.filter(p => p.t >= last - 28);
+      if (win.length < 2 || last - win[0].t < 14) return { span: last - win[0].t, insufficient: true };
+      const n = win.length, mt = win.reduce((a, p) => a + p.t, 0) / n, mw = win.reduce((a, p) => a + p.w, 0) / n;
+      const slope = win.reduce((a, p) => a + (p.t - mt) * (p.w - mw), 0) / (win.reduce((a, p) => a + (p.t - mt) ** 2, 0) || 1); // kg/día
+      const pct = slope * 7 / mw * 100;
+      return { span: last - win[0].t, pctWeek: Math.round(pct * 100) / 100, kgWeek: Math.round(slope * 7 * 100) / 100, mean: mw, lastDate: last };
+    }
+    function checkWeightAlert() {
+      const box = document.getElementById('smart-alert'); if (!box || !currentUser) return;
+      box.style.display = 'none'; box.innerHTML = '';
+      const u = getUsersDB()[currentUser] || {}, s = getSettings(), t = computeTargets(u); if (!t) return;
+      const tr = weightTrend(); if (!tr || tr.insufficient) return;
+      const today = getTodayISO();
+      if (s.alertSnoozeUntil && s.alertSnoozeUntil > today) return;
+      const lastAdj = s.adjustments.filter(a => a.type === 'kcal' || a.type === 'phase').slice(-1)[0];
+      if (lastAdj && (Date.parse(today) - Date.parse(lastAdj.date)) / 86400000 < 14) return; // esperar datos con las calorías nuevas
+      const [lo, hi] = t.rate; let delta = 0, why = '';
+      if (tr.pctWeek < lo) { const gap = (lo - tr.pctWeek) / 100 * tr.mean * 7700 / 7; delta = Math.min(250, Math.max(150, Math.round(gap / 50) * 50)); why = 'estás por debajo'; }
+      else if (tr.pctWeek > hi) { const gap = (tr.pctWeek - hi) / 100 * tr.mean * 7700 / 7; delta = -Math.min(250, Math.max(150, Math.round(gap / 50) * 50)); why = 'estás por encima'; }
+      if (!delta) return;
+      const fmtR = r => (r > 0 ? '+' : '') + String(r).replace('.', ',');
+      box.innerHTML = `<div><strong>📈 Hora de ajustar tu nutrición</strong><p>En las últimas ${Math.round(tr.span)} días tu peso cambió <b>${fmtR(tr.pctWeek)}% por semana</b> (${fmtR(tr.kgWeek)} kg). Para tu etapa el objetivo es ${fmtR(lo)}% a ${fmtR(hi)}%/semana, así que ${why}. Te sugerimos <b>${delta > 0 ? '+' : ''}${delta} kcal/día</b> (de ${t.kcal.toLocaleString('es-PY')} a ${(t.kcal + delta).toLocaleString('es-PY')} kcal).</p></div>
+        <div class="alert-actions"><button class="btn-3d btn-small" onclick="acceptKcalAdjust(${delta})">Aplicar ajuste</button><button class="btn-3d btn-secondary btn-small" onclick="snoozeAlert()">Ahora no</button></div>`;
+      box.style.display = 'flex';
+    }
+    function acceptKcalAdjust(delta) {
+      const s = getSettings(); s.kcalAdjust = (s.kcalAdjust || 0) + delta;
+      s.adjustments.push({ date: getTodayISO(), type: 'kcal', delta }); saveSettings(s);
+      const u = getUsersDB()[currentUser]; updateNutritionAndHero(u); renderPlanControls();
+      showToast(`Listo: ${delta > 0 ? '+' : ''}${delta} kcal/día. Tu dieta se recalculó.`);
+    }
+    function snoozeAlert() { const s = getSettings(); const d = new Date(); d.setDate(d.getDate() + 7); s.alertSnoozeUntil = d.toISOString().slice(0, 10); saveSettings(s); checkWeightAlert(); }
+
+    // ===== MI DIETA (alimentos comunes en Paraguay; valores por 100 g) =====
+    const FOODS = {
+      pollo: { n: 'Pechuga de pollo (cocida)', p: 31, c: 0, f: 3.6 }, carne: { n: 'Carne vacuna magra (nalga/lomito, cocida)', p: 28, c: 0, f: 8 },
+      pescado: { n: 'Pescado (surubí/merluza, cocido)', p: 22, c: 0, f: 2.5 }, cerdo: { n: 'Lomo de cerdo (cocido)', p: 27, c: 0, f: 7 },
+      atun: { n: 'Atún al agua', p: 26, c: 0, f: 1 }, huevo: { n: 'Huevo entero', p: 13, c: 1.1, f: 10, unit: 50, un: 'u' },
+      claras: { n: 'Claras de huevo', p: 11, c: 0.7, f: 0.2, unit: 33, un: 'claras' }, yogur: { n: 'Yogur descremado', p: 4.5, c: 6, f: 0.3 },
+      leche: { n: 'Leche descremada', p: 3.4, c: 5, f: 0.1, ml: true }, queso: { n: 'Queso Paraguay light / ricota', p: 14, c: 3, f: 6 },
+      whey: { n: 'Proteína whey', p: 78, c: 8, f: 6, unit: 30, un: 'scoop' },
+      arroz: { n: 'Arroz (cocido)', p: 2.7, c: 28, f: 0.3 }, mandioca: { n: 'Mandioca hervida', p: 1.4, c: 38, f: 0.3 },
+      fideos: { n: 'Fideos (cocidos)', p: 5.8, c: 31, f: 0.9 }, papa: { n: 'Papa hervida', p: 2, c: 20, f: 0.1 }, batata: { n: 'Batata asada', p: 1.6, c: 20, f: 0.1 },
+      poroto: { n: 'Poroto (cocido)', p: 8.7, c: 22.8, f: 0.5 }, avena: { n: 'Avena en hojuelas', p: 13, c: 66, f: 7 },
+      pan: { n: 'Pan integral', p: 9, c: 45, f: 3.5, unit: 30, un: 'rodajas' }, galleta: { n: 'Galleta de arroz', p: 8, c: 80, f: 3, unit: 9, un: 'u' },
+      banana: { n: 'Banana', p: 1.1, c: 23, f: 0.3, unit: 120, un: 'u' }, manzana: { n: 'Manzana', p: 0.3, c: 14, f: 0.2, unit: 150, un: 'u' },
+      naranja: { n: 'Naranja / mandarina', p: 0.9, c: 12, f: 0.1, unit: 150, un: 'u' }, mamon: { n: 'Mamón / papaya', p: 0.5, c: 11, f: 0.3 },
+      aceite: { n: 'Aceite (oliva/soja/girasol)', p: 0, c: 0, f: 100, cda: 10 }, palta: { n: 'Palta', p: 2, c: 9, f: 15 },
+      mani: { n: 'Maní natural', p: 26, c: 16, f: 49 }, ensalada: { n: 'Ensalada mixta (lechuga, tomate, zanahoria, locote)', p: 1, c: 5, f: 0.2 },
+      verduras: { n: 'Verduras salteadas/hervidas (zapallo, brócoli, chaucha)', p: 2, c: 7, f: 0.3 }
+    };
+    const MEAL_TPL = {
+      desayuno: { n: 'Desayuno', share: 0.22, prot: ['huevo', 'claras', 'yogur', 'queso'], carb: ['avena', 'pan', 'galleta'], fix: [['banana', 'manzana', 'naranja', 'mamon'], 120], fat: ['mani', 'palta'] },
+      media: { n: 'Media mañana', share: 0.10, prot: ['yogur', 'whey', 'leche', 'queso'], carb: ['banana', 'manzana', 'galleta', 'naranja'], fat: ['mani'] },
+      almuerzo: { n: 'Almuerzo', share: 0.30, prot: ['pollo', 'carne', 'pescado', 'cerdo'], carb: ['arroz', 'mandioca', 'fideos', 'poroto', 'papa'], fix: [['ensalada', 'verduras'], 150], fat: ['aceite', 'palta'] },
+      merienda: { n: 'Merienda / pre-entreno', share: 0.15, prot: ['atun', 'claras', 'yogur', 'whey', 'queso'], carb: ['pan', 'banana', 'galleta', 'avena'], fat: ['mani', 'aceite'] },
+      cena: { n: 'Cena', share: 0.23, prot: ['carne', 'pollo', 'pescado', 'huevo'], carb: ['mandioca', 'batata', 'arroz', 'papa', 'fideos'], fix: [['verduras', 'ensalada'], 150], fat: ['aceite', 'palta'] },
+      colacion: { n: 'Colación nocturna', share: 0.10, prot: ['yogur', 'queso', 'leche', 'claras'], carb: ['avena', 'banana', 'galleta'], fat: ['mani'] }
+    };
+    function dietKey() { return `hp_diet_${currentUser}`; }
+    function getDietPrefs() { try { return JSON.parse(cloudStore.getItem(dietKey()) || '{}') || {}; } catch (e) { return {}; } }
+    function mealsFor(kcal) {
+      if (kcal < 1800) return ['desayuno', 'almuerzo', 'merienda', 'cena'];
+      if (kcal > 3200) return ['desayuno', 'media', 'almuerzo', 'merienda', 'cena', 'colacion'];
+      return ['desayuno', 'media', 'almuerzo', 'merienda', 'cena'];
+    }
+    function buildDiet(t, prefs) {
+      const ids = mealsFor(t.kcal); const totalShare = ids.reduce((a, k) => a + MEAL_TPL[k].share, 0);
+      const pick = (arr, slot, mk) => { const i = (prefs[mk + '_' + slot] || 0) % arr.length; return arr[i]; };
+      const r5 = g => Math.max(0, Math.round(g / 5) * 5);
+      const meals = ids.map(mk => {
+        const tp = MEAL_TPL[mk], sh = tp.share / totalShare;
+        const P = t.protein * sh, C = t.carbs * sh, F = t.fat * sh;
+        const items = [];
+        let p = 0, c = 0, f = 0;
+        const push = (key, g, slot) => { const fd = FOODS[key]; g = r5(g); if (g <= 0) return; items.push({ key, g, slot }); p += fd.p * g / 100; c += fd.c * g / 100; f += fd.f * g / 100; };
+        if (tp.fix) push(pick(tp.fix[0], 'fix', mk), tp.fix[1], 'fix');
+        const ck = pick(tp.carb, 'carb', mk), pk = pick(tp.prot, 'prot', mk), fk = pick(tp.fat, 'fat', mk);
+        const cf = FOODS[ck], pf = FOODS[pk], ff = FOODS[fk];
+        // proteína primero estimando lo que aporta el carbohidrato
+        const gC0 = Math.max(0, (C - c) / cf.c * 100);
+        let gP = Math.max(0, (P - p - cf.p * gC0 / 100) / pf.p * 100); gP = Math.min(gP, pk === 'whey' ? 60 : pk === 'huevo' ? 250 : pk === 'claras' ? 400 : 350);
+        push(pk, gP, 'prot');
+        let gC = Math.max(0, (C - c) / cf.c * 100); gC = Math.min(gC, ck === 'avena' ? 150 : 600);
+        push(ck, gC, 'carb');
+        let gF = Math.max(0, (F - f) / ff.f * 100); gF = Math.min(gF, fk === 'aceite' ? 25 : fk === 'mani' ? 40 : 150);
+        if (gF >= 5) push(fk, gF, 'fat');
+        return { mk, name: tp.n, items, p: Math.round(p), c: Math.round(c), f: Math.round(f), kcal: Math.round(p * 4 + c * 4 + f * 9) };
+      });
+      const tot = meals.reduce((a, m) => ({ p: a.p + m.p, c: a.c + m.c, f: a.f + m.f, kcal: a.kcal + m.kcal }), { p: 0, c: 0, f: 0, kcal: 0 });
+      return { meals, tot };
+    }
+    function fmtPortion(key, g) {
+      const fd = FOODS[key];
+      if (fd.cda) return `${g} g (≈ ${Math.max(1, Math.round(g / fd.cda * 2) / 2).toString().replace('.', ',')} cda)`;
+      if (fd.unit) { const u = Math.round(g / fd.unit * 2) / 2; return `${g} g (≈ ${String(u).replace('.', ',')} ${fd.un})`; }
+      return `${g} ${fd.ml ? 'ml' : 'g'}`;
+    }
+    function renderDiet() {
+      const box = document.getElementById('diet-content'); if (!box || !currentUser) return;
+      const u = getUsersDB()[currentUser] || {}; const t = computeTargets(u);
+      if (!t) { box.innerHTML = '<p class="pc-note">Completá peso, altura y fecha de nacimiento en Editar para calcular tu dieta.</p>'; return; }
+      const d = buildDiet(t, getDietPrefs()); const ph = PHASES[t.phase];
+      box.innerHTML = `
+        <div class="macro-grid">
+          <div><strong>${t.kcal.toLocaleString('es-PY')}</strong><span>kcal/día</span></div>
+          <div><strong>${t.protein} g</strong><span>Proteína</span></div>
+          <div><strong>${t.carbs} g</strong><span>Carbohidratos</span></div>
+          <div><strong>${t.fat} g</strong><span>Grasas</span></div>
+        </div>
+        <p class="pc-note">Etapa: <b>${ph.label}</b> · Gasto estimado ${t.tdee.toLocaleString('es-PY')} kcal (${t.freq} días/semana)${t.adjust ? ` · ajuste acumulado ${t.adjust > 0 ? '+' : ''}${t.adjust} kcal` : ''}. Proteína ${(t.protein / t.refW).toFixed(1).replace('.', ',')} g/kg${t.refW < parseFloat(u.weight) ? ' de peso de referencia (' + t.refW + ' kg)' : ''}, grasas ${Math.round(t.fat * 9 / t.kcal * 100)}% y el resto carbohidratos.</p>
+        ${d.meals.map(m => `<div class="meal"><div class="meal-head"><strong>${m.name}</strong><small>${m.kcal} kcal · P ${m.p} · C ${m.c} · G ${m.f}</small></div>
+          <ul>${m.items.map(it => `<li><span>${FOODS[it.key].n}</span><b>${fmtPortion(it.key, it.g)}</b>${it.slot !== 'fix' || MEAL_TPL[m.mk].fix ? `<button type="button" class="swap" aria-label="Cambiar alimento" title="Cambiar por otro" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul></div>`).join('')}
+        <p class="pc-note">Total del plan: <b>${d.tot.kcal.toLocaleString('es-PY')} kcal</b> · P ${d.tot.p} g · C ${d.tot.c} g · G ${d.tot.f} g. Pesá los alimentos cocidos. Condimentá con sal moderada, limón, ajo y especias. Tomá ${calculateNutrition(u).water} de agua.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">🎲 Generar otro menú</button></div>`;
+    }
+    function swapFood(mk, slot) {
+      const p = getDietPrefs(); const k = mk + '_' + slot; p[k] = (p[k] || 0) + 1; cloudStore.setItem(dietKey(), JSON.stringify(p)); renderDiet();
+    }
+    function regenerateDiet() {
+      const p = {}; Object.keys(MEAL_TPL).forEach(mk => ['prot', 'carb', 'fat', 'fix'].forEach(s => { p[mk + '_' + s] = Math.floor(Math.random() * 6); }));
+      cloudStore.setItem(dietKey(), JSON.stringify(p)); renderDiet(); showToast('Menú nuevo con los mismos macros');
+    }
+
+    // ===== SUPLEMENTOS (con evidencia; sin sustancias prohibidas) =====
+    function renderSupplements() {
+      const box = document.getElementById('supp-content'); if (!box || !currentUser) return;
+      const u = getUsersDB()[currentUser] || {}; const s = getSettings(); const t = computeTargets(u); const w = parseFloat(u.weight) || 70;
+      const female = u.gender === 'mujer', ph = s.phase, cut = ph === 'definicion' || ph === 'precontest' || (t && t.factor < 1);
+      const caf = Math.round(Math.min(w, 100) * 3 / 10) * 10;
+      const list = [
+        ['Creatina monohidrato', '3-5 g/día, todos los días', 'A cualquier hora (con una comida). No hace falta fase de carga.', 'Más fuerza y masa muscular; el suplemento con más evidencia.', true],
+        ['Proteína whey', '20-40 g por toma', 'Solo si no llegás a tu proteína con comida (p. ej. después de entrenar o en la merienda).', 'Práctica para completar tu proteína diaria.', true],
+        ['Cafeína', `${caf}-${caf * 2} mg (≈3-6 mg/kg; empezá por lo bajo)`, '30-60 min antes de entrenar; nunca después de las 16 h.', 'Mejora rendimiento y ayuda en el déficit.', cut || ph === 'volumen'],
+        ['Vitamina D3', '1.000-2.000 UI/día', 'Con la comida más grasa del día. Ideal medir tus niveles.', 'Huesos, inmunidad y función muscular si tus niveles son bajos.', true],
+        ['Omega-3 (EPA+DHA)', '1-3 g/día de EPA+DHA', 'Con las comidas.', 'Salud cardiovascular y articular; poco pescado graso en la dieta típica.', true],
+        ['Magnesio (glicinato o citrato)', '200-400 mg/día', 'A la noche.', 'Sueño y calambres, sobre todo si sudás mucho (calor de Paraguay).', true],
+        ['Multivitamínico', '1 dosis diaria', 'Con el desayuno.', 'Cubre posibles carencias cuando comés menos calorías.', cut || ph === 'postshow'],
+        ['Electrolitos (sodio, potasio)', '1 sobre en 500-750 ml', 'Durante cardio largo o entrenos con mucho calor.', 'Hidratación y rendimiento cuando sudás mucho. En la peak week NO cortes el sodio por tu cuenta.', cut || ph === 'precontest' || s.frequency >= 6],
+        ['Hierro', 'Solo con análisis y receta', 'Según indicación médica.', 'Las mujeres que entrenan tienen más riesgo de déficit; no lo tomes sin análisis.', female]
+      ].filter(x => x[4]);
+      box.innerHTML = list.map(x => `<div class="supp"><div><strong>${x[0]}</strong> <span class="dose">${x[1]}</span></div><small>⏰ ${x[2]} ${x[3]}</small></div>`).join('') +
+        '<p class="pc-note">⚕️ <b>Consultá con tu médico</b> antes de tomar suplementos, sobre todo si tenés alguna condición de salud, tomás medicación o estás embarazada. Comprá marcas con certificación (Informed Sport / NSF). Hipertrofia Pro nunca recomienda esteroides, prohormonas, SARMs, diuréticos ni sustancias prohibidas.</p>';
+    }
+
+    // ===== GRÁFICOS DE PROGRESO (Chart.js) =====
+    let _charts = {};
+    function loadChartJs() {
+      if (window.Chart) return Promise.resolve();
+      if (window._chartP) return window._chartP;
+      return (window._chartP = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); }));
+    }
+    async function renderCharts() {
+      const wrap = document.getElementById('charts-wrap'); if (!wrap || !currentUser) return;
+      let h = []; try { h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]'); } catch (e) {}
+      h = h.filter(x => /^\d{4}-\d{2}-\d{2}/.test(x.date)).sort((a, b) => a.date.localeCompare(b.date));
+      const msg = document.getElementById('charts-empty');
+      if (h.length < 2) { msg.style.display = 'block'; wrap.style.display = 'none'; return; }
+      msg.style.display = 'none'; wrap.style.display = 'block';
+      try { await loadChartJs(); } catch (e) { msg.textContent = 'No se pudieron cargar los gráficos (sin conexión).'; msg.style.display = 'block'; wrap.style.display = 'none'; return; }
+      const labels = h.map(x => formatDateES(x.date).slice(0, 5));
+      const num = v => { const n = parseFloat(v); return n > 0 ? n : null; };
+      Chart.defaults.color = '#b6c0cc'; Chart.defaults.borderColor = 'rgba(255,255,255,.08)'; Chart.defaults.font.family = 'inherit';
+      const opts = { responsive: true, maintainAspectRatio: false, spanGaps: true, plugins: { legend: { labels: { boxWidth: 12 } } }, elements: { line: { tension: .3, borderWidth: 2 }, point: { radius: 3 } } };
+      Object.values(_charts).forEach(c => c.destroy());
+      _charts.w = new Chart(document.getElementById('chart-weight'), { type: 'line', data: { labels, datasets: [{ label: 'Peso (kg)', data: h.map(x => num(x.weight)), borderColor: '#ff6b1a', backgroundColor: 'rgba(255,107,26,.15)', fill: true }] }, options: opts });
+      const F = [['chest', 'Pecho', '#60a5fa'], ['waist', 'Cintura', '#f87171'], ['biceps', 'Brazo', '#34d399'], ['thigh', 'Muslo', '#fbbf24'], ['glutes', 'Cadera', '#f472b6'], ['calf', 'Pantorrilla', '#a78bfa'], ['shoulders', 'Hombros', '#22d3ee']];
+      const ds = F.filter(([k]) => h.some(x => num(x[k]))).map(([k, l, c]) => ({ label: l, data: h.map(x => num(x[k])), borderColor: c, backgroundColor: c }));
+      _charts.m = new Chart(document.getElementById('chart-measures'), { type: 'line', data: { labels, datasets: ds }, options: opts });
+    }
   </script>
 <!-- ENTRENADOR IA -->
   <button id="coach-fab" class="coach-fab" aria-label="Abrir Entrenador IA" onclick="coachToggle(true)">💬</button>
@@ -2884,7 +3490,17 @@ ${timedSecs ? `
         const day = ($('select-day') || {}).value; let routine = 'descanso';
         try { const p = getProgramForUser(u)[day]; if (p && p.exercises && p.exercises.length) routine = (p.title || p.name || day) + ': ' + p.exercises.map(e => e.name).join(', '); } catch(_){}
         return { name: u.fullname || u.firstName || '', sex: u.gender, age: u.birthdate ? calculateAge(u.birthdate) : '', weight: u.weight, height: u.height,
-          category: n.goalLabel || u.goal, calories: n.calories, protein: n.protein, carbs: n.carbs, water: n.water, routine };
+          category: n.goalLabel || u.goal, calories: n.calories, protein: n.protein, carbs: n.carbs, fat: n.fat, water: n.water, routine, ...proContext(u) };
+      }
+      function proContext(u){
+        try { const s = getSettings(), plan = getPlan(u), t = computeTargets(u) || {};
+          return { phase: PHASES[s.phase].label, frequency: s.frequency + ' días/semana', kcal_adjust: s.kcalAdjust,
+            weekly_sets: Object.keys(plan.weekly).map(k => MUSCLE_LABEL[k] + ' ' + plan.weekly[k]).join(', '),
+            weak_points: plan.wp.weak.map(k => MUSCLE_LABEL[k]).join(', ') || 'sin datos o sin puntos débiles',
+            strong_points: plan.wp.strong.map(k => MUSCLE_LABEL[k]).join(', '),
+            weight_trend: (function(){ const tr = weightTrend(); return tr && !tr.insufficient ? tr.pctWeek + '%/semana' : 'sin datos suficientes'; })(),
+            target_rate: t.rate ? t.rate.join(' a ') + '%/semana' : '' };
+        } catch (_) { return {}; }
       }
       function add(role, text, extra){
         const d = document.createElement('div'); d.className = 'cm ' + (role === 'me' ? 'me' : 'bot') + (extra === 'err' ? ' err' : '');
