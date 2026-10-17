@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hipertrofia Pro - Software de Entrenamiento</title>
   
-  <meta name="theme-color" content="#ff6b1a">
+  <meta name="theme-color" content="#09090b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="HipertrofiaPro">
+  <meta name="apple-mobile-web-app-title" content="Hipertrofia Pro">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="description" content="Hipertrofia Pro: rutinas por categoría, nutrición y calorías diarias, registro de cargas, medidas corporales y entrenador IA.">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="https://entrenadorhl.neocities.org/icons/icon-192.png">
-  <link rel="apple-touch-icon" href="https://entrenadorhl.neocities.org/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <!-- SDK EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -805,6 +808,14 @@
     select.lang-sel { width: auto; min-height: 40px !important; padding: 6px 30px 6px 12px; border-radius: 999px; background-color: var(--surface-elevated); font-weight: 700; cursor: pointer; }
     body.compact-header header .lang-wrap { margin: 0; }
   </style>
+  <script>
+    // PWA: registrar service worker (necesario para instalar y para la app de Android)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function (e) { console.warn('SW', e); });
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -927,6 +938,7 @@
         </button>
         <button type="submit" class="btn-3d" style="width: 100%; margin-top: 4px;" data-i18n="auth.create">Crear Cuenta y Activar</button>
       </form>
+      <p style="text-align:center;margin:14px 0 0;font-size:.8rem"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--text-muted)" data-i18n="lnk.privacy">Política de privacidad</a></p>
     </div>
   </div>
 
@@ -1306,6 +1318,7 @@
         <button class="btn-3d" style="background:#15803d;" onclick="exportWorkoutExcel()" data-i18n="bk.xlsW">📊 Exportar Rutinas a Excel</button>
         <button class="btn-3d" style="background:#15803d;" onclick="exportMetricsExcel()" data-i18n="bk.xlsM">📊 Exportar Medidas a Excel</button>
       </div>
+      <p style="margin-top:14px;font-size:.85rem"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent)" data-i18n="lnk.privacy">Política de privacidad</a></p>
     </div>
   </div>
 
@@ -1424,6 +1437,7 @@
   "tab.mhist": "Historial de medidas",
   "tab.science": "Guía científica",
   "tab.backup": "Copias y datos",
+  "lnk.privacy": "Política de privacidad",
   "plan.title": "Tu plan semanal",
   "wp.title": "🎯 Puntos a mejorar",
   "day.aria": "Día de la rutina",
@@ -1832,6 +1846,7 @@
   "tab.mhist": "Measurement history",
   "tab.science": "Science guide",
   "tab.backup": "Backup & data",
+  "lnk.privacy": "Privacy policy",
   "plan.title": "Your weekly plan",
   "wp.title": "🎯 Areas to improve",
   "day.aria": "Workout day",
@@ -2481,6 +2496,7 @@
   "tab.mhist": "Histórico de medidas",
   "tab.science": "Guia científico",
   "tab.backup": "Backup e dados",
+  "lnk.privacy": "Política de privacidade",
   "plan.title": "Seu plano semanal",
   "wp.title": "🎯 Pontos a melhorar",
   "day.aria": "Dia do treino",
@@ -5395,6 +5411,117 @@ ${timedSecs ? `
         } catch(err){ typing.remove(); add('bot', err.message || t('coach.connErr'), 'err'); }
         busy = false; $('coach-send').disabled = false; inp.focus();
       };
+    })();
+  </script>
+  <script>
+    // ===== BOTÓN ATRÁS (Android / navegador): historial por pestañas y ventanas =====
+    // Atrás cierra primero la ventana abierta más arriba (zoom, perfil, chat, formularios),
+    // después vuelve a la pestaña anterior, y solo sale de la app desde "Rutina de Hoy" sin nada abierto.
+    (function () {
+      const HOME = 'workout-tab';
+      const $ = id => document.getElementById(id);
+      const shown = el => !!el && getComputedStyle(el).display !== 'none';
+      const authOpen = () => shown($('auth-modal'));
+      // Orden = de abajo hacia arriba (lo último se cierra primero)
+      const OV = {
+        register: { open: () => authOpen() && shown($('register-form')), close: () => showAuthTab('login') },
+        forgot:   { open: () => authOpen() && shown($('forgot-form')),   close: () => showAuthTab('login') },
+        reset:    { open: () => authOpen() && shown($('reset-form')) && !window._inRecovery, close: () => showAuthTab('login') },
+        edit:     { open: () => shown($('edit-profile-modal')), close: () => { $('edit-profile-modal').style.display = 'none'; } },
+        coach:    { open: () => !!$('coach-panel') && $('coach-panel').classList.contains('open'), close: () => coachToggle(false) },
+        zoom:     { open: () => shown($('coach-zoom')), close: () => { $('coach-zoom').style.display = 'none'; } }
+      };
+      const OV_IDS = Object.keys(OV);
+      const tabToHash = id => id.replace(/-tab$/, '');
+      const tabFromHash = h => { h = (h || '').replace(/^#/, ''); if (!h || /[=&]/.test(h)) return null; const id = h + '-tab'; return document.querySelector('.tab-content#' + CSS.escape(id)) ? id : null; };
+      const btnFor = id => document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
+      const activeTab = () => { const a = document.querySelector('.tab-content.active'); return a ? a.id : HOME; };
+      const tabAvailable = id => { const b = btnFor(id); return !!b && getComputedStyle(b).display !== 'none'; };
+      const ready = () => !!currentUser && !authOpen();
+      const cur = () => (history.state && history.state.hp) ? history.state : { hp: 1, d: 0, tab: HOME, ov: [] };
+      const urlFor = tab => location.pathname + location.search + (tab && tab !== HOME ? '#' + tabToHash(tab) : '');
+      let applying = false, pendingBack = 0;
+
+      function applyTab(id) {
+        if (!id || id === activeTab() || !tabAvailable(id)) return;
+        applying = true;
+        try { origSwitch(id, btnFor(id)); } catch (e) { console.warn('nav', e); } finally { applying = false; }
+      }
+
+      const origSwitch = window.switchTab;
+      window.switchTab = function (tabId, btn) {
+        const from = activeTab();
+        origSwitch(tabId, btn || btnFor(tabId));
+        if (applying || tabId === from) return;            // mismo botón tocado dos veces: sin entrada duplicada
+        const st = cur();
+        if (tabId === HOME) {                               // volver al inicio = volver a la raíz del historial
+          if (st.d > 0) { pendingBack++; history.go(-st.d); }
+          else history.replaceState({ hp: 1, d: 0, tab: HOME, ov: [] }, '', urlFor(HOME));
+        } else {
+          history.pushState({ hp: 1, d: st.d + 1, tab: tabId, ov: [] }, '', urlFor(tabId));
+        }
+      };
+
+      // Sincroniza el historial con lo que está abierto en pantalla (sirve para cualquier forma de abrir/cerrar)
+      function reconcile() {
+        if (applying || pendingBack) return;
+        const st = cur(), ov = (st.ov || []).slice();
+        let pops = 0;
+        while (ov.length && !OV[ov[ov.length - 1]].open()) { ov.pop(); pops++; }
+        if (pops) { pendingBack++; history.go(-pops); return; }   // se cerró con ✕ / Cancelar: consumir su entrada
+        const add = OV_IDS.filter(id => OV[id].open() && !ov.includes(id));
+        let d = st.d;
+        add.forEach(id => { ov.push(id); d++; history.pushState({ hp: 1, d, tab: st.tab, ov: ov.slice() }, '', location.href); });
+      }
+      let rq = false;
+      const schedule = () => { if (!rq) { rq = true; setTimeout(() => { rq = false; reconcile(); }, 0); } };
+
+      window.addEventListener('popstate', e => {
+        let st = e.state && e.state.hp ? e.state : null;
+        if (!st) {                                          // cambio manual de hash (#diet, etc.)
+          const t = tabFromHash(location.hash);
+          if (location.hash && !t) return;                  // hash de Supabase (tokens): no tocar
+          const prev = { d: 0 };
+          st = { hp: 1, d: t && t !== HOME ? prev.d + 1 : 0, tab: t || HOME, ov: [] };
+          history.replaceState(st, '', location.href);
+        }
+        applying = true;
+        try {
+          OV_IDS.slice().reverse().forEach(id => { if (!(st.ov || []).includes(id) && OV[id].open()) { try { OV[id].close(); } catch (_) {} } });
+        } finally { applying = false; }
+        if (ready()) applyTab(tabAvailable(st.tab) ? st.tab : HOME);
+        if (pendingBack) pendingBack--;
+        schedule();
+      });
+
+      // Estado inicial (incluye enlaces directos y recargas con #pestaña)
+      const initial = history.state && history.state.hp ? history.state : null;
+      let wantTab = HOME;
+      if (initial) {
+        wantTab = initial.tab || HOME;
+        if (initial.ov && initial.ov.length) history.replaceState(Object.assign({}, initial, { ov: [] }), '', location.href);
+      } else {
+        const hashTab = tabFromHash(location.hash);
+        const tokenHash = location.hash && !hashTab && /[=&]/.test(location.hash);
+        history.replaceState({ hp: 1, d: 0, tab: HOME, ov: [] }, '', tokenHash ? location.href : urlFor(HOME));
+        if (hashTab && hashTab !== HOME) { history.pushState({ hp: 1, d: 1, tab: hashTab, ov: [] }, '', urlFor(hashTab)); wantTab = hashTab; }
+      }
+      if (wantTab !== HOME) {                                // esperar a que cargue la sesión (y permiso de admin)
+        const t0 = Date.now();
+        (function wait() {
+          if (ready() && (tabAvailable(wantTab) || Date.now() - t0 > 8000)) {
+            if (cur().tab === wantTab) applyTab(tabAvailable(wantTab) ? wantTab : HOME);
+            return;
+          }
+          if (Date.now() - t0 < 20000) setTimeout(wait, 150);
+        })();
+      }
+
+      const mo = new MutationObserver(schedule);
+      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'coach-panel', 'coach-zoom']
+        .forEach(id => { const el = $(id); if (el) mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); });
+      schedule();
+      window.hpNav = { state: cur, reconcile };
     })();
   </script>
 </body>
