@@ -16,8 +16,6 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-  <!-- SDK EmailJS -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ====== CONFIGURACIÓN SUPABASE (pegar los datos de tu proyecto) ======
@@ -807,6 +805,48 @@
     .lang-auth { margin: -10px -6px 8px; }
     select.lang-sel { width: auto; min-height: 40px !important; padding: 6px 30px 6px 12px; border-radius: 999px; background-color: var(--surface-elevated); font-weight: 700; cursor: pointer; }
     body.compact-header header .lang-wrap { margin: 0; }
+  
+    /* ===== PLANES PRO / CUENTA ===== */
+    .reg-key { margin-top: 4px; font-size: .85rem; }
+    .reg-key summary { cursor: pointer; color: var(--text-muted); text-align: center; padding: 6px; text-decoration: underline; }
+    .reg-key input { margin-top: 8px; }
+    .reg-trial-hint { text-align: center; margin: 2px 0 4px; }
+    .reg-trial-hint b { color: #34d399; }
+    .plans-overlay { z-index: 10400; }
+    .plans-card { max-width: 600px !important; width: 100%; }
+    .plans-head { text-align: center; margin-bottom: 6px; }
+    .plans-head h2 { font-size: 1.7rem; font-weight: 800; color: var(--accent); margin: 2px 0 6px; }
+    .plans-head p { color: var(--text-muted); font-size: .95rem; margin: 0 0 10px; }
+    .trial-pill { display: inline-block; background: rgba(16,185,129,.12); color: #34d399; border: 1px solid rgba(16,185,129,.35); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: .85rem; }
+    .pro-feats { list-style: none; padding: 0; margin: 14px 0 18px; display: grid; gap: 7px; }
+    .pro-feats li { color: var(--text); font-size: .93rem; padding-left: 26px; position: relative; }
+    .pro-feats li::before { content: "✓"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+    .plan-grid { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; margin-top: 10px; }
+    @media (max-width: 520px) { .plan-grid { grid-template-columns: 1fr; } }
+    .plan { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 16px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .plan.best { border: 2px solid var(--accent); box-shadow: 0 0 0 4px var(--accent-glow), 0 12px 30px rgba(255,107,26,.18); background: linear-gradient(180deg, rgba(255,107,26,.08), var(--surface) 60%); }
+    .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #111; font-weight: 800; font-size: .74rem; padding: 4px 12px; border-radius: 999px; white-space: nowrap; }
+    .plan-name { font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: .8rem; letter-spacing: .06em; }
+    .plan-price { font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1.15; }
+    .plan-price small { font-size: .9rem; color: var(--text-muted); font-weight: 600; }
+    .plan-sub { font-size: .85rem; color: var(--text-muted); min-height: 1.3em; }
+    .plan-sub b { color: #34d399; }
+    .plan .btn-3d { margin-top: 12px; text-align: center; text-decoration: none; display: block; width: 100%; }
+    .plans-note { font-size: .78rem; color: var(--text-muted); text-align: center; margin: 14px 0 4px; line-height: 1.45; }
+    .plans-key { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .plans-key summary { cursor: pointer; color: var(--text); font-weight: 600; font-size: .92rem; }
+    .plans-key .row { display: flex; gap: 8px; margin-top: 10px; }
+    .plans-key input { flex: 1; min-width: 0; }
+    .plans-links { display: flex; justify-content: center; gap: 18px; margin-top: 12px; flex-wrap: wrap; }
+    .plans-links button { background: none; border: none; color: var(--text-muted); text-decoration: underline; cursor: pointer; font-size: .85rem; padding: 6px; }
+    .sub-status { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin: 6px 0 12px; font-size: .92rem; color: var(--text); }
+    .sub-status .st-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; background: #71717a; vertical-align: middle; }
+    .sub-status.ok .st-dot { background: var(--success); }
+    .sub-status.warn .st-dot { background: var(--warning); }
+    .sub-status small { display: block; color: var(--text-muted); margin-top: 4px; }
+    .acct-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .del-list { color: var(--text-muted); font-size: .9rem; margin: 8px 0 12px 18px; }
+    .del-err { color: #fca5a5; font-size: .88rem; margin-top: 8px; display: none; }
   </style>
   <script>
     // PWA: registrar service worker (necesario para instalar y para la app de Android)
@@ -927,16 +967,13 @@
           <div id="reg-goal-desc" class="category-desc" style="display:none;"></div>
         </div>
 
-        <div>
-          <label data-i18n="f.key">Clave de Activación</label>
-          <input type="text" id="reg-accesskey" required data-i18n-ph="ph.key" placeholder="Ej: HP-XXXXXXXX" autocomplete="off" autocapitalize="characters">
-          <p class="field-hint" data-i18n="auth.keyHint">La clave de activación es tu licencia personal de un solo uso para crear la cuenta. Si aún no tienes una, cómprala con el botón de WhatsApp de abajo.</p>
-        </div>
-
-        <button type="button" class="btn-3d" style="width:100%; background: #25d366; border-color:#1e7e34; box-shadow:none;" onclick="requestKeyAndOpenWhatsApp(event)" data-i18n="auth.buyWA">
-          Comprar Clave vía WhatsApp
-        </button>
-        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 4px;" data-i18n="auth.create">Crear Cuenta y Activar</button>
+        <p class="field-hint reg-trial-hint" data-i18n="auth.afterReg">Después de crear tu cuenta elegís tu plan: <b>7 días gratis</b>, cancelás cuando quieras.</p>
+        <button type="submit" class="btn-3d" style="width: 100%; margin-top: 4px;" data-i18n="auth.create">Crear cuenta</button>
+        <details class="reg-key">
+          <summary data-i18n="pro.haveKey">Tengo una clave de activación</summary>
+          <input type="text" id="reg-accesskey" data-i18n-ph="ph.key" placeholder="Ej: HP-XXXXXXXX" autocomplete="off" autocapitalize="characters">
+          <p class="field-hint" data-i18n="auth.keyHint">¿Te regalaron una clave? Ingresala y tu acceso queda activo sin suscripción.</p>
+        </details>
       </form>
       <p style="text-align:center;margin:14px 0 0;font-size:.8rem"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--text-muted)" data-i18n="lnk.privacy">Política de privacidad</a></p>
     </div>
@@ -961,6 +998,7 @@
       <span id="profile-details" style="font-size: 0.875rem; color:var(--text-muted);">-</span>
     </div>
     <div style="display:flex; gap:8px;">
+      <button class="btn-3d btn-secondary btn-small" onclick="openPlans(false)" data-i18n="pro.myPlan">⭐ Mi plan</button>
       <button class="btn-3d btn-secondary btn-small" onclick="openEditProfile()" data-i18n="prof.edit">Editar Perfil</button>
       <button class="btn-3d btn-secondary btn-small" onclick="handleLogout()" data-i18n="prof.logout">Salir</button>
     </div>
@@ -1304,6 +1342,16 @@
 
   <!-- PESTAÑA 6: COPIA DE SEGURIDAD -->
   <div id="backup-tab" class="tab-content">
+    <div class="exercise-card" id="account-card">
+      <h2 style="color: var(--accent); margin-bottom: 10px; font-size: 1.2rem;" data-i18n="acct.title">Suscripción y cuenta</h2>
+      <div id="acct-status" class="sub-status"><span class="st-dot"></span><span data-i18n="pro.st.loading">Cargando…</span></div>
+      <div class="acct-actions">
+        <button class="btn-3d" onclick="openPlans(false)" data-i18n="pro.seePlans">Ver planes</button>
+        <button class="btn-3d btn-secondary" id="acct-manage" style="display:none" onclick="openBillingPortal()" data-i18n="pro.manage">Gestionar suscripción</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:18px 0 14px">
+      <button class="btn-3d btn-danger-outline" onclick="openDeleteAccount()" data-i18n="del.btn">Eliminar cuenta</button>
+    </div>
     <div class="exercise-card">
       <h2 style="color: var(--accent); margin-bottom: 10px; font-size: 1.2rem;" data-i18n="bk.title">Copia de Seguridad y Datos</h2>
       <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 14px;" data-i18n="bk.sub">
@@ -1411,8 +1459,7 @@
   "f.goal": "Categoría / Objetivo",
   "opt.genderFirst": "Selecciona tu género primero...",
   "f.key": "Clave de Activación",
-  "auth.keyHint": "La clave de activación es tu licencia personal de un solo uso para crear la cuenta. Si aún no tienes una, cómprala con el botón de WhatsApp de abajo.",
-  "auth.buyWA": "Comprar Clave vía WhatsApp",
+  "auth.keyHint": "¿Te regalaron una clave? Ingresala y tu acceso queda activo sin suscripción.",
   "auth.create": "Crear Cuenta y Activar",
   "pwa.install": "📱 Instala la App en tu pantalla",
   "pwa.btn": "Instalar",
@@ -1637,8 +1684,6 @@
   "alert.badLogin": "Correo o contraseña incorrectos.",
   "ed.locked": "🔒 Género y fecha de nacimiento bloqueados (ya definidos).",
   "alert.profileSaved": "¡Perfil actualizado con éxito!",
-  "btn.genLink": "Generando enlace...",
-  "wa.text": "Hola, deseo adquirir mi clave de Hipertrofia Pro",
   "alert.metricsSaved": "Medidas registradas con éxito. Tu plan, tus puntos a mejorar y las alertas se actualizaron.",
   "adm.s.users": "Usuarios",
   "adm.s.active": "Activos 7 días",
@@ -1820,8 +1865,7 @@
   "f.goal": "Category / Goal",
   "opt.genderFirst": "Select your gender first...",
   "f.key": "Activation key",
-  "auth.keyHint": "The activation key is your personal, single-use license to create your account. If you don't have one yet, buy it with the WhatsApp button below.",
-  "auth.buyWA": "Buy a key via WhatsApp",
+  "auth.keyHint": "Were you given a key? Enter it and your access is activated without a subscription.",
   "auth.create": "Create account & activate",
   "pwa.install": "📱 Install the app on your home screen",
   "pwa.btn": "Install",
@@ -2046,8 +2090,6 @@
   "alert.badLogin": "Wrong email or password.",
   "ed.locked": "🔒 Gender and date of birth are locked (already set).",
   "alert.profileSaved": "Profile updated!",
-  "btn.genLink": "Creating link...",
-  "wa.text": "Hi, I'd like to buy my Hipertrofia Pro key",
   "alert.metricsSaved": "Measurements saved. Your plan, areas to improve and alerts have been updated.",
   "adm.s.users": "Users",
   "adm.s.active": "Active (7 days)",
@@ -2470,8 +2512,7 @@
   "f.goal": "Categoria / Objetivo",
   "opt.genderFirst": "Selecione seu gênero primeiro...",
   "f.key": "Chave de ativação",
-  "auth.keyHint": "A chave de ativação é sua licença pessoal de uso único para criar a conta. Se ainda não tiver uma, compre pelo botão do WhatsApp abaixo.",
-  "auth.buyWA": "Comprar chave pelo WhatsApp",
+  "auth.keyHint": "Ganhou uma chave? Digite-a e seu acesso fica ativo sem assinatura.",
   "auth.create": "Criar conta e ativar",
   "pwa.install": "📱 Instale o app na sua tela",
   "pwa.btn": "Instalar",
@@ -2696,8 +2737,6 @@
   "alert.badLogin": "E-mail ou senha incorretos.",
   "ed.locked": "🔒 Gênero e data de nascimento bloqueados (já definidos).",
   "alert.profileSaved": "Perfil atualizado com sucesso!",
-  "btn.genLink": "Gerando link...",
-  "wa.text": "Olá, quero adquirir minha chave do Hipertrofia Pro",
   "alert.metricsSaved": "Medidas registradas com sucesso. Seu plano, seus pontos a melhorar e os alertas foram atualizados.",
   "adm.s.users": "Usuários",
   "adm.s.active": "Ativos 7 dias",
@@ -3088,6 +3127,187 @@
   }
  }
 };
+    // Textos: planes Pro, suscripción y eliminación de cuenta
+    Object.assign(I18N.es, {
+      "auth.afterReg": "Después de crear tu cuenta elegís tu plan: <b>7 días gratis</b>, cancelás cuando quieras.",
+      "f.key": "Clave de activación (opcional)",
+      "auth.create": "Crear cuenta",
+      "pro.myPlan": "⭐ Mi plan",
+      "pro.title": "Hazte Pro",
+      "pro.sub": "Desbloqueá tu plan completo de entrenamiento y nutrición.",
+      "pro.subForced": "Tu cuenta está lista. Elegí un plan para empezar a entrenar.",
+      "pro.trial": "7 días gratis",
+      "pro.f1": "Rutinas de 3 a 7 días para tu categoría",
+      "pro.f2": "Calorías, macros y dieta según tu fase",
+      "pro.f3": "Entrenador y nutricionista IA con imágenes",
+      "pro.f4": "Puntos débiles, gráficos de progreso y suplementos",
+      "pro.best": "Mejor valor · Ahorrás 33%",
+      "pro.annual": "Anual",
+      "pro.monthly": "Mensual",
+      "pro.perYear": "/ año",
+      "pro.perMonth": "/ mes",
+      "pro.annualEq": "Equivale a <b>US$ {m} / mes</b>",
+      "pro.flex": "Flexible, cancelá cuando quieras",
+      "pro.start": "Empezar 7 días gratis",
+      "pro.note": "No se cobra nada durante los 7 días de prueba. Después se renueva automáticamente; cancelá cuando quieras. Pago seguro con Lemon Squeezy (tarjeta, PayPal y más). Precios en USD; puede sumarse el impuesto de tu país.",
+      "pro.waiting": "Esperando la confirmación del pago… Si ya pagaste, esto se actualiza solo en unos segundos.",
+      "pro.haveKey": "Tengo una clave de activación",
+      "pro.activate": "Activar",
+      "pro.keyOk": "✅ Clave activada. ¡Bienvenido!",
+      "pro.welcome": "🎉 ¡Listo! Tu plan Pro está activo.",
+      "pro.manage": "Gestionar suscripción",
+      "pro.seePlans": "Ver planes",
+      "pro.st.loading": "Cargando…",
+      "pro.st.admin": "Cuenta administradora: acceso completo.",
+      "pro.st.key": "Acceso activo con clave de activación.",
+      "pro.st.none": "Sin plan activo.",
+      "pro.st.on_trial": "Plan {plan}: prueba gratis hasta el {d}",
+      "pro.st.active": "Plan {plan}: activo · se renueva el {d}",
+      "pro.st.past_due": "Plan {plan}: pago pendiente. Actualizá tu método de pago.",
+      "pro.st.cancelled": "Plan {plan}: cancelado · acceso hasta el {d}",
+      "pro.st.paused": "Plan {plan}: pausado",
+      "pro.st.expired": "Plan {plan}: vencido",
+      "pro.st.unpaid": "Plan {plan}: impago",
+      "pro.testMode": "(modo de prueba)",
+      "pro.portalErr": "No se pudo abrir el portal. Probá de nuevo en un momento.",
+      "acct.title": "Suscripción y cuenta",
+      "del.btn": "Eliminar cuenta",
+      "del.title": "Eliminar cuenta",
+      "del.intro": "Esta acción es permanente y no se puede deshacer. Se borrarán:",
+      "del.i1": "Tu perfil y tu cuenta de acceso",
+      "del.i2": "Rutinas, cargas, medidas y ajustes guardados",
+      "del.i3": "El historial del entrenador IA",
+      "del.subNote": "Si tenés una suscripción activa, cancelala primero en «Gestionar suscripción».",
+      "del.label": "Para confirmar, escribí tu correo: <b>{email}</b>",
+      "del.go": "Eliminar definitivamente",
+      "del.working": "Eliminando…",
+      "del.done": "Tu cuenta y tus datos fueron eliminados.",
+      "del.errSub": "Tenés una suscripción activa. Cancelala en «Gestionar suscripción» y volvé a intentarlo.",
+      "del.errAdmin": "La cuenta administradora no se puede eliminar desde la app.",
+      "del.errGeneric": "No se pudo eliminar la cuenta. Probá de nuevo o escribí a henro89@gmail.com.",
+      "adm.s.subs": "Suscripciones activas",
+      "adm.s.trial": "En prueba gratis"
+    });
+    Object.assign(I18N.en, {
+      "auth.afterReg": "After creating your account you pick your plan: <b>7 days free</b>, cancel any time.",
+      "f.key": "Activation key (optional)",
+      "auth.create": "Create account",
+      "pro.myPlan": "⭐ My plan",
+      "pro.title": "Go Pro",
+      "pro.sub": "Unlock your complete training and nutrition plan.",
+      "pro.subForced": "Your account is ready. Choose a plan to start training.",
+      "pro.trial": "7 days free",
+      "pro.f1": "3 to 7-day programs for your category",
+      "pro.f2": "Calories, macros and diet for your phase",
+      "pro.f3": "AI trainer and nutritionist with pictures",
+      "pro.f4": "Weak points, progress charts and supplements",
+      "pro.best": "Best value · Save 33%",
+      "pro.annual": "Annual",
+      "pro.monthly": "Monthly",
+      "pro.perYear": "/ year",
+      "pro.perMonth": "/ month",
+      "pro.annualEq": "Just <b>US$ {m} / month</b>",
+      "pro.flex": "Flexible, cancel any time",
+      "pro.start": "Start 7-day free trial",
+      "pro.note": "You won't be charged during the 7-day trial. After that it renews automatically; cancel any time. Secure checkout by Lemon Squeezy (card, PayPal and more). Prices in USD; local tax may apply.",
+      "pro.waiting": "Waiting for payment confirmation… If you've already paid, this updates by itself in a few seconds.",
+      "pro.haveKey": "I have an activation key",
+      "pro.activate": "Activate",
+      "pro.keyOk": "✅ Key activated. Welcome!",
+      "pro.welcome": "🎉 Done! Your Pro plan is active.",
+      "pro.manage": "Manage subscription",
+      "pro.seePlans": "See plans",
+      "pro.st.loading": "Loading…",
+      "pro.st.admin": "Administrator account: full access.",
+      "pro.st.key": "Access active with an activation key.",
+      "pro.st.none": "No active plan.",
+      "pro.st.on_trial": "{plan} plan: free trial until {d}",
+      "pro.st.active": "{plan} plan: active · renews on {d}",
+      "pro.st.past_due": "{plan} plan: payment due. Please update your payment method.",
+      "pro.st.cancelled": "{plan} plan: cancelled · access until {d}",
+      "pro.st.paused": "{plan} plan: paused",
+      "pro.st.expired": "{plan} plan: expired",
+      "pro.st.unpaid": "{plan} plan: unpaid",
+      "pro.testMode": "(test mode)",
+      "pro.portalErr": "Couldn't open the billing portal. Please try again shortly.",
+      "acct.title": "Subscription & account",
+      "del.btn": "Delete account",
+      "del.title": "Delete account",
+      "del.intro": "This is permanent and can't be undone. The following will be deleted:",
+      "del.i1": "Your profile and login",
+      "del.i2": "Saved workouts, loads, measurements and settings",
+      "del.i3": "Your AI coach history",
+      "del.subNote": "If you have an active subscription, cancel it first under \"Manage subscription\".",
+      "del.label": "To confirm, type your email: <b>{email}</b>",
+      "del.go": "Delete permanently",
+      "del.working": "Deleting…",
+      "del.done": "Your account and data have been deleted.",
+      "del.errSub": "You have an active subscription. Cancel it under \"Manage subscription\" and try again.",
+      "del.errAdmin": "The administrator account can't be deleted from the app.",
+      "del.errGeneric": "Couldn't delete the account. Try again or email henro89@gmail.com.",
+      "adm.s.subs": "Active subscriptions",
+      "adm.s.trial": "On free trial"
+    });
+    Object.assign(I18N.pt, {
+      "auth.afterReg": "Depois de criar sua conta você escolhe seu plano: <b>7 dias grátis</b>, cancele quando quiser.",
+      "f.key": "Chave de ativação (opcional)",
+      "auth.create": "Criar conta",
+      "pro.myPlan": "⭐ Meu plano",
+      "pro.title": "Seja Pro",
+      "pro.sub": "Desbloqueie seu plano completo de treino e nutrição.",
+      "pro.subForced": "Sua conta está pronta. Escolha um plano para começar a treinar.",
+      "pro.trial": "7 dias grátis",
+      "pro.f1": "Treinos de 3 a 7 dias para sua categoria",
+      "pro.f2": "Calorias, macros e dieta conforme sua fase",
+      "pro.f3": "Treinador e nutricionista com IA e imagens",
+      "pro.f4": "Pontos fracos, gráficos de progresso e suplementos",
+      "pro.best": "Melhor valor · Economize 33%",
+      "pro.annual": "Anual",
+      "pro.monthly": "Mensal",
+      "pro.perYear": "/ ano",
+      "pro.perMonth": "/ mês",
+      "pro.annualEq": "Equivale a <b>US$ {m} / mês</b>",
+      "pro.flex": "Flexível, cancele quando quiser",
+      "pro.start": "Começar 7 dias grátis",
+      "pro.note": "Nada é cobrado durante os 7 dias de teste. Depois a assinatura renova automaticamente; cancele quando quiser. Pagamento seguro com Lemon Squeezy (cartão, PayPal e mais). Preços em USD; pode haver imposto local.",
+      "pro.waiting": "Aguardando a confirmação do pagamento… Se você já pagou, isto se atualiza sozinho em alguns segundos.",
+      "pro.haveKey": "Tenho uma chave de ativação",
+      "pro.activate": "Ativar",
+      "pro.keyOk": "✅ Chave ativada. Bem-vindo!",
+      "pro.welcome": "🎉 Pronto! Seu plano Pro está ativo.",
+      "pro.manage": "Gerenciar assinatura",
+      "pro.seePlans": "Ver planos",
+      "pro.st.loading": "Carregando…",
+      "pro.st.admin": "Conta de administrador: acesso completo.",
+      "pro.st.key": "Acesso ativo com chave de ativação.",
+      "pro.st.none": "Nenhum plano ativo.",
+      "pro.st.on_trial": "Plano {plan}: teste grátis até {d}",
+      "pro.st.active": "Plano {plan}: ativo · renova em {d}",
+      "pro.st.past_due": "Plano {plan}: pagamento pendente. Atualize sua forma de pagamento.",
+      "pro.st.cancelled": "Plano {plan}: cancelado · acesso até {d}",
+      "pro.st.paused": "Plano {plan}: pausado",
+      "pro.st.expired": "Plano {plan}: vencido",
+      "pro.st.unpaid": "Plano {plan}: não pago",
+      "pro.testMode": "(modo de teste)",
+      "pro.portalErr": "Não foi possível abrir o portal. Tente novamente em instantes.",
+      "acct.title": "Assinatura e conta",
+      "del.btn": "Excluir conta",
+      "del.title": "Excluir conta",
+      "del.intro": "Esta ação é permanente e não pode ser desfeita. Serão apagados:",
+      "del.i1": "Seu perfil e seu acesso",
+      "del.i2": "Treinos, cargas, medidas e ajustes salvos",
+      "del.i3": "O histórico do treinador IA",
+      "del.subNote": "Se você tem uma assinatura ativa, cancele-a primeiro em «Gerenciar assinatura».",
+      "del.label": "Para confirmar, digite seu e-mail: <b>{email}</b>",
+      "del.go": "Excluir definitivamente",
+      "del.working": "Excluindo…",
+      "del.done": "Sua conta e seus dados foram excluídos.",
+      "del.errSub": "Você tem uma assinatura ativa. Cancele-a em «Gerenciar assinatura» e tente de novo.",
+      "del.errAdmin": "A conta de administrador não pode ser excluída pelo app.",
+      "del.errGeneric": "Não foi possível excluir a conta. Tente de novo ou escreva para henro89@gmail.com.",
+      "adm.s.subs": "Assinaturas ativas",
+      "adm.s.trial": "Em teste grátis"
+    });
     // ===================== INTERNACIONALIZACIÓN (es / en / pt) =====================
     const LANGS = { es: { locale: 'es-PY', html: 'es' }, en: { locale: 'en-US', html: 'en' }, pt: { locale: 'pt-BR', html: 'pt-BR' } };
     let LANG = (function () {
@@ -3599,7 +3819,6 @@
     let currentUser = null;
     let timerInterval = null;
     let timerSeconds = 0;
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7LFb_dF9hmOUousmZpCaqksPoyZ78Q3bvUKhIj4VmmLjHoqxTFTIJF0dz6gxYpNbXaw/exec';
 
     document.addEventListener('DOMContentLoaded', () => {
       applyStaticI18n();
@@ -4177,11 +4396,13 @@ ${timedSecs ? `
           }
           const { data: acc, error: accErr } = await sb.rpc('my_access');
           if (accErr) throw accErr;
-          if (acc && acc.revoked) {
+          // Clave desactivada y sin suscripción: se cierra la sesión como antes
+          if (acc && !acc.has_access && acc.key_revoked && !acc.subscription) {
             await sb.auth.signOut();
             alert(t('alert.revoked'));
             return checkActiveUserSession();
           }
+          window._access = acc || { has_access: false };
           window._isAdmin = !!(acc && acc.is_admin);
           document.getElementById('admin-tab-btn').style.display = window._isAdmin ? '' : 'none';
           profileCache = profileFromRow(prof, email);
@@ -4205,6 +4426,7 @@ ${timedSecs ? `
         renderMetricsHistory();
         document.getElementById('body-date').valueAsDate = new Date();
         showDateHint(document.getElementById('body-date'));
+        try { onSessionAccess(); } catch (e) { console.error(e); }
       } else {
         document.getElementById('auth-modal').style.display = 'flex';
         window._isAdmin = false;
@@ -4221,7 +4443,7 @@ ${timedSecs ? `
       const pending = user.user_metadata && user.user_metadata.pending_profile;
       if (!pending) { alert(t('alert.noProfile')); return false; }
       const { error } = await sb.rpc('redeem_activation_key', {
-        p_key: pending.accessKey, p_first_name: pending.firstname, p_last_name: pending.lastname,
+        p_key: pending.accessKey || '', p_first_name: pending.firstname, p_last_name: pending.lastname,
         p_gender: pending.gender, p_birth_date: pending.birthdate || null,
         p_weight: pending.weight, p_height: pending.height, p_goal: pending.goal
       });
@@ -4337,10 +4559,13 @@ ${timedSecs ? `
       const originalBtnText = btn.innerText;
       btn.disabled = true; btn.innerText = t('btn.validating');
       try {
+        // Clave opcional: sin clave la cuenta se crea y luego se elige un plan (7 días gratis).
         // Pre-chequeo (no consume la clave); el canje real ocurre en redeem_activation_key
-        const { data: valid, error: vErr } = await sb.rpc('check_activation_key', { p_key: accessKey, p_email: email });
-        if (vErr) throw vErr;
-        if (!valid) { alert(t('alert.keyInvalid')); return; }
+        if (accessKey) {
+          const { data: valid, error: vErr } = await sb.rpc('check_activation_key', { p_key: accessKey, p_email: email });
+          if (vErr) throw vErr;
+          if (!valid) { alert(t('alert.keyInvalid')); return; }
+        }
         const pending_profile = { accessKey, firstname, lastname, gender, birthdate, weight, height, goal, lang: LANG };
         const { data, error } = await sb.auth.signUp({
           email, password,
@@ -4436,31 +4661,6 @@ ${timedSecs ? `
       document.getElementById('edit-profile-modal').style.display = 'none';
       checkActiveUserSession();
       alert(t('alert.profileSaved'));
-    }
-
-    function requestKeyAndOpenWhatsApp(event) {
-      const btn = event.target;
-      btn.disabled = true;
-      btn.innerText = t('btn.genLink');
-
-      const callbackName = 'jsonpKey_' + Date.now();
-      window[callbackName] = function(res) {
-        btn.disabled = false;
-        btn.innerText = t('auth.buyWA');
-        delete window[callbackName];
-        document.getElementById('jsonp-key-script')?.remove();
-        window.open('https://wa.me/595972173847?text=' + encodeURIComponent(t('wa.text')), '_blank');
-      };
-
-      const script = document.createElement('script');
-      script.id = 'jsonp-key-script';
-      script.src = `${SCRIPT_URL}?action=request_key&callback=${callbackName}`;
-      script.onerror = function() {
-        btn.disabled = false;
-        btn.innerText = t('auth.buyWA');
-        window.open('https://wa.me/595972173847?text=' + encodeURIComponent(t('wa.text')), '_blank');
-      };
-      document.body.appendChild(script);
     }
 
     // CRONÓMETRO DE DESCANSO
@@ -4595,7 +4795,8 @@ ${timedSecs ? `
       const s = admStats; if (!s) return;
       document.getElementById('adm-stats').innerHTML = [
         ['adm.s.users', s.total_users], ['adm.s.active', s.active_week], ['adm.s.free', s.keys_free],
-        ['adm.s.used', s.keys_used], ['adm.s.revoked', s.keys_revoked], ['adm.s.coach', s.coach_today]
+        ['adm.s.used', s.keys_used], ['adm.s.revoked', s.keys_revoked], ['adm.s.coach', s.coach_today],
+        ['adm.s.subs', s.subs_active ?? 0], ['adm.s.trial', s.subs_trial ?? 0]
       ].map(([l, v]) => `<div class="adm-stat"><b>${esc(fmtN(v))}</b><span>${t(l)}</span></div>`).join('');
     }
     async function adminLoad() {
@@ -5332,6 +5533,73 @@ ${timedSecs ? `
       _charts.m = new Chart(document.getElementById('chart-measures'), { type: 'line', data: { labels, datasets: ds }, options: opts });
     }
   </script>
+<!-- PLANES PRO -->
+  <div id="plans-modal" class="auth-overlay plans-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="auth-card plans-card">
+      <div class="plans-head">
+        <h2 data-i18n="pro.title">Hazte Pro</h2>
+        <p id="plans-sub" data-i18n="pro.sub">Desbloqueá tu plan completo de entrenamiento y nutrición.</p>
+        <span class="trial-pill" data-i18n="pro.trial">7 días gratis</span>
+      </div>
+      <div id="plans-status" class="sub-status" style="display:none"></div>
+      <ul class="pro-feats">
+        <li data-i18n="pro.f1">Rutinas de 3 a 7 días para tu categoría</li>
+        <li data-i18n="pro.f2">Calorías, macros y dieta según tu fase</li>
+        <li data-i18n="pro.f3">Entrenador y nutricionista IA con imágenes</li>
+        <li data-i18n="pro.f4">Puntos débiles, gráficos de progreso y suplementos</li>
+      </ul>
+      <div class="plan-grid">
+        <div class="plan best">
+          <span class="plan-badge" data-i18n="pro.best">Mejor valor · Ahorrás 33%</span>
+          <span class="plan-name" data-i18n="pro.annual">Anual</span>
+          <span class="plan-price">US$ <span class="pp-annual">39.99</span> <small data-i18n="pro.perYear">/ año</small></span>
+          <span class="plan-sub" id="pp-annual-sub"></span>
+          <a class="btn-3d" id="buy-annual" href="#" target="_blank" rel="noopener" onclick="return startCheckout('annual', this)" data-i18n="pro.start">Empezar 7 días gratis</a>
+        </div>
+        <div class="plan">
+          <span class="plan-name" data-i18n="pro.monthly">Mensual</span>
+          <span class="plan-price">US$ <span class="pp-monthly">4.99</span> <small data-i18n="pro.perMonth">/ mes</small></span>
+          <span class="plan-sub" data-i18n="pro.flex">Flexible, cancelá cuando quieras</span>
+          <a class="btn-3d btn-secondary" id="buy-monthly" href="#" target="_blank" rel="noopener" onclick="return startCheckout('monthly', this)" data-i18n="pro.start">Empezar 7 días gratis</a>
+        </div>
+      </div>
+      <p class="plans-note" data-i18n="pro.note">No se cobra nada durante los 7 días de prueba. Después se renueva automáticamente; cancelá cuando quieras. Pago seguro con Lemon Squeezy (tarjeta, PayPal y más). Precios en USD; puede sumarse el impuesto de tu país.</p>
+      <p class="plans-note" id="plans-wait" style="display:none;color:var(--accent)" data-i18n="pro.waiting">Esperando la confirmación del pago…</p>
+      <details class="plans-key" id="plans-key">
+        <summary data-i18n="pro.haveKey">Tengo una clave de activación</summary>
+        <div class="row">
+          <input type="text" id="plans-key-input" data-i18n-ph="ph.key" placeholder="Ej: HP-XXXXXXXX" autocomplete="off" autocapitalize="characters">
+          <button class="btn-3d btn-small" id="plans-key-btn" onclick="redeemKeyFromPlans()" data-i18n="pro.activate">Activar</button>
+        </div>
+      </details>
+      <div class="plans-links">
+        <button type="button" id="plans-close" onclick="closePlans()" data-i18n="btn.close">Cerrar</button>
+        <button type="button" id="plans-manage" style="display:none" onclick="openBillingPortal()" data-i18n="pro.manage">Gestionar suscripción</button>
+        <button type="button" id="plans-logout" style="display:none" onclick="handleLogout()" data-i18n="prof.logout">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ELIMINAR CUENTA -->
+  <div id="delete-modal" class="auth-overlay plans-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="auth-card">
+      <h2 style="color:#f87171;font-size:1.35rem;margin-bottom:8px" data-i18n="del.title">Eliminar cuenta</h2>
+      <p style="color:var(--text-muted);font-size:.93rem" data-i18n="del.intro">Esta acción es permanente y no se puede deshacer. Se borrarán:</p>
+      <ul class="del-list">
+        <li data-i18n="del.i1">Tu perfil y tu cuenta de acceso</li>
+        <li data-i18n="del.i2">Rutinas, cargas, medidas y ajustes guardados</li>
+        <li data-i18n="del.i3">El historial del entrenador IA</li>
+      </ul>
+      <p style="color:var(--text-muted);font-size:.88rem" data-i18n="del.subNote">Si tenés una suscripción activa, cancelala primero en «Gestionar suscripción».</p>
+      <label style="display:block;margin:12px 0 6px;font-weight:600" id="del-label"></label>
+      <input type="email" id="del-confirm" autocomplete="off" oninput="document.getElementById('del-go').disabled = this.value.trim().toLowerCase() !== (currentUser || '')">
+      <div class="del-err" id="del-err"></div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn-3d" id="del-go" disabled style="background:#dc2626;border-color:#991b1b;flex:1" onclick="confirmDeleteAccount()" data-i18n="del.go">Eliminar definitivamente</button>
+        <button class="btn-3d btn-secondary" style="flex:1" onclick="closeDeleteAccount()" data-i18n="btn.cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
 <!-- ENTRENADOR IA -->
   <button id="coach-fab" class="coach-fab" data-i18n-aria="coach.fabAria" aria-label="Abrir Entrenador IA" onclick="coachToggle(true)">💬</button>
   <div id="coach-panel" class="coach-panel" role="dialog" data-i18n-aria="coach.panelAria" aria-label="Entrenador IA">
@@ -5356,7 +5624,7 @@ ${timedSecs ? `
       const $ = id => document.getElementById(id);
       const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const fmt = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      function loggedIn(){ const m = $('auth-modal'); return !!currentUser && (!m || getComputedStyle(m).display === 'none'); }
+      function loggedIn(){ const m = $('auth-modal'); return !!currentUser && (!m || getComputedStyle(m).display === 'none') && !(window._access && window._access.has_access === false); }
       setInterval(() => { const on = loggedIn(); $('coach-fab').style.display = on ? 'flex' : 'none'; document.body.classList.toggle('coach-on', on); if (!on) $('coach-panel').classList.remove('open'); }, 800);
       function context(){
         const u = (getUsersDB()[currentUser]) || {}; const n = calculateNutrition(u);
@@ -5414,6 +5682,187 @@ ${timedSecs ? `
     })();
   </script>
   <script>
+    // ===== PLANES PRO (Lemon Squeezy) Y CUENTA =====
+    const LS_PLANS = {
+      monthly: { variant: '2259802', price: 4.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/3a72cc80-5283-4282-bc9a-4bec04f39d08?enabled=2259802' },
+      annual:  { variant: '2259805', price: 39.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/40f20c5c-8b0e-477b-815b-80207b9a0e6d?enabled=2259805' }
+    };
+    window._access = null; window._plansForced = false;
+    const fmtDate = d => d ? new Date(d).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+
+    function checkoutUrl(plan) {
+      const u = new URL(LS_PLANS[plan].url);
+      u.searchParams.set('checkout[email]', currentUser || '');
+      u.searchParams.set('checkout[custom][user_id]', cloudUserId || '');
+      u.searchParams.set('embed', '0');
+      return u.toString();               // URLSearchParams codifica corchetes, @ y demás
+    }
+    function startCheckout(plan, a) {
+      if (!currentUser || !cloudUserId) return false;
+      a.href = checkoutUrl(plan);
+      try { localStorage.setItem('hp_checkout_at', String(Date.now())); } catch (e) {}
+      document.getElementById('plans-wait').style.display = 'block';
+      pollAccess(10 * 60 * 1000);
+      return true;                        // deja que el enlace abra el checkout en otra pestaña
+    }
+
+    function subStatusInfo(acc) {
+      if (!acc) return { key: 'pro.st.loading', cls: '' };
+      const s = acc.subscription;
+      if (acc.via === 'admin') return { key: 'pro.st.admin', cls: 'ok' };
+      if (s && (s.active || !acc.has_access)) {
+        const plan = s.plan === 'annual' ? t('pro.annual') : s.plan === 'monthly' ? t('pro.monthly') : 'Pro';
+        const d = s.status === 'on_trial' ? s.trial_ends_at : s.status === 'cancelled' ? s.ends_at : s.renews_at;
+        const key = 'pro.st.' + (I18N.es['pro.st.' + s.status] ? s.status : 'none');
+        const cls = s.active ? (s.status === 'past_due' || s.status === 'cancelled' ? 'warn' : 'ok') : '';
+        return { key, vars: { plan, d: fmtDate(d) }, cls, test: !!s.test_mode };
+      }
+      if (acc.via === 'key') return { key: 'pro.st.key', cls: 'ok' };
+      return { key: 'pro.st.none', cls: '' };
+    }
+    function renderStatusBox(el, acc) {
+      if (!el) return;
+      const i = subStatusInfo(acc);
+      el.className = 'sub-status ' + i.cls;
+      el.innerHTML = '<span class="st-dot"></span><span></span>' + (i.test ? ' <small>' + t('pro.testMode') + '</small>' : '');
+      el.querySelector('span:nth-child(2)').innerHTML = t(i.key, i.vars);
+    }
+    function renderAccessUI() {
+      const acc = window._access;
+      renderStatusBox(document.getElementById('acct-status'), acc);
+      const hasSub = !!(acc && acc.subscription);
+      document.getElementById('acct-manage').style.display = hasSub ? '' : 'none';
+      document.getElementById('plans-manage').style.display = hasSub ? '' : 'none';
+      const subLive = !!(acc && acc.subscription && acc.subscription.active);
+      document.querySelector('#plans-modal .plan-grid').style.display = subLive ? 'none' : '';   // ya suscripto: no ofrecer otra compra
+      document.querySelector('#plans-modal .plans-note').style.display = subLive ? 'none' : '';
+      const ps = document.getElementById('plans-status');
+      if (acc && (acc.has_access || acc.subscription)) { ps.style.display = ''; renderStatusBox(ps, acc); } else ps.style.display = 'none';
+      document.querySelectorAll('.pp-annual').forEach(e => e.textContent = fmtN(LS_PLANS.annual.price, 2));
+      document.querySelectorAll('.pp-monthly').forEach(e => e.textContent = fmtN(LS_PLANS.monthly.price, 2));
+      document.getElementById('pp-annual-sub').innerHTML = t('pro.annualEq', { m: fmtN(Math.floor(LS_PLANS.annual.price / 12 * 100) / 100, 2) });
+      setI18n(document.getElementById('plans-sub'), window._plansForced ? 'pro.subForced' : 'pro.sub');
+      setI18n(document.getElementById('del-label'), 'del.label', { email: esc(currentUser || '') });
+    }
+    const _rerender = window.rerenderDynamic;
+    window.rerenderDynamic = function () { _rerender.apply(this, arguments); try { if (currentUser) renderAccessUI(); } catch (e) {} };
+
+    function openPlans(forced) {
+      window._plansForced = !!forced;
+      document.getElementById('plans-close').style.display = forced ? 'none' : '';
+      document.getElementById('plans-logout').style.display = forced ? '' : 'none';
+      renderAccessUI();
+      document.getElementById('plans-modal').style.display = 'flex';
+    }
+    function closePlans() {
+      if (window._plansForced) return;   // sin acceso no se puede cerrar (solo "Salir")
+      document.getElementById('plans-modal').style.display = 'none';
+      document.getElementById('plans-wait').style.display = 'none';
+    }
+
+    async function refreshAccess() {
+      const { data, error } = await sb.rpc('my_access');
+      if (error) { console.warn('my_access', error); return window._access; }
+      const had = window._access && window._access.has_access;
+      window._access = data || { has_access: false };
+      renderAccessUI();
+      if (!had && window._access.has_access) onAccessGranted();
+      return window._access;
+    }
+    let _pollTimer = null, _pollUntil = 0;
+    function pollAccess(ms) {
+      _pollUntil = Math.max(_pollUntil, Date.now() + ms);
+      if (_pollTimer) return;
+      const tick = async () => {
+        _pollTimer = null;
+        if (!currentUser) return;
+        const acc = await refreshAccess();
+        const done = acc && acc.has_access && acc.via === 'subscription';
+        if (!done && Date.now() < _pollUntil) _pollTimer = setTimeout(tick, document.hidden ? 8000 : 3000);
+      };
+      _pollTimer = setTimeout(tick, 1500);
+    }
+    function onAccessGranted() {
+      window._plansForced = false;
+      document.getElementById('plans-modal').style.display = 'none';
+      document.getElementById('plans-wait').style.display = 'none';
+      showToast(t('pro.welcome'));
+    }
+    // Se llama al terminar de cargar la sesión
+    function onSessionAccess() {
+      renderAccessUI();
+      const params = new URLSearchParams(location.search);
+      const back = params.get('checkout') === 'success';
+      if (back) { params.delete('checkout'); history.replaceState(history.state, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash); }
+      const recent = Date.now() - Number(localStorage.getItem('hp_checkout_at') || 0) < 30 * 60 * 1000;
+      if (!window._access || !window._access.has_access) {
+        openPlans(true);
+        if (back || recent) { document.getElementById('plans-wait').style.display = 'block'; pollAccess(back ? 3 * 60 * 1000 : 60 * 1000); }
+      }
+    }
+    // Al volver del checkout (otra pestaña / Custom Tab) se revisa el acceso
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden || !currentUser) return;
+      const recent = Date.now() - Number(localStorage.getItem('hp_checkout_at') || 0) < 30 * 60 * 1000;
+      if (recent) pollAccess(90 * 1000);
+    });
+
+    async function redeemKeyFromPlans() {
+      const inp = document.getElementById('plans-key-input'), btn = document.getElementById('plans-key-btn');
+      const key = inp.value.trim().toUpperCase(); if (!key) return;
+      btn.disabled = true;
+      try {
+        const { error } = await sb.rpc('redeem_activation_key', { p_key: key, p_first_name: null, p_last_name: null, p_gender: null,
+          p_birth_date: null, p_weight: null, p_height: null, p_goal: null });
+        if (error) { alert(t('alert.keyInvalid')); return; }
+        const acc = await refreshAccess();
+        if (acc && acc.has_access) { inp.value = ''; showToast(t('pro.keyOk')); } else alert(t('alert.keyInvalid'));
+      } finally { btn.disabled = false; }
+    }
+
+    async function openBillingPortal() {
+      const w = window.open('', '_blank');          // abrir ya (evita bloqueo de ventanas emergentes)
+      try {
+        const { data, error } = await sb.functions.invoke('lemon-portal', { body: {} });
+        if (error || !data || !data.url) throw error || new Error('no url');
+        if (w) w.location.href = data.url; else location.href = data.url;
+      } catch (e) {
+        console.warn(e); if (w) w.close(); showToast(t('pro.portalErr'));
+      }
+    }
+
+    function openDeleteAccount() {
+      renderAccessUI();
+      const inp = document.getElementById('del-confirm'); inp.value = '';
+      document.getElementById('del-go').disabled = true;
+      document.getElementById('del-err').style.display = 'none';
+      document.getElementById('delete-modal').style.display = 'flex';
+      setTimeout(() => inp.focus(), 50);
+    }
+    function closeDeleteAccount() { document.getElementById('delete-modal').style.display = 'none'; }
+    async function confirmDeleteAccount() {
+      const v = document.getElementById('del-confirm').value.trim().toLowerCase();
+      if (!currentUser || v !== currentUser) return;
+      const btn = document.getElementById('del-go'), err = document.getElementById('del-err');
+      const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = t('del.working'); err.style.display = 'none';
+      try {
+        const { data, error } = await sb.functions.invoke('delete-account', { body: { confirm: v } });
+        if (error) {
+          let code = ''; try { code = (await error.context.json()).error; } catch (_) {}
+          err.innerHTML = t(code === 'active_subscription' ? 'del.errSub' : code === 'admin' ? 'del.errAdmin' : 'del.errGeneric');
+          err.style.display = 'block'; btn.disabled = false; btn.innerHTML = orig; return;
+        }
+        const email = currentUser;
+        try { Object.keys(localStorage).filter(k => k.endsWith('_' + email) || k === 'hp_checkout_at').forEach(k => localStorage.removeItem(k)); } catch (_) {}
+        await sb.auth.signOut().catch(() => {});
+        alert(t('del.done'));
+        location.replace(location.pathname);
+      } catch (e) {
+        console.error(e); err.innerHTML = t('del.errGeneric'); err.style.display = 'block'; btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+  </script>
+  <script>
     // ===== BOTÓN ATRÁS (Android / navegador): historial por pestañas y ventanas =====
     // Atrás cierra primero la ventana abierta más arriba (zoom, perfil, chat, formularios),
     // después vuelve a la pestaña anterior, y solo sale de la app desde "Rutina de Hoy" sin nada abierto.
@@ -5428,6 +5877,8 @@ ${timedSecs ? `
         forgot:   { open: () => authOpen() && shown($('forgot-form')),   close: () => showAuthTab('login') },
         reset:    { open: () => authOpen() && shown($('reset-form')) && !window._inRecovery, close: () => showAuthTab('login') },
         edit:     { open: () => shown($('edit-profile-modal')), close: () => { $('edit-profile-modal').style.display = 'none'; } },
+        plans:    { open: () => shown($('plans-modal')) && !window._plansForced, close: () => closePlans() },
+        del:      { open: () => shown($('delete-modal')), close: () => closeDeleteAccount() },
         coach:    { open: () => !!$('coach-panel') && $('coach-panel').classList.contains('open'), close: () => coachToggle(false) },
         zoom:     { open: () => shown($('coach-zoom')), close: () => { $('coach-zoom').style.display = 'none'; } }
       };
@@ -5518,7 +5969,7 @@ ${timedSecs ? `
       }
 
       const mo = new MutationObserver(schedule);
-      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'coach-panel', 'coach-zoom']
+      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom']
         .forEach(id => { const el = $(id); if (el) mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); });
       schedule();
       window.hpNav = { state: cur, reconcile };
