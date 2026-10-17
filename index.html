@@ -21,6 +21,8 @@
     // ====== CONFIGURACIÓN SUPABASE (pegar los datos de tu proyecto) ======
     const SUPABASE_URL = 'https://ovvdxsrjvbewqrzxxabe.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dmR4c3JqdmJld3Fyenh4YWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNzcwNTIsImV4cCI6MjEwNzc1MzA1Mn0.duDkWmigyLH7cF19HAmteG0N9s0mzqzxfyREYt5Kn8k';
+    // Enlaces de correo: ?code= (PKCE) o #error=... (enlace vencido / ya usado)
+    window.__authLink = /[?&]code=/.test(location.search) ? 'code' : (/[#&?]error(_code)?=/.test(location.hash + location.search) ? 'error' : null);
   </script>
 
   <style>
@@ -1670,7 +1672,7 @@
   "btn.sending": "Enviando...",
   "err.generic": "Error: {m}",
   "err.sendCode": "No se pudo enviar el código.",
-  "alert.codeSent": "Código enviado a tu correo. Revisa tu bandeja de entrada o spam.",
+  "alert.codeSent": "Te enviamos un correo. Tocá el enlace del correo en este mismo dispositivo para elegir tu nueva contraseña (si el correo trae un código, también podés ingresarlo acá). Revisá también spam.",
   "alert.fillAll": "Completa todos los campos obligatorios.",
   "btn.verifying": "Verificando...",
   "alert.codeInvalid": "Código inválido o expirado.",
@@ -2076,7 +2078,7 @@
   "btn.sending": "Sending...",
   "err.generic": "Error: {m}",
   "err.sendCode": "Couldn't send the code.",
-  "alert.codeSent": "Code sent to your email. Check your inbox or spam folder.",
+  "alert.codeSent": "We sent you an email. Tap the link in it on this same device to choose a new password (if the email includes a code, you can also enter it here). Check your spam folder too.",
   "alert.fillAll": "Please fill in all required fields.",
   "btn.verifying": "Verifying...",
   "alert.codeInvalid": "Invalid or expired code.",
@@ -2723,7 +2725,7 @@
   "btn.sending": "Enviando...",
   "err.generic": "Erro: {m}",
   "err.sendCode": "Não foi possível enviar o código.",
-  "alert.codeSent": "Código enviado para o seu e-mail. Verifique a caixa de entrada ou o spam.",
+  "alert.codeSent": "Enviamos um e-mail. Toque no link do e-mail neste mesmo dispositivo para escolher a nova senha (se o e-mail trouxer um código, você também pode digitá-lo aqui). Veja também o spam.",
   "alert.fillAll": "Preencha todos os campos obrigatórios.",
   "btn.verifying": "Verificando...",
   "alert.codeInvalid": "Código inválido ou expirado.",
@@ -3129,6 +3131,8 @@
 };
     // Textos: planes Pro, suscripción y eliminación de cuenta
     Object.assign(I18N.es, {
+      "auth.confirmedLogin": "✅ Correo confirmado. Iniciá sesión con tu correo y contraseña.",
+      "auth.linkExpired": "El enlace venció o ya se usó. Iniciá sesión o pedí uno nuevo.",
       "auth.afterReg": "Después de crear tu cuenta elegís tu plan: <b>7 días gratis</b>, cancelás cuando quieras.",
       "f.key": "Clave de activación (opcional)",
       "auth.create": "Crear cuenta",
@@ -3189,6 +3193,8 @@
       "adm.s.trial": "En prueba gratis"
     });
     Object.assign(I18N.en, {
+      "auth.confirmedLogin": "✅ Email confirmed. Sign in with your email and password.",
+      "auth.linkExpired": "This link has expired or was already used. Sign in or request a new one.",
       "auth.afterReg": "After creating your account you pick your plan: <b>7 days free</b>, cancel any time.",
       "f.key": "Activation key (optional)",
       "auth.create": "Create account",
@@ -3249,6 +3255,8 @@
       "adm.s.trial": "On free trial"
     });
     Object.assign(I18N.pt, {
+      "auth.confirmedLogin": "✅ E-mail confirmado. Entre com seu e-mail e senha.",
+      "auth.linkExpired": "O link expirou ou já foi usado. Entre ou peça um novo.",
       "auth.afterReg": "Depois de criar sua conta você escolhe seu plano: <b>7 dias grátis</b>, cancele quando quiser.",
       "f.key": "Chave de ativação (opcional)",
       "auth.create": "Criar conta",
@@ -5648,7 +5656,7 @@ ${timedSecs ? `
         d.innerHTML = fmt(text);
         if (extra && extra.images){
           const ex = extra, w = document.createElement('div'); w.className = 'cm-ex';
-          w.innerHTML = '<h4>' + esc(ex.name) + '</h4><div class="imgs">' + ex.images.map(s => '<img loading="lazy" src="' + esc(s) + '" alt="' + esc(ex.name) + '">').join('') + '</div>' +
+          w.innerHTML = '<h4>' + esc(ex.name) + '</h4><div class="imgs">' + ex.images.map(s => '<img loading="lazy" src="' + esc(String(s).replace('https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/', 'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/')) + '" alt="' + esc(ex.name) + '">').join('') + '</div>' +
             (ex.steps && ex.steps.length ? '<ol>' + ex.steps.map(s => '<li>' + esc(s) + '</li>').join('') + '</ol>' : '');
           w.querySelectorAll('img').forEach(i => i.onclick = () => { const z = $('coach-zoom'); z.querySelector('img').src = i.src; z.style.display = 'flex'; });
           d.appendChild(w);
@@ -5697,8 +5705,11 @@ ${timedSecs ? `
       u.searchParams.set('embed', '0');
       return u.toString();               // URLSearchParams codifica corchetes, @ y demás
     }
+    let _lastCheckoutClick = 0;
     function startCheckout(plan, a) {
       if (!currentUser || !cloudUserId) return false;
+      if (Date.now() - _lastCheckoutClick < 4000) return false;   // evita abrir 2 checkouts con doble clic
+      _lastCheckoutClick = Date.now();
       a.href = checkoutUrl(plan);
       try { localStorage.setItem('hp_checkout_at', String(Date.now())); } catch (e) {}
       document.getElementById('plans-wait').style.display = 'block';
@@ -5800,6 +5811,12 @@ ${timedSecs ? `
         if (back || recent) { document.getElementById('plans-wait').style.display = 'block'; pollAccess(back ? 3 * 60 * 1000 : 60 * 1000); }
       }
     }
+    // Volviendo de un enlace de correo: si no quedó sesión (otro navegador / enlace vencido), explicar qué hacer
+    if (window.__authLink) setTimeout(() => {
+      if (currentUser) return;
+      showToast(t(window.__authLink === 'error' ? 'auth.linkExpired' : 'auth.confirmedLogin'));
+      if (/[#&]error/.test(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
+    }, 4500);
     // Al volver del checkout (otra pestaña / Custom Tab) se revisa el acceso
     document.addEventListener('visibilitychange', () => {
       if (document.hidden || !currentUser) return;

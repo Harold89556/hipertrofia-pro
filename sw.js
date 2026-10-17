@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v1';
+const CACHE = 'hp-shell-v2';
 const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -20,8 +20,10 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   // Only handle our own files; Supabase, Gemini, fonts and CDNs go straight to the network.
   if (url.origin !== self.location.origin || !url.pathname.startsWith('/hipertrofia-pro/')) return;
+  // Páginas: revalidar siempre con el servidor (ignora la caché HTTP de 10 min de GitHub Pages)
+  const net = req.mode === 'navigate' ? fetch(req, { cache: 'no-cache' }) : fetch(req);
   e.respondWith(
-    fetch(req)
+    net
       .then((res) => {
         if (res && res.ok && res.type === 'basic') {
           const copy = res.clone();
