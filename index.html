@@ -142,6 +142,40 @@
       letter-spacing: 0.4px;
     }
 
+    /* ===== Selector de categorías 3D ===== */
+    .cat-selector { margin: 0 0 14px; }
+    .cat-head { display:flex; flex-direction:column; gap:2px; margin: 0 4px 6px; }
+    .cat-head span { font-weight:800; text-transform:uppercase; letter-spacing:.5px; font-size:.9rem; }
+    .cat-head small { color: var(--text-muted, #999); font-size:.75rem; }
+    .cat-track { display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      padding: 22px calc(50% - 75px); perspective: 900px; scrollbar-width:none; overscroll-behavior-x: contain; }
+    .cat-track::-webkit-scrollbar { display:none; }
+    .cat-card { flex:0 0 150px; height:210px; scroll-snap-align:center; border-radius:18px; position:relative; overflow:hidden;
+      cursor:pointer; border:2px solid rgba(255,255,255,.08); background:#1b1b1b; color:#fff; padding:0; font:inherit;
+      transform-style:preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), filter .35s, box-shadow .35s, opacity .35s;
+      transform: rotateY(var(--ry,0deg)) scale(var(--sc,.9)) translateZ(0);
+      box-shadow: 0 18px 30px -12px rgba(0,0,0,.8), 0 4px 10px rgba(0,0,0,.5); filter: brightness(.55) saturate(.7); opacity:.85; }
+    .cat-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .cat-card .cat-ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:64px;
+      background: var(--grad); }
+    .cat-card .cat-ph::after { content:''; position:absolute; inset:0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 55%); }
+    .cat-card .cat-label { position:absolute; left:0; right:0; bottom:0; padding:28px 10px 10px; font-weight:800; font-size:.85rem; line-height:1.15;
+      text-align:center; background: linear-gradient(transparent, rgba(0,0,0,.85)); text-shadow:0 2px 6px #000; }
+    .cat-card:hover, .cat-card:focus-visible { filter: brightness(.8); }
+    .cat-card.selected { --sc:1.08; filter: brightness(1.12) saturate(1.15); opacity:1; border-color: var(--accent, #ff6b00);
+      box-shadow: 0 0 0 2px var(--accent, #ff6b00), 0 0 28px 4px color-mix(in srgb, var(--accent, #ff6b00) 70%, transparent),
+        0 24px 40px -14px rgba(0,0,0,.9); z-index:2; }
+    .cat-card.selected::before { content:'✓ ACTUAL'; position:absolute; top:8px; right:8px; z-index:3; font-size:.62rem; font-weight:800;
+      background: var(--accent, #ff6b00); color:#000; padding:3px 7px; border-radius:20px; }
+    .cat-card.saving { pointer-events:none; opacity:.6; }
+    .cat-desc { text-align:center; font-size:.8rem; color: var(--text-muted, #aaa); margin: 4px 12px 0; min-height:1.2em; }
+    body.compact-header .cat-selector { display:none !important; }
+    @media (prefers-reduced-motion: reduce) { .cat-card { transition:none; } }
+    .hp-toast { position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(20px); background:#111; color:#fff;
+      border:1px solid var(--accent, #ff6b00); padding:10px 16px; border-radius:24px; font-weight:700; font-size:.85rem; z-index:99999;
+      opacity:0; transition: all .3s; pointer-events:none; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+    .hp-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
     .hero-image {
       width: 100%;
       height: auto;
@@ -889,7 +923,12 @@
     </div>
   </div>
 
-  <img id="hero-image" class="hero-image" src="https://entrenadorhl.neocities.org/gym-man.jpg" alt="Entrenamiento">
+  <img id="hero-image" class="hero-image" src="" alt="" style="display:none" hidden>
+  <section id="cat-selector" class="cat-selector" style="display:none" aria-label="Elegí tu categoría">
+    <div class="cat-head"><span>Tu categoría</span><small>Deslizá y tocá para cambiar tu objetivo</small></div>
+    <div id="cat-track" class="cat-track" role="listbox"></div>
+    <p id="cat-desc" class="cat-desc"></p>
+  </section>
 
   <!-- CRONÓMETRO FLOTANTE -->
   <div class="timer-bubble" id="timer-bubble">
@@ -1182,17 +1221,13 @@
           </div>
         </div>
 
-        <div>
-          <label>Categoría / Objetivo</label>
-          <select id="edit-goal" required onchange="updateGoalDescription(this.value, 'edit-goal-desc')"></select>
-          <div id="edit-goal-desc" class="category-desc"></div>
-        </div>
+        <p class="category-desc" style="display:block;">🎯 Tu categoría/objetivo ahora se elige tocando las tarjetas en la pantalla principal.</p>
 
         <!-- SECCIÓN DE FECHA Y GÉNERO -->
         <div id="permanent-fields-section" class="grid-2" style="background: rgba(0,0,0,0.3); padding:8px; border-radius:10px; border:1px solid #333;">
           <div>
             <label>Género</label>
-            <select id="edit-gender" onchange="filterCategoryOptions('edit-goal', this.value)">
+            <select id="edit-gender">
               <option value="hombre">Hombre</option>
               <option value="mujer">Mujer</option>
             </select>
@@ -1233,6 +1268,24 @@
       wellness: 'Wellness', bikini: 'Bikini', mujer_gluteos: 'Enfoque Glúteos', mujer_tonificar: 'Tonificación y Pérdida de Grasa',
       figure: 'Figure', womens_physique: "Women's Physique", ms_olympia: 'Ms. Olympia', fitness: 'Fitness', tonificacion: 'Tonificación'
     };
+    // ===== Imágenes de categorías: reemplazar las URL cuando Harold envíe sus fotos =====
+    // Dejar '' para usar la tarjeta de degradado provisoria.
+    const CATEGORY_IMAGES = {
+      open: 'img/cat/open.webp', classic: 'img/cat/classic.webp', mens_physique: 'img/cat/mens_physique.webp', ganar_masa: 'img/cat/ganar_masa.webp',
+      wellness: 'img/cat/wellness.webp', bikini: 'img/cat/bikini.webp', mujer_gluteos: 'img/cat/mujer_gluteos.webp', mujer_tonificar: 'img/cat/mujer_tonificar.webp', figure: 'img/cat/figure.webp', womens_physique: 'img/cat/womens_physique.webp'
+    };
+    const CATEGORY_PLACEHOLDERS = {
+      open: ['🦍', '#7a1f00,#ff6b00'], classic: ['🏛️', '#3a2a00,#d4a017'], mens_physique: ['🏄', '#002a4a,#1e90ff'],
+      ganar_masa: ['💪', '#1f3a00,#4caf50'], wellness: ['🍑', '#4a0030,#ff4fa3'], bikini: ['👙', '#00363a,#00bcd4'],
+      mujer_gluteos: ['🍑', '#4a1000,#ff7043'], mujer_tonificar: ['🔥', '#3a0040,#ab47bc'], figure: ['⏳', '#1a1a4a,#7c4dff'],
+      womens_physique: ['💎', '#3a002a,#e91e63']
+    };
+    const GOALS_BY_GENDER = {
+      hombre: ['open', 'classic', 'mens_physique', 'ganar_masa'],
+      mujer: ['wellness', 'bikini', 'mujer_gluteos', 'mujer_tonificar', 'figure', 'womens_physique']
+    };
+    function defaultGoalFor(gender) { return gender === 'mujer' ? 'mujer_tonificar' : 'ganar_masa'; }
+
     function goalLabel(k) { if (!k) return '-'; const key = String(k).toLowerCase(); return GOAL_LABELS[key] || String(k).replace(/_/g, ' '); }
     function formatDateES(iso) {
       if (!iso || typeof iso !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso || '-';
@@ -2240,9 +2293,87 @@ ${timedSecs ? `
       document.getElementById('nut-cardio').innerText = nut.cardio;
       document.getElementById('nut-goal').innerText = goalLabel(user.goal);
 
-      const hero = document.getElementById('hero-image');
-      hero.src = user.gender === 'mujer' ? 'https://entrenadorhl.neocities.org/women-physique.jpg' : 'https://entrenadorhl.neocities.org/gym-man.jpg';
-      hero.style.display = 'block';
+      renderCategorySelector(user);
+    }
+
+    // ===== SELECTOR DE CATEGORÍAS 3D =====
+    function showToast(msg) {
+      let t = document.getElementById('hp-toast');
+      if (!t) { t = document.createElement('div'); t.id = 'hp-toast'; t.className = 'hp-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+    function catEsc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function renderCategorySelector(user) {
+      const sec = document.getElementById('cat-selector'), track = document.getElementById('cat-track');
+      if (!sec || !track || !user) return;
+      const list = GOALS_BY_GENDER[user.gender] || GOALS_BY_GENDER.hombre;
+      const cur = String(user.goal || '').toLowerCase();
+      track.innerHTML = list.map(k => {
+        const img = CATEGORY_IMAGES[k], ph = CATEGORY_PLACEHOLDERS[k] || ['🏋️', '#222,#555'];
+        const visual = img ? `<img src="${catEsc(img)}" alt="" loading="lazy">`
+          : `<div class="cat-ph" style="--grad:linear-gradient(160deg,${ph[1]})">${ph[0]}</div>`;
+        return `<button type="button" class="cat-card${k === cur ? ' selected' : ''}" role="option" aria-selected="${k === cur}" data-goal="${k}" onclick="selectCategory('${k}', this)">${visual}<span class="cat-label">${catEsc(goalLabel(k))}</span></button>`;
+      }).join('');
+      sec.style.display = 'block';
+      document.getElementById('cat-desc').textContent = CATEGORY_DETAILS[cur] || (cur ? '' : 'Elegí tu categoría tocando una tarjeta.');
+      if (!track._bound) {
+        track._bound = true;
+        track.addEventListener('scroll', () => requestAnimationFrame(updateCoverflow), { passive: true });
+        window.addEventListener('resize', updateCoverflow);
+        track.addEventListener('pointermove', e => {
+          const c = e.target.closest('.cat-card'); if (!c || e.pointerType !== 'mouse') return;
+          const r = c.getBoundingClientRect(); c.style.setProperty('--tilt', (((e.clientX - r.left) / r.width) - .5) * 14 + 'deg'); updateCoverflow();
+        });
+        track.addEventListener('pointerleave', () => { track.querySelectorAll('.cat-card').forEach(c => c.style.removeProperty('--tilt')); updateCoverflow(); });
+      }
+      const sel = track.querySelector('.cat-card.selected');
+      requestAnimationFrame(() => {
+        if (sel) track.scrollLeft = sel.offsetLeft - (track.clientWidth - sel.offsetWidth) / 2;
+        updateCoverflow();
+      });
+    }
+    function updateCoverflow() {
+      const track = document.getElementById('cat-track'); if (!track) return;
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      track.querySelectorAll('.cat-card').forEach(c => {
+        const d = (c.offsetLeft + c.offsetWidth / 2 - mid) / (c.offsetWidth + 14);
+        const clamped = Math.max(-1.5, Math.min(1.5, d));
+        const tilt = parseFloat(c.style.getPropertyValue('--tilt')) || 0;
+        c.style.setProperty('--ry', (-clamped * 28 + tilt) + 'deg');
+        if (!c.classList.contains('selected')) c.style.setProperty('--sc', (0.92 - Math.min(Math.abs(d), 1.5) * 0.06).toFixed(3));
+        else c.style.removeProperty('--sc');
+      });
+    }
+    // Series marcadas esta semana: se guardan por día/índice de ejercicio, así que al cambiar de programa dejarían de corresponder.
+    function thisWeekSetLogKeys() {
+      if (!currentUser || typeof dataCache === 'undefined') return [];
+      const pre = `gym_log_${currentUser}_`, wk = getISOWeek(), out = [];
+      for (const [k, v] of dataCache) {
+        if (!k.startsWith(pre)) continue;
+        try { const d = JSON.parse(v); if (d && d.weekKey === wk) out.push(k); } catch (e) {}
+      }
+      return out;
+    }
+    async function selectCategory(goal, el) {
+      const db = getUsersDB(); const u = db[currentUser]; if (!u) return;
+      if (String(u.goal || '').toLowerCase() === goal) { showToast('Ya es tu objetivo: ' + goalLabel(goal)); return; }
+      const weekKeys = thisWeekSetLogKeys();
+      if (weekKeys.length) {
+        if (!confirm(`Cambiar a "${goalLabel(goal)}" cambia tu rutina. Las series que marcaste esta semana se reiniciarán (tu historial de cargas y medidas NO se borra). ¿Continuar?`)) return;
+      }
+      el && el.classList.add('saving');
+      const { error } = await sb.from('profiles').update({ goal }).eq('id', cloudUserId);
+      el && el.classList.remove('saving');
+      if (error) { console.error(error); alert('⚠️ No se pudo guardar el objetivo en la nube.'); return; }
+      u.goal = goal; profileCache = u;
+      weekKeys.forEach(k => cloudStore.removeItem(k));
+      const age = calculateAge(u.birthdate);
+      document.getElementById('profile-details').innerText =
+        `${u.gender ? u.gender.toUpperCase() : ''} | ${age} AÑOS | ${u.weight}kg | ${u.height}cm | ${goalLabel(u.goal)}`;
+      updateNutritionAndHero(u);
+      detectAndSetDay();
+      showToast('Objetivo actualizado: ' + goalLabel(goal));
     }
 
     // GESTIÓN DE SESIÓN
@@ -2287,6 +2418,7 @@ ${timedSecs ? `
         document.getElementById('user-profile-bar').style.display = 'none';
         document.getElementById('nutrition-banner').style.display = 'none';
         document.getElementById('hero-image').style.display = 'none';
+        document.getElementById('cat-selector').style.display = 'none';
       }
     }
 
@@ -2413,7 +2545,7 @@ ${timedSecs ? `
       const birthdate = document.getElementById('reg-birthdate').value;
       const weight = parseFloat(document.getElementById('reg-weight').value);
       const height = parseFloat(document.getElementById('reg-height').value);
-      const goal = document.getElementById('reg-goal').value;
+      const goal = document.getElementById('reg-goal').value || defaultGoalFor(document.getElementById('reg-gender').value);
 
       const btn = document.querySelector('#register-form button[type="submit"]');
       const originalBtnText = btn.innerText;
@@ -2471,9 +2603,6 @@ ${timedSecs ? `
       document.getElementById('edit-weight').value = u.weight || '';
       document.getElementById('edit-height').value = u.height || '';
 
-      filterCategoryOptions('edit-goal', u.gender || 'hombre');
-      document.getElementById('edit-goal').value = u.goal || 'open';
-      updateGoalDescription(u.goal || 'open', 'edit-goal-desc');
 
       const gSelect = document.getElementById('edit-gender');
       const bInput = document.getElementById('edit-birthdate');
@@ -2505,7 +2634,8 @@ ${timedSecs ? `
       u.fullname = `${u.firstname} ${u.lastname}`;
       u.weight = parseFloat(document.getElementById('edit-weight').value);
       u.height = parseFloat(document.getElementById('edit-height').value);
-      u.goal = document.getElementById('edit-goal').value;
+      // goal se conserva (se elige en el selector de categorías de la pantalla principal)
+      if (!u.goal) u.goal = defaultGoalFor(u.gender);
 
       if (!u.birthdate) {
         const b = document.getElementById('edit-birthdate').value;
