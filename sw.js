@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v2';
+const CACHE = 'hp-shell-v3';
 const SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {

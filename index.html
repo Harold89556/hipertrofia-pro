@@ -136,7 +136,7 @@
       padding: 10px 12px;
       margin-bottom: 18px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      grid-template-columns: repeat(3, 1fr); /* 6 tarjetas: 3x2 en escritorio, 2x3 en móvil */
       gap: 8px;
       box-shadow: var(--shadow);
     }
@@ -1031,10 +1031,6 @@
     <div class="nutrition-item">
       <strong id="nut-cardio">-</strong>
       <span data-i18n="nut.cardio">Cardio diario</span>
-    </div>
-    <div class="nutrition-item">
-      <strong id="nut-goal" style="font-size: 0.875rem;">-</strong>
-      <span data-i18n="nut.cat">Categoría</span>
     </div>
   </div>
 
@@ -5307,7 +5303,6 @@ ${timedSecs ? `
       document.getElementById('nut-carbs').innerText = nut.carbs;
       const f = document.getElementById('nut-fat'); if (f) f.innerText = nut.fat;
       document.getElementById('nut-cardio').innerText = nut.cardio;
-      document.getElementById('nut-goal').innerText = goalLabel(user.goal);
       renderCategorySelector(user);
       if (currentUser) { renderDiet(); renderSupplements(); checkWeightAlert(); }
     }
