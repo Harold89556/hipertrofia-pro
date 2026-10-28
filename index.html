@@ -849,7 +849,23 @@
     .acct-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .del-list { color: var(--text-muted); font-size: .9rem; margin: 8px 0 12px 18px; }
     .del-err { color: #fca5a5; font-size: .88rem; margin-top: 8px; display: none; }
-  </style>
+      .swap-sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-end;justify-content:center}
+    .swap-panel{background:#18181b;color:#fafafa;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px 24px;max-height:80vh;overflow:auto;border:1px solid #27272a}
+    .swap-head{display:flex;justify-content:space-between;align-items:center}.swap-head h3{margin:0}
+    .swap-x{background:none;border:0;color:#a1a1aa;font-size:20px;cursor:pointer;padding:6px}
+    .swap-opt{display:block;width:100%;text-align:left;background:#27272a;border:1px solid #3f3f46;color:#fafafa;border-radius:12px;padding:12px;margin:8px 0;font-size:15px;cursor:pointer;font-family:inherit}
+    .swap-opt small{display:block;color:#a1a1aa;font-size:12px;margin-top:2px}.swap-orig{border-color:var(--accent)}
+    .swap-cur{margin:8px 0;color:#d4d4d8}
+    .angle-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);color:#d4d4d8;margin:0 6px 6px 0}
+    .angle-chip.swapped{background:rgba(234,179,8,.15);color:#facc15}
+    .group-head{border-left:3px solid var(--accent);padding:8px 12px;margin:14px 0 6px;background:rgba(255,255,255,.04);border-radius:8px;display:flex;flex-direction:column;gap:2px}
+    .group-head span{font-size:12px;color:#a1a1aa}
+    .exercise-card.in-group{border-left:3px solid var(--accent)}
+    .session-volume{margin:14px 0;padding:12px;border-radius:12px;background:rgba(255,255,255,.05);font-size:13px;color:#d4d4d8}
+    .cyc-title{margin:0 0 6px}.cyc-week{font-weight:700;font-size:16px}
+    .cyc-bar{height:6px;background:#27272a;border-radius:6px;margin:8px 0;overflow:hidden}.cyc-bar span{display:block;height:100%;background:var(--accent)}
+    .cyc-msg{font-size:14px;margin:6px 0}.cyc-msg.warn{color:#facc15}.cyc-msg.ok{color:#4ade80}
+</style>
   <script>
     // PWA: registrar service worker (necesario para instalar y para la app de Android)
     if ('serviceWorker' in navigator) {
@@ -1067,6 +1083,7 @@
   <div id="workout-tab" class="tab-content active">
     <div id="smart-alert" class="smart-alert" role="status" style="display:none"></div>
     <section class="exercise-card plan-card"><h2 class="pc-title" data-i18n="plan.title">Tu plan semanal</h2><div id="plan-controls"></div></section>
+    <section class="exercise-card cycle-card" id="cycle-card"></section>
     <details class="exercise-card plan-card" id="wp-details"><summary class="pc-title" data-i18n="wp.title">🎯 Puntos a mejorar</summary><div id="weakpoints-card"></div></details>
     <div class="day-selector">
       <span><span data-i18n="day.active">Día Activo:</span> <strong id="detected-day-name" style="color: var(--accent);"></strong></span>
@@ -4120,6 +4137,14 @@ ${timedSecs ? `
         const isExCompleted = completedSetsCount === ex.sets;
         if (isExCompleted) card.classList.add('card-completed');
         const searchUrl = 'https://www.google.com/search?q=' + encodeURIComponent(exLabel + t('ex.searchSuffix'));
+        if (ex.group) {
+          card.classList.add('in-group', ex.group.pos === 1 ? 'g-first' : 'g-last');
+          if (ex.group.pos === 1) { const h = document.createElement('div'); h.className = 'group-head';
+            h.innerHTML = `<b>${ex.group.kind === 'bis' ? t('bis.title', { g: catEsc(tc(ex.group.id)) }) : '⚡ ' + catEsc(tc(ex.group.id))}</b><span>${ex.group.kind === 'bis' ? t('bis.note') : t('ss.note')}</span>`;
+            container.appendChild(h); }
+        }
+        const angle = typeof hpAngle === 'function' ? hpAngle(ex.origName || ex.name) : '';
+        const canSwap = typeof hpAlternatives === 'function' && (hpAlternatives(ex.origName || ex.name).length || ex.swapped);
         card.innerHTML = `
           <div class="exercise-title">
             <span>${catEsc(exLabel)}</span>
@@ -4128,11 +4153,13 @@ ${timedSecs ? `
               <span id="badge_done_${dayKey}_${exIdx}" class="done-badge" style="display: ${isExCompleted ? 'inline-block' : 'none'};">${t('badge.done')}</span>
             </div>
           </div>
+          ${angle ? `<span class="angle-chip">${catEsc(angle)}</span>` : ''}${ex.swapped ? `<span class="angle-chip swapped">${t('swap.swapped', { o: catEsc(exName(ex.origName)) })}</span>` : ''}
           <div class="exercise-meta">${ex.target} | ${ex.rest}</div>
           ${timedSecs ? `<div class="rec-box">${t('ex.timed', { s: timedSecs })}</div>` : `<div class="rec-box">${t('ex.suggested', { w: recommended })}</div>`}
           <div class="exercise-note">💡 ${ex.note}</div>
           <div style="margin-bottom: 12px;">
             <a href="${searchUrl}" target="_blank" rel="noopener" class="btn-3d btn-secondary btn-small" style="text-decoration:none; width:100%;">${t('ex.google')}</a>
+            ${canSwap ? `<button type="button" class="btn-3d btn-secondary btn-small swap-btn" style="width:100%; margin-top:8px;" onclick="openSwap('${dayKey}', ${exIdx})">${t('swap.btn')}</button>` : ''}
           </div>
           <div class="sets-table-wrapper">
             <table>
@@ -4143,6 +4170,8 @@ ${timedSecs ? `
         `;
         container.appendChild(card);
       });
+      if (dayData.volume) { const v = document.createElement('div'); v.className = 'session-volume'; v.textContent = '📊 ' + dayData.volume; container.appendChild(v); }
+      if (typeof renderCycle === 'function') renderCycle();
     }
 
     // EJERCICIOS POR TIEMPO (isométricos)
@@ -4200,7 +4229,7 @@ ${timedSecs ? `
       const program = getProgramForUser(userData);
       const exObj = program[dayKey].exercises[exIdx];
 
-      startTimer(exObj.restSeconds || 90, 'timer.restEx', { ex: exObj.name });
+      if (exObj.restSeconds !== 0) startTimer(exObj.restSeconds || 90, 'timer.restEx', { ex: exObj.name }); // biserie: 0 s, directo al siguiente
 
       if (setNum === exObj.sets) {
         document.getElementById(`card_${dayKey}_${exIdx}`).classList.add('card-completed');
@@ -5024,7 +5053,7 @@ ${timedSecs ? `
     // 6-10 para mantener los secundarios). upper_chest suma al pecho; front_delt recibe trabajo indirecto de los press.
     const CATEGORY_PLAN = {
       open: { split: 'balanced', note: 'Masa máxima en todo el cuerpo, con simetría.', minFreq: 4,
-        v: { chest: 10, upper_chest: 6, lats: 10, midback: 8, front_delt: 4, side_delt: 14, rear_delt: 8, biceps: 12, triceps: 12, quads: 16, hams: 12, glutes: 6, abductors: 0, calves: 10, abs: 6 },
+        v: { chest: 12, upper_chest: 8, lats: 10, midback: 10, front_delt: 4, side_delt: 14, rear_delt: 8, biceps: 14, triceps: 14, quads: 20, hams: 16, glutes: 6, abductors: 0, calves: 16, abs: 6 }, // ~20 series/sem por grupo principal, frecuencia 2
         order: ['quads', 'chest', 'lats', 'side_delt', 'hams'] },
       classic: { split: 'balanced', note: 'Equilibrio estético, piernas completas y cintura estrecha.', minFreq: 4,
         v: { chest: 8, upper_chest: 8, lats: 12, midback: 6, front_delt: 3, side_delt: 14, rear_delt: 8, biceps: 10, triceps: 10, quads: 14, hams: 12, glutes: 6, abductors: 0, calves: 10, abs: 8 },
@@ -5144,6 +5173,7 @@ ${timedSecs ? `
     }
     function buildProgram(user, settings) {
       const goal = planKey(user.goal), plan = CATEGORY_PLAN[goal], freq = settings.frequency, phase = settings.phase;
+      if (goal === 'open' && freq === 5 && typeof buildOpen5 === 'function') return buildOpen5(user, settings); // rutina Open de Harold (PPL + Upper/Lower)
       const wp = analyzeWeakPoints(user);
       const trainDays = Math.min(freq, 6);
       const types = SPLITS[plan.split][trainDays].slice();
@@ -5236,7 +5266,7 @@ ${timedSecs ? `
       if (!_programCache || _programSig !== sig) { _programCache = buildProgram(user, s); _programSig = sig; }
       return _programCache;
     }
-    function getProgramForUser(userData) { return getPlan(userData).program; }
+    function getProgramForUser(userData) { const p = getPlan(userData).program; return typeof applySwaps === 'function' ? applySwaps(p) : p; }
 
     function populateDaySelect() {
       const plan = getPlan(); const sel = document.getElementById('select-day'); if (!sel) return;
@@ -5874,6 +5904,405 @@ ${timedSecs ? `
       }
     }
   </script>
+  <div id="swap-sheet" class="swap-sheet" style="display:none" onclick="if(event.target===this)closeSwap()" role="dialog" aria-modal="true" aria-labelledby="swap-title">
+    <div class="swap-panel"><div class="swap-head"><h3 id="swap-title" data-i18n="swap.title">Cambiar ejercicio</h3><button type="button" class="swap-x" onclick="closeSwap()" aria-label="Cerrar">✕</button></div>
+      <p class="pc-note" data-i18n="swap.sub">Alternativas que trabajan el mismo músculo y ángulo. Se mantienen las series y repeticiones.</p><div id="swap-body"></div></div>
+  </div>
+  <script>
+    // ===== RUTINA OPEN 5 DÍAS (Harold) + CAMBIAR EJERCICIO + CICLO =====
+    // Nombres nuevos: [es, en, pt]
+    const HP_NEWEX = [
+      ['Press de Banca con Barra', 'Barbell Bench Press', 'Supino Reto com Barra'],
+      ['Press de Banca en Multipower (Smith)', 'Smith Machine Bench Press', 'Supino no Smith'],
+      ['Flexiones de Brazos (con lastre si podés)', 'Push-ups (weighted if you can)', 'Flexões (com carga se puder)'],
+      ['Aperturas con Mancuernas', 'Dumbbell Flyes', 'Crucifixo com Halteres'],
+      ['Press Inclinado con Barra', 'Incline Barbell Press', 'Supino Inclinado com Barra'],
+      ['Aperturas Inclinadas con Mancuernas', 'Incline Dumbbell Flyes', 'Crucifixo Inclinado com Halteres'],
+      ['Fondos en Máquina', 'Machine Dips', 'Mergulho na Máquina'],
+      ['Press Declinado con Mancuernas', 'Decline Dumbbell Press', 'Supino Declinado com Halteres'],
+      ['Remo al Mentón Agarre Abierto', 'Wide-grip Upright Row', 'Remada Alta Pegada Aberta'],
+      ['Press Militar Sentado con Barra', 'Seated Barbell Overhead Press', 'Desenvolvimento Sentado com Barra'],
+      ['Press Militar en Multipower (Smith)', 'Smith Machine Shoulder Press', 'Desenvolvimento no Smith'],
+      ['Press Arnold', 'Arnold Press', 'Desenvolvimento Arnold'],
+      ['Press Francés con Mancuernas', 'Dumbbell Skull Crusher', 'Tríceps Testa com Halteres'],
+      ['Press Cerrado en Banco', 'Close-grip Bench Press', 'Supino Fechado'],
+      ['Extensión de Tríceps en Polea con Cuerda', 'Rope Triceps Pushdown', 'Tríceps na Polia com Corda'],
+      ['Extensión de Tríceps en Polea con Barra Recta', 'Straight-bar Triceps Pushdown', 'Tríceps na Polia com Barra Reta'],
+      ['Fondos en Máquina de Tríceps', 'Triceps Dip Machine', 'Máquina de Mergulho para Tríceps'],
+      ['Patada de Tríceps en Polea', 'Cable Triceps Kickback', 'Tríceps Coice na Polia'],
+      ['Fondos entre Bancos', 'Bench Dips', 'Mergulho entre Bancos'],
+      ['Extensión sobre la Cabeza con Mancuerna', 'Overhead Dumbbell Extension', 'Tríceps Francês com Halter'],
+      ['Dominadas Lastradas', 'Weighted Pull-ups', 'Barra Fixa com Carga'],
+      ['Jalón Agarre Cerrado', 'Close-grip Lat Pulldown', 'Puxada Pegada Fechada'],
+      ['Jalón en Máquina (Hammer)', 'Machine Pulldown (Hammer)', 'Puxada na Máquina (Hammer)'],
+      ['Pullover en Polea Alta con Barra Recta', 'Straight-bar Cable Pullover', 'Pullover na Polia com Barra Reta'],
+      ['Pullover con Mancuerna', 'Dumbbell Pullover', 'Pullover com Halter'],
+      ['Remo en T (apoyado o libre)', 'T-Bar Row (supported or free)', 'Remada Cavalinho (apoiada ou livre)'],
+      ['Remo con Barra', 'Barbell Row', 'Remada Curvada com Barra'],
+      ['Remo en Polea Baja Agarre en V', 'V-grip Seated Cable Row', 'Remada Baixa com Triângulo'],
+      ['Remo en Máquina Unilateral', 'Single-arm Machine Row', 'Remada Unilateral na Máquina'],
+      ['Pájaros en Polea', 'Cable Rear Delt Fly', 'Crucifixo Inverso na Polia'],
+      ['Pájaros con Mancuernas', 'Dumbbell Rear Delt Fly', 'Crucifixo Inverso com Halteres'],
+      ['Encogimientos con Barra o Mancuernas', 'Barbell or Dumbbell Shrugs', 'Encolhimento com Barra ou Halteres'],
+      ['Encogimientos en Máquina o Multipower', 'Machine or Smith Shrugs', 'Encolhimento na Máquina ou Smith'],
+      ['Curl Spider con Barra', 'Barbell Spider Curl', 'Rosca Spider com Barra'],
+      ['Curl con Mancuernas Alterno', 'Alternating Dumbbell Curl', 'Rosca Alternada com Halteres'],
+      ['Curl en Polea Baja', 'Low Cable Curl', 'Rosca na Polia Baixa'],
+      ['Curl Bayesian en Polea', 'Bayesian Cable Curl', 'Rosca Bayesian na Polia'],
+      ['Curl Martillo en Polea con Cuerda', 'Rope Cable Hammer Curl', 'Rosca Martelo na Polia com Corda'],
+      ['Curl Inverso con Barra Z', 'Reverse EZ-bar Curl', 'Rosca Inversa com Barra W'],
+      ['Sentadilla Sissy', 'Sissy Squat', 'Agachamento Sissy'],
+      ['Extensión de Cuádriceps Unilateral', 'Single-leg Leg Extension', 'Cadeira Extensora Unilateral'],
+      ['Sentadilla Libre con Barra', 'Barbell Back Squat', 'Agachamento Livre com Barra'],
+      ['Sentadilla en Multipower (Smith)', 'Smith Machine Squat', 'Agachamento no Smith'],
+      ['Sentadilla Goblet', 'Goblet Squat', 'Agachamento Goblet'],
+      ['Prensa con Pies Juntos y Abajo', 'Leg Press (feet low and close)', 'Leg Press (pés baixos e juntos)'],
+      ['Zancadas Estáticas o Búlgaras con Mancuernas', 'Static or Bulgarian Dumbbell Lunges', 'Avanço Estático ou Búlgaro com Halteres'],
+      ['Zancadas Caminando', 'Walking Lunges', 'Avanço Caminhando'],
+      ['Step-up al Banco', 'Bench Step-up', 'Subida no Banco'],
+      ['Curl Femoral de Pie Unilateral', 'Standing Single-leg Curl', 'Flexora em Pé Unilateral'],
+      ['Curl Nórdico (asistido)', 'Nordic Curl (assisted)', 'Flexão Nórdica (assistida)'],
+      ['Peso Muerto Rumano con Mancuernas', 'Dumbbell Romanian Deadlift', 'Stiff com Halteres'],
+      ['Peso Muerto Convencional', 'Conventional Deadlift', 'Levantamento Terra Convencional'],
+      ['Buenos Días con Barra', 'Barbell Good Morning', 'Bom Dia com Barra'],
+      ['Hip Thrust en Máquina', 'Machine Hip Thrust', 'Elevação Pélvica na Máquina'],
+      ['Puente de Glúteo con Barra en el Piso', 'Barbell Glute Bridge', 'Ponte de Glúteo com Barra'],
+      ['Patada de Glúteo en Máquina', 'Machine Glute Kickback', 'Coice de Glúteo na Máquina'],
+      ['Pull-through en Polea', 'Cable Pull-through', 'Pull-through na Polia'],
+      ['Abducción con Banda Sentada', 'Seated Band Abduction', 'Abdução Sentada com Elástico'],
+      ['Caminata Lateral con Banda', 'Banded Lateral Walk', 'Caminhada Lateral com Elástico'],
+      ['Elevación de Talones en Máquina Donkey', 'Donkey Calf Raise', 'Panturrilha Burrinho'],
+      ['Elevación de Talones en Multipower', 'Smith Machine Calf Raise', 'Panturrilha no Smith'],
+      ['Elevación de Talones Unilateral con Mancuerna', 'Single-leg Dumbbell Calf Raise', 'Panturrilha Unilateral com Halter'],
+      ['Elevación de Talones Sentado (sóleo)', 'Seated Calf Raise (soleus)', 'Panturrilha Sentado (sóleo)'],
+      ['Elevación de Talones Sentado en Multipower', 'Seated Smith Calf Raise', 'Panturrilha Sentado no Smith'],
+      ['Crunch en Máquina', 'Machine Crunch', 'Abdominal na Máquina'],
+      ['Rueda Abdominal', 'Ab Wheel Rollout', 'Roda Abdominal'],
+      ['Elevaciones de Piernas en Banco', 'Bench Leg Raises', 'Elevação de Pernas no Banco'],
+      ['Plancha Lateral', 'Side Plank', 'Prancha Lateral'],
+      ['Bici Estática Suave', 'Easy Stationary Bike', 'Bicicleta Ergométrica Leve'],
+      ['Caminadora Inclinada', 'Incline Treadmill Walk', 'Esteira Inclinada'],
+      ['Elíptica Suave', 'Easy Elliptical', 'Elíptico Leve'],
+      ['Cruce de Poleas Bajo-Alto Unilateral', 'Single-arm Low-to-High Cable Fly', 'Crossover Baixo-Alto Unilateral'],
+      ['Elevación de Talones Sentado con Mancuernas', 'Seated Dumbbell Calf Raise', 'Panturrilha Sentado com Halteres'],
+      ['Encogimientos en Polea', 'Cable Shrugs', 'Encolhimento na Polia'],
+      ['Foam Roller (liberación miofascial)', 'Foam Rolling (myofascial release)', 'Rolo de Liberação Miofascial']
+    ];
+    // Grupos de reemplazo: mismo músculo Y mismo ángulo/patrón. [id, ángulo es/en/pt, multiplicadores, nombres...]
+    const HP_ALT = {
+      chest_fly:   [['Pecho · apertura', 'Chest · fly', 'Peito · crucifixo'], 'Aperturas en Peck Deck', 'Cruce de Poleas a la Altura del Pecho', 'Aperturas con Mancuernas'],
+      chest_press: [['Pecho · press plano', 'Chest · flat press', 'Peito · supino reto'], 'Press de Banca con Barra', 'Press de Banca en Multipower (Smith)', 'Press Plano con Mancuernas', 'Press de Pecho en Máquina Convergente', 'Flexiones de Brazos (con lastre si podés)'],
+      incline:     [['Pecho superior · inclinado', 'Upper chest · incline', 'Peito superior · inclinado'], 'Press Inclinado con Barra', 'Press Inclinado con Mancuernas 30°', 'Press Inclinado en Máquina o Multipower'],
+      incline_fly: [['Pecho superior · apertura', 'Upper chest · fly', 'Peito superior · crucifixo'], 'Cruce de Poleas de Abajo hacia Arriba', 'Aperturas Inclinadas con Mancuernas', 'Cruce de Poleas Bajo-Alto Unilateral'],
+      dips:        [['Pecho inferior · fondos', 'Lower chest · dips', 'Peito inferior · mergulho'], 'Fondos en Paralelas (torso inclinado)', 'Fondos en Máquina', 'Press Declinado con Mancuernas'],
+      side:        [['Hombro lateral', 'Side delt', 'Deltoide lateral'], 'Elevaciones Laterales con Mancuernas', 'Elevaciones Laterales en Polea Baja', 'Elevaciones Laterales en Máquina', 'Remo al Mentón Agarre Abierto'],
+      ohp:         [['Hombro frontal · press', 'Front delt · press', 'Deltoide frontal · desenvolvimento'], 'Press Militar con Mancuernas Sentado', 'Press Militar Sentado con Barra', 'Press Militar en Multipower (Smith)', 'Press de Hombros en Máquina', 'Press Arnold'],
+      rear:        [['Hombro posterior', 'Rear delt', 'Deltoide posterior'], 'Pájaros en Peck Deck Invertido', 'Face Pull con Cuerda', 'Pájaros en Polea', 'Pájaros con Mancuernas'],
+      shrug:       [['Trapecio superior', 'Upper traps', 'Trapézio superior'], 'Encogimientos con Barra o Mancuernas', 'Encogimientos en Máquina o Multipower', 'Encogimientos en Polea'],
+      tri_long:    [['Tríceps · cabeza larga (estirada)', 'Triceps · long head (stretched)', 'Tríceps · cabeça longa (alongada)'], 'Extensión de Tríceps sobre la Cabeza en Polea', 'Extensión sobre la Cabeza con Mancuerna', 'Press Francés con Barra Z', 'Press Francés con Mancuernas'],
+      tri_push:    [['Tríceps · lateral/medial', 'Triceps · lateral/medial', 'Tríceps · lateral/medial'], 'Pushdown con Barra V', 'Extensión de Tríceps en Polea con Cuerda', 'Extensión de Tríceps en Polea con Barra Recta', 'Patada de Tríceps en Polea'],
+      tri_dip:     [['Tríceps · compuesto', 'Triceps · compound', 'Tríceps · composto'], 'Fondos entre Bancos', 'Fondos en Máquina de Tríceps', 'Press Cerrado en Banco'],
+      lat_pull:    [['Espalda · tirón vertical (amplitud)', 'Back · vertical pull (width)', 'Costas · puxada vertical (largura)'], 'Jalón al Pecho Agarre Neutro', 'Dominadas (asistidas si hace falta)', 'Dominadas Lastradas', 'Jalón Agarre Cerrado', 'Jalón en Máquina (Hammer)', 'Jalón Unilateral en Polea Alta'],
+      lat_iso:     [['Dorsal · aislamiento', 'Lats · isolation', 'Dorsal · isolado'], 'Pullover en Polea Alta con Barra Recta', 'Pullover en Polea Alta con Cuerda', 'Pullover con Mancuerna'],
+      row:         [['Espalda · remo (grosor)', 'Back · row (thickness)', 'Costas · remada (espessura)'], 'Remo en T (apoyado o libre)', 'Remo con Apoyo de Pecho (máquina o T)', 'Remo con Barra', 'Remo en Polea Baja Agarre en V', 'Remo en Polea Baja Agarre Neutro', 'Remo en Máquina Unilateral', 'Remo Unilateral con Mancuerna'],
+      curl_long:   [['Bíceps · cabeza larga (estirado)', 'Biceps · long head (stretched)', 'Bíceps · cabeça longa (alongado)'], 'Curl Inclinado con Mancuernas', 'Curl Bayesian en Polea', 'Curl con Mancuernas Alterno'],
+      curl:        [['Bíceps · general', 'Biceps · general', 'Bíceps · geral'], 'Curl con Barra Z', 'Curl con Mancuernas Alterno', 'Curl en Polea Baja'],
+      curl_short:  [['Bíceps · cabeza corta (acortado)', 'Biceps · short head (shortened)', 'Bíceps · cabeça curta (encurtado)'], 'Curl en Banco Scott (polea o máquina)', 'Curl Spider con Barra', 'Curl en Polea Baja'],
+      hammer:      [['Braquial / braquiorradial', 'Brachialis / brachioradialis', 'Braquial / braquiorradial'], 'Curl Martillo', 'Curl Martillo en Polea con Cuerda', 'Curl Inverso con Barra Z'],
+      quad_iso:    [['Cuádriceps · extensión', 'Quads · extension', 'Quadríceps · extensão'], 'Extensión de Cuádriceps', 'Extensión de Cuádriceps Unilateral', 'Sentadilla Sissy'],
+      squat:       [['Cuádriceps · sentadilla', 'Quads · squat pattern', 'Quadríceps · agachamento'], 'Sentadilla Libre con Barra', 'Sentadilla Hack o Péndulo', 'Sentadilla en Multipower (Smith)', 'Prensa de Piernas 45°', 'Prensa con Pies Juntos y Abajo', 'Sentadilla Goblet'],
+      lunge:       [['Pierna · unilateral', 'Legs · single-leg', 'Pernas · unilateral'], 'Sentadilla Búlgara con Mancuernas', 'Zancadas Estáticas o Búlgaras con Mancuernas', 'Zancadas Caminando', 'Step-up al Banco', 'Sentadilla Búlgara con Inclinación (glúteo)'],
+      ham_curl:    [['Isquios · flexión de rodilla', 'Hamstrings · knee flexion', 'Posteriores · flexão de joelho'], 'Curl Femoral Tumbado', 'Curl Femoral Sentado', 'Curl Femoral de Pie Unilateral', 'Curl Nórdico (asistido)'],
+      hinge:       [['Isquios · bisagra de cadera', 'Hamstrings · hip hinge', 'Posteriores · dobradiça de quadril'], 'Peso Muerto Rumano (RDL)', 'Peso Muerto Rumano con Mancuernas', 'Peso Muerto Convencional', 'Buenos Días con Barra'],
+      thrust:      [['Glúteo · extensión de cadera', 'Glutes · hip extension', 'Glúteo · extensão de quadril'], 'Hip Thrust con Barra', 'Hip Thrust en Máquina', 'Puente de Glúteo en Máquina o Multipower', 'Puente de Glúteo con Barra en el Piso'],
+      glute_iso:   [['Glúteo · aislamiento', 'Glutes · isolation', 'Glúteo · isolado'], 'Patada de Glúteo en Polea', 'Patada de Glúteo en Máquina', 'Hiperextensión 45° Enfoque Glúteo', 'Pull-through en Polea'],
+      abduct:      [['Glúteo medio', 'Glute medius', 'Glúteo médio'], 'Abducción de Cadera en Máquina', 'Abducción en Polea de Pie', 'Abducción con Banda Sentada', 'Caminata Lateral con Banda'],
+      calf:        [['Gemelo · rodilla recta', 'Calves · straight knee', 'Panturrilha · joelho estendido'], 'Elevación de Talones de Pie', 'Elevación de Talones en Prensa', 'Elevación de Talones en Máquina Donkey', 'Elevación de Talones en Multipower', 'Elevación de Talones Unilateral con Mancuerna'],
+      soleus:      [['Sóleo · rodilla flexionada', 'Soleus · bent knee', 'Sóleo · joelho flexionado'], 'Elevación de Talones Sentado (sóleo)', 'Elevación de Talones Sentado en Multipower', 'Elevación de Talones Sentado con Mancuernas'],
+      abs:         [['Abdomen', 'Abs', 'Abdômen'], 'Crunch en Polea Alta', 'Elevaciones de Piernas Colgado', 'Crunch en Máquina', 'Rueda Abdominal', 'Elevaciones de Piernas en Banco'],
+      core:        [['Core · isométrico', 'Core · isometric', 'Core · isométrico'], 'Plancha Abdominal', 'Plancha Lateral', 'Vacío Abdominal'],
+      cardio:      [['Cardio suave', 'Easy cardio', 'Cardio leve'], 'Caminata o Bici Suave (Zona 2)', 'Cardio LISS post-entreno', 'Bici Estática Suave', 'Caminadora Inclinada', 'Elíptica Suave'],
+      mobility:    [['Movilidad', 'Mobility', 'Mobilidade'], 'Movilidad de Cadera y Columna Torácica', 'Estiramientos Suaves Globales', 'Foam Roller (liberación miofascial)']
+    };
+    const HP_MULT = { 'Press de Banca con Barra': 0.75, 'Press de Banca en Multipower (Smith)': 0.7, 'Flexiones de Brazos (con lastre si podés)': 0, 'Aperturas con Mancuernas': 0.2, 'Press Inclinado con Barra': 0.65, 'Aperturas Inclinadas con Mancuernas': 0.18, 'Fondos en Máquina': 0.6, 'Press Declinado con Mancuernas': 0.6,
+      'Remo al Mentón Agarre Abierto': 0.3, 'Press Militar Sentado con Barra': 0.45, 'Press Militar en Multipower (Smith)': 0.45, 'Press Arnold': 0.3, 'Press Francés con Mancuernas': 0.2, 'Press Cerrado en Banco': 0.6, 'Extensión de Tríceps en Polea con Cuerda': 0.3, 'Extensión de Tríceps en Polea con Barra Recta': 0.35,
+      'Fondos en Máquina de Tríceps': 0.6, 'Patada de Tríceps en Polea': 0.1, 'Fondos entre Bancos': 0, 'Extensión sobre la Cabeza con Mancuerna': 0.25, 'Dominadas Lastradas': 0.1, 'Jalón Agarre Cerrado': 0.75, 'Jalón en Máquina (Hammer)': 0.7, 'Pullover en Polea Alta con Barra Recta': 0.35, 'Pullover con Mancuerna': 0.3,
+      'Remo en T (apoyado o libre)': 0.7, 'Remo con Barra': 0.7, 'Remo en Polea Baja Agarre en V': 0.6, 'Remo en Máquina Unilateral': 0.4, 'Pájaros en Polea': 0.1, 'Pájaros con Mancuernas': 0.1, 'Encogimientos con Barra o Mancuernas': 0.8, 'Encogimientos en Máquina o Multipower': 0.9,
+      'Curl Spider con Barra': 0.25, 'Curl con Mancuernas Alterno': 0.15, 'Curl en Polea Baja': 0.25, 'Curl Bayesian en Polea': 0.12, 'Curl Martillo en Polea con Cuerda': 0.25, 'Curl Inverso con Barra Z': 0.25, 'Sentadilla Sissy': 0, 'Extensión de Cuádriceps Unilateral': 0.25,
+      'Sentadilla Libre con Barra': 1.0, 'Sentadilla en Multipower (Smith)': 1.0, 'Sentadilla Goblet': 0.3, 'Prensa con Pies Juntos y Abajo': 1.3, 'Zancadas Estáticas o Búlgaras con Mancuernas': 0.25, 'Zancadas Caminando': 0.2, 'Step-up al Banco': 0.2, 'Curl Femoral de Pie Unilateral': 0.2, 'Curl Nórdico (asistido)': 0,
+      'Peso Muerto Rumano con Mancuernas': 0.35, 'Peso Muerto Convencional': 1.3, 'Buenos Días con Barra': 0.5, 'Hip Thrust en Máquina': 1.0, 'Puente de Glúteo con Barra en el Piso': 1.0, 'Patada de Glúteo en Máquina': 0.3, 'Pull-through en Polea': 0.4, 'Abducción con Banda Sentada': 0, 'Caminata Lateral con Banda': 0,
+      'Elevación de Talones en Máquina Donkey': 1.0, 'Elevación de Talones en Multipower': 0.9, 'Elevación de Talones Unilateral con Mancuerna': 0.2, 'Elevación de Talones Sentado (sóleo)': 0.5, 'Elevación de Talones Sentado en Multipower': 0.6, 'Crunch en Máquina': 0.4, 'Rueda Abdominal': 0, 'Elevaciones de Piernas en Banco': 0, 'Plancha Lateral': 0, 'Cruce de Poleas Bajo-Alto Unilateral': 0.12, 'Elevación de Talones Sentado con Mancuernas': 0.3, 'Encogimientos en Polea': 0.6 };
+    const HP_EX2ALT = {}; Object.keys(HP_ALT).forEach(g => HP_ALT[g].slice(1).forEach(n => { if (!HP_EX2ALT[n]) HP_EX2ALT[n] = g; }));
+    // casos ambiguos: primer grupo natural
+    HP_EX2ALT['Prensa de Piernas 45°'] = 'squat'; HP_EX2ALT['Curl en Polea Baja'] = 'curl'; HP_EX2ALT['Curl con Mancuernas Alterno'] = 'curl';
+    function hpMult(n) { if (n in HP_MULT) return HP_MULT[n]; for (const k in EX_LIB) { const e = EX_LIB[k].find(x => x[0] === n); if (e) return e[1]; } return 0.4; }
+
+    // ---- Textos de la rutina Open (es / en / pt) ----
+    const HP_TXT = [
+      ['Pausa de 2 s en contracción máxima (al fallo).', '2 s pause at peak contraction (to failure).', 'Pausa de 2 s na contração máxima (até a falha).'],
+      ['0 s de descanso tras las aperturas; 4 s de bajada excéntrica. Vale con barra o Smith.', '0 s rest after the flyes; 4 s eccentric. Barbell or Smith.', '0 s de descanso após o crucifixo; 4 s de excêntrica. Barra ou Smith.'],
+      ['Énfasis en clavicular, pausa abajo.', 'Clavicular emphasis, pause at the bottom.', 'Ênfase na porção clavicular, pausa embaixo.'],
+      ['Lastrados o en máquina. Rango completo, torso inclinado.', 'Weighted or machine. Full range, torso leaning forward.', 'Com carga ou máquina. Amplitude total, tronco inclinado.'],
+      ['Fallo concéntrico en la cabeza lateral.', 'Concentric failure on the lateral head.', 'Falha concêntrica na porção lateral.'],
+      ['Inmediato, con barra o mancuernas: el tríceps actúa de motor auxiliar.', 'Immediately, barbell or dumbbells: triceps assist.', 'Imediato, barra ou halteres: o tríceps auxilia.'],
+      ['Tensión mecánica continua en estiramiento.', 'Continuous mechanical tension in the stretch.', 'Tensão mecânica contínua no alongamento.'],
+      ['Tumbado. Codos estables, estiramiento profundo.', 'Lying. Stable elbows, deep stretch.', 'Deitado. Cotovelos estáveis, alongamento profundo.'],
+      ['Bloqueo estricto, 1 s de isometría.', 'Strict lockout, 1 s isometric hold.', 'Bloqueio estrito, 1 s de isometria.'],
+      ['Entre bancos o máquina de tríceps. Fallo metabólico final.', 'Bench dips or triceps machine. Final metabolic failure.', 'Entre bancos ou máquina. Falha metabólica final.'],
+      ['Brazos semirrígidos, contracción en dorsal.', 'Semi-rigid arms, squeeze the lats.', 'Braços semirrígidos, contração no dorsal.'],
+      ['Inmediato; agarre neutro o prono. Los bíceps frescos asisten la tracción.', 'Immediately; neutral or pronated grip. Fresh biceps assist the pull.', 'Imediato; pegada neutra ou pronada. Bíceps descansados auxiliam.'],
+      ['Carga pesada, retracción escapular completa.', 'Heavy load, full scapular retraction.', 'Carga pesada, retração escapular completa.'],
+      ['Recorrido largo, estiramiento del dorsal bajo.', 'Long range, stretch the lower lats.', 'Percurso longo, alongamento do dorsal baixo.'],
+      ['Polea media. Rotación externa al final.', 'Mid pulley. External rotation at the end.', 'Polia média. Rotação externa no final.'],
+      ['Codos altos, aislamiento del deltoides posterior.', 'Elbows high, isolate the rear delts.', 'Cotovelos altos, isolando o deltoide posterior.'],
+      ['Trapecio superior, pausa de 2 s arriba.', 'Upper traps, 2 s pause at the top.', 'Trapézio superior, pausa de 2 s em cima.'],
+      ['De pie. Control excéntrico de 3 s.', 'Standing. 3 s eccentric control.', 'Em pé. Excêntrica controlada de 3 s.'],
+      ['Énfasis en la cabeza larga en estiramiento.', 'Long-head emphasis in the stretch.', 'Ênfase na cabeça longa alongada.'],
+      ['Braquial anterior y braquiorradial.', 'Brachialis and brachioradialis.', 'Braquial e braquiorradial.'],
+      ['Aguante de 2 s arriba, fallo estricto.', '2 s hold at the top, strict failure.', 'Segure 2 s em cima, falha estrita.'],
+      ['Inmediato (o Sentadilla Hack); los glúteos asisten el empuje.', 'Immediately (or Hack Squat); glutes assist the push.', 'Imediato (ou Hack); os glúteos auxiliam.'],
+      ['Profundidad paralela, tensión continua.', 'Parallel depth, continuous tension.', 'Profundidade paralela, tensão contínua.'],
+      ['Aislamiento puro de isquiosurales.', 'Pure hamstring isolation.', 'Isolamento puro dos posteriores.'],
+      ['Caderas atrás, máximo estiramiento excéntrico.', 'Hips back, maximum eccentric stretch.', 'Quadril para trás, máximo alongamento excêntrico.'],
+      ['Isquios en posición alargada de cadera.', 'Hamstrings in a lengthened hip position.', 'Posteriores em posição alongada de quadril.'],
+      ['En máquina. Rango completo, pausa de 2 s abajo.', 'Machine. Full range, 2 s pause at the bottom.', 'Na máquina. Amplitude total, pausa de 2 s embaixo.'],
+      ['Contracción controlada.', 'Controlled contraction.', 'Contração controlada.'],
+      ['Cardio suave en bicicleta o ergómetro a baja intensidad.', 'Easy low-intensity bike or ergometer cardio.', 'Cardio leve na bicicleta ou ergômetro.'],
+      ['Estiramientos de movilidad y descarga articular.', 'Mobility stretching and joint unloading.', 'Alongamentos de mobilidade e descarga articular.'],
+      ['Carga progresiva, bajada en 3 s.', 'Progressive load, 3 s descent.', 'Carga progressiva, descida em 3 s.'],
+      ['Cables de abajo hacia arriba. Énfasis en haz clavicular/esternal.', 'Low-to-high cables. Clavicular/sternal emphasis.', 'Cabos de baixo para cima. Ênfase clavicular/esternal.'],
+      ['Al fallo con peso corporal. Estiramiento profundo.', 'Bodyweight to failure. Deep stretch.', 'Peso corporal até a falha. Alongamento profundo.'],
+      ['Lastradas (o Jalón agarre cerrado). Rango completo.', 'Weighted (or close-grip pulldown). Full range.', 'Com carga (ou puxada fechada). Amplitude total.'],
+      ['Contracción escapular sostenida.', 'Sustained scapular squeeze.', 'Contração escapular sustentada.'],
+      ['Tensión uniforme en todo el recorrido.', 'Even tension through the whole range.', 'Tensão uniforme em todo o percurso.'],
+      ['Tensión constante sin balanceo.', 'Constant tension, no swinging.', 'Tensão constante, sem balanço.'],
+      ['En máquina o poleas cruzadas. Aislamiento lateral.', 'Machine or crossover cables. Lateral isolation.', 'Máquina ou polias cruzadas. Isolamento lateral.'],
+      ['Sin inercia.', 'No momentum.', 'Sem inércia.'],
+      ['En banco inclinado. Tensión en acortamiento del bíceps.', 'On an incline bench. Tension in the shortened biceps.', 'No banco inclinado. Tensão no bíceps encurtado.'],
+      ['Trasnuca (over-head). Máximo estiramiento de la cabeza larga del tríceps.', 'Overhead. Maximum stretch of the triceps long head.', 'Acima da cabeça. Máximo alongamento da cabeça longa.'],
+      ['Superserie final con el tríceps en polea: bombeo glucolítico.', 'Final superset with the cable pushdown: glycolytic pump.', 'Superssérie final com o tríceps na polia: pump glicolítico.'],
+      ['Superserie final con el curl predicador, sin descanso entre ambos.', 'Final superset with the preacher curl, no rest between them.', 'Superssérie final com a rosca Scott, sem descanso entre eles.'],
+      ['Profundidad máxima, control en la bajada.', 'Maximum depth, controlled descent.', 'Profundidade máxima, descida controlada.'],
+      ['10 por pierna. Glúteo y cuádriceps.', '10 per leg. Glutes and quads.', '10 por perna. Glúteo e quadríceps.'],
+      ['Enfoque vasto externo.', 'Outer quad (vastus lateralis) focus.', 'Foco no vasto lateral.'],
+      ['Convencional o semirrígido. Cadena posterior y carga neural alta.', 'Conventional or stiff-leg. Posterior chain, high neural load.', 'Convencional ou stiff. Cadeia posterior, carga neural alta.'],
+      ['De pie unilateral o sentado. Aislamiento estricto.', 'Standing single-leg or seated. Strict isolation.', 'Em pé unilateral ou sentado. Isolamento estrito.'],
+      ['Glúteos, 2 s de bloqueo arriba.', 'Glutes, 2 s lockout at the top.', 'Glúteos, 2 s de bloqueio em cima.'],
+      ['Donkey o en prensa. Pausa estricta en el punto más bajo.', 'Donkey or leg press. Strict pause at the bottom.', 'Burrinho ou leg press. Pausa estrita embaixo.'],
+      ['Énfasis en sóleo.', 'Soleus emphasis.', 'Ênfase no sóleo.'],
+      ['Colgado o crunch en polea. Estabilidad central.', 'Hanging, or cable crunch. Core stability.', 'Pendurado ou abdominal na polia. Estabilidade do core.'],
+      ['Push (Pecho, Hombro, Tríceps)', 'Push (Chest, Shoulders, Triceps)', 'Push (Peito, Ombro, Tríceps)'],
+      ['Pull (Espalda, Deltoides Posterior, Bíceps)', 'Pull (Back, Rear Delts, Biceps)', 'Pull (Costas, Deltoide Posterior, Bíceps)'],
+      ['Legs (Cuádriceps, Femorales, Glúteos, Gemelos)', 'Legs (Quads, Hamstrings, Glutes, Calves)', 'Legs (Quadríceps, Posteriores, Glúteos, Panturrilhas)'],
+      ['Descanso Activo / Recuperación', 'Active Rest / Recovery', 'Descanso Ativo / Recuperação'],
+      ['Upper Body (Torso Completo)', 'Upper Body (Full Torso)', 'Upper Body (Tronco Completo)'],
+      ['Lower Body (Pierna Completa y Core)', 'Lower Body (Full Legs & Core)', 'Lower Body (Pernas Completas e Core)'],
+      ['Volumen de la sesión: Pecho 10 | Deltoides lateral/ant. 10 | Tríceps 10.', 'Session volume: Chest 10 | Lateral/front delts 10 | Triceps 10.', 'Volume da sessão: Peito 10 | Deltoide lateral/ant. 10 | Tríceps 10.'],
+      ['Volumen de la sesión: Espalda 10 | Hombro post./Trapecio 10 | Bíceps 10.', 'Session volume: Back 10 | Rear delts/Traps 10 | Biceps 10.', 'Volume da sessão: Costas 10 | Ombro post./Trapézio 10 | Bíceps 10.'],
+      ['Volumen de la sesión: Cuádriceps 10 | Femorales 10 | Gemelos 10.', 'Session volume: Quads 10 | Hamstrings 10 | Calves 10.', 'Volume da sessão: Quadríceps 10 | Posteriores 10 | Panturrilhas 10.'],
+      ['Volumen acumulado del día: Pecho +10 (Total 20) | Espalda +10 (Total 20) | Hombro +10 (Total 20) | Bíceps +7 / Tríceps +7 (cerrando las 20 semanales sumando el estímulo indirecto de los empujes/tirones pesados).', 'Accumulated volume: Chest +10 (Total 20) | Back +10 (Total 20) | Shoulders +10 (Total 20) | Biceps +7 / Triceps +7 (reaching 20 weekly with the indirect work from heavy presses/pulls).', 'Volume acumulado: Peito +10 (Total 20) | Costas +10 (Total 20) | Ombro +10 (Total 20) | Bíceps +7 / Tríceps +7 (fechando 20 semanais com o estímulo indireto dos empurrões/puxadas pesados).'],
+      ['Volumen acumulado del día: Cuádriceps +10 (Total 20) | Femorales/Glúteo +10 (Total 20) | Gemelos +10 (Total 20).', 'Accumulated volume: Quads +10 (Total 20) | Hamstrings/Glutes +10 (Total 20) | Calves +10 (Total 20).', 'Volume acumulado: Quadríceps +10 (Total 20) | Posteriores/Glúteo +10 (Total 20) | Panturrilhas +10 (Total 20).'],
+      ['Recuperación activa: sin carga pesada.', 'Active recovery: no heavy loading.', 'Recuperação ativa: sem carga pesada.'],
+      ['Biserie Preagotamiento (Pecho)', 'Pre-exhaustion biset (Chest)', 'Bi-set pré-exaustão (Peito)'],
+      ['Biserie Preagotamiento (Deltoides)', 'Pre-exhaustion biset (Delts)', 'Bi-set pré-exaustão (Deltoides)'],
+      ['Biserie Preagotamiento (Dorsal)', 'Pre-exhaustion biset (Lats)', 'Bi-set pré-exaustão (Dorsal)'],
+      ['Biserie Preagotamiento (Cuádriceps)', 'Pre-exhaustion biset (Quads)', 'Bi-set pré-exaustão (Quadríceps)'],
+      ['Biserie Preagotamiento (Femoral)', 'Pre-exhaustion biset (Hamstrings)', 'Bi-set pré-exaustão (Posteriores)'],
+      ['Superserie final', 'Final superset', 'Superssérie final'],
+      ['al fallo (peso corporal)', 'to failure (bodyweight)', 'até a falha (peso corporal)'],
+      ['10 por pierna', '10 per leg', '10 por perna']
+    ];
+    (function () {
+      ['en', 'pt'].forEach((L, i) => {
+        I18N[L]._ex = I18N[L]._ex || {}; I18N[L]._c = I18N[L]._c || {};
+        HP_NEWEX.forEach(r => { if (!I18N[L]._ex[r[0]]) I18N[L]._ex[r[0]] = r[i + 1]; });
+        HP_TXT.forEach(r => { I18N[L]._c[r[0]] = r[i + 1]; });
+      });
+      const UI = {
+        es: { 'swap.btn': '🔄 Cambiar ejercicio', 'swap.title': 'Cambiar ejercicio', 'swap.sub': 'Alternativas que trabajan el mismo músculo y ángulo. Se mantienen las series y repeticiones.', 'swap.orig': '↩️ Volver al original', 'swap.current': 'Actual', 'swap.close': 'Cerrar', 'swap.swapped': 'Cambiado · original: {o}', 'swap.none': 'No hay alternativas para este ejercicio.',
+          'bis.title': '🔗 {g} · Mentzer', 'bis.note': 'Sin descanso (0 s) entre el aislamiento y el compuesto. Descansá al terminar la biserie.', 'ss.note': 'Sin descanso entre ambos ejercicios.', 'bis.rest': '0 s → siguiente ejercicio',
+          'cyc.title': '📅 Tu ciclo', 'cyc.week': 'Semana {w} de {y} del ciclo', 'cyc.level': 'Nivel', 'cyc.lv.beg': 'Principiante', 'cyc.lv.int': 'Intermedio', 'cyc.lv.adv': 'Avanzado', 'cyc.reset': 'Empezar ciclo nuevo',
+          'cyc.master': 'Dominá la técnica y subí cargas: no cambies los ejercicios todavía. El progreso viene de la sobrecarga, no de "confundir al músculo".',
+          'cyc.deload': 'Semana de descarga recomendada: hacé la mitad de las series con las mismas cargas (RIR 3-4). Después seguí el ciclo.',
+          'cyc.rotate': 'Es buen momento para rotar los accesorios (aislamientos) con «Cambiar ejercicio». Mantené los básicos si siguen progresando.',
+          'cyc.end': 'Terminó el ciclo: hacé una descarga y empezá uno nuevo. Podés cambiar básicos que se hayan estancado.',
+          'cyc.stall': 'Si un ejercicio no progresa 2-3 semanas seguidas, cambialo antes aunque no sea la fecha.' },
+        en: { 'swap.btn': '🔄 Swap exercise', 'swap.title': 'Swap exercise', 'swap.sub': 'Alternatives for the same muscle and angle. Sets and reps stay the same.', 'swap.orig': '↩️ Back to original', 'swap.current': 'Current', 'swap.close': 'Close', 'swap.swapped': 'Swapped · original: {o}', 'swap.none': 'No alternatives for this exercise.',
+          'bis.title': '🔗 {g} · Mentzer', 'bis.note': 'No rest (0 s) between the isolation and the compound. Rest after the biset.', 'ss.note': 'No rest between both exercises.', 'bis.rest': '0 s → next exercise',
+          'cyc.title': '📅 Your cycle', 'cyc.week': 'Week {w} of {y} of the cycle', 'cyc.level': 'Level', 'cyc.lv.beg': 'Beginner', 'cyc.lv.int': 'Intermediate', 'cyc.lv.adv': 'Advanced', 'cyc.reset': 'Start a new cycle',
+          'cyc.master': 'Master the technique and add load: don\'t change exercises yet. Progress comes from overload, not from "confusing the muscle".',
+          'cyc.deload': 'Deload week recommended: do half the sets with the same loads (RIR 3-4), then continue the cycle.',
+          'cyc.rotate': 'Good time to rotate accessories (isolations) with «Swap exercise». Keep the main lifts while they progress.',
+          'cyc.end': 'Cycle finished: deload and start a new one. You can change main lifts that have stalled.',
+          'cyc.stall': 'If an exercise stops progressing for 2-3 weeks in a row, swap it earlier.' },
+        pt: { 'swap.btn': '🔄 Trocar exercício', 'swap.title': 'Trocar exercício', 'swap.sub': 'Alternativas para o mesmo músculo e ângulo. Séries e repetições continuam iguais.', 'swap.orig': '↩️ Voltar ao original', 'swap.current': 'Atual', 'swap.close': 'Fechar', 'swap.swapped': 'Trocado · original: {o}', 'swap.none': 'Sem alternativas para este exercício.',
+          'bis.title': '🔗 {g} · Mentzer', 'bis.note': 'Sem descanso (0 s) entre o isolado e o composto. Descanse ao terminar o bi-set.', 'ss.note': 'Sem descanso entre os dois exercícios.', 'bis.rest': '0 s → próximo exercício',
+          'cyc.title': '📅 Seu ciclo', 'cyc.week': 'Semana {w} de {y} do ciclo', 'cyc.level': 'Nível', 'cyc.lv.beg': 'Iniciante', 'cyc.lv.int': 'Intermediário', 'cyc.lv.adv': 'Avançado', 'cyc.reset': 'Começar novo ciclo',
+          'cyc.master': 'Domine a técnica e aumente a carga: não troque os exercícios ainda. O progresso vem da sobrecarga, não de "confundir o músculo".',
+          'cyc.deload': 'Semana de deload recomendada: faça metade das séries com as mesmas cargas (RIR 3-4) e depois siga o ciclo.',
+          'cyc.rotate': 'Bom momento para trocar os acessórios (isolados) com «Trocar exercício». Mantenha os básicos enquanto progridem.',
+          'cyc.end': 'Ciclo terminado: faça um deload e comece outro. Pode trocar básicos que estagnaram.',
+          'cyc.stall': 'Se um exercício não progride por 2-3 semanas seguidas, troque antes.' }
+      };
+      Object.keys(UI).forEach(L => Object.assign(I18N[L], UI[L]));
+      // pantorrilla con rodilla flexionada en la biblioteca general (todos los ángulos)
+      if (!EX_LIB.calves.some(e => /sóleo/.test(e[0]))) EX_LIB.calves.push(['Elevación de Talones Sentado (sóleo)', 0.5, '12-20', 60, 'Énfasis en sóleo.']);
+    })();
+    function hpAngle(n) { const g = HP_EX2ALT[n]; if (!g) return ''; const a = HP_ALT[g][0]; return a[{ es: 0, en: 1, pt: 2 }[LANG] || 0]; }
+
+    // ---- Rutina Open 5 días ----
+    function buildOpen5(user, settings) {
+      const phase = settings.phase, vf = (PHASES[phase] || PHASES.recreativo).vol;
+      const E = (name, sets, reps, rest, note, muscle, extra) => Object.assign({ name, sets, reps, restSeconds: rest, note, muscle }, extra || {});
+      const B = (g, a, b) => { a.group = { id: g, kind: 'bis', pos: 1 }; b.group = { id: g, kind: 'bis', pos: 2 }; a.restSeconds = 0; return [a, b]; };
+      const D = [
+        { dk: 'lunes', name: 'Push (Pecho, Hombro, Tríceps)', vol: 'Volumen de la sesión: Pecho 10 | Deltoides lateral/ant. 10 | Tríceps 10.', ex: [
+          ...B('Biserie Preagotamiento (Pecho)', E('Aperturas en Peck Deck', 3, '8-10', 0, 'Pausa de 2 s en contracción máxima (al fallo).', 'chest'), E('Press de Banca con Barra', 3, '6-8', 180, '0 s de descanso tras las aperturas; 4 s de bajada excéntrica. Vale con barra o Smith.', 'chest')),
+          E('Press Inclinado con Mancuernas 30°', 4, '8-10', 150, 'Énfasis en clavicular, pausa abajo.', 'upper_chest'),
+          E('Fondos en Paralelas (torso inclinado)', 3, '10-12', 120, 'Lastrados o en máquina. Rango completo, torso inclinado.', 'chest'),
+          ...B('Biserie Preagotamiento (Deltoides)', E('Elevaciones Laterales con Mancuernas', 3, '12-15', 0, 'Fallo concéntrico en la cabeza lateral.', 'side_delt'), E('Press Militar Sentado con Barra', 3, '6-8', 150, 'Inmediato, con barra o mancuernas: el tríceps actúa de motor auxiliar.', 'front_delt')),
+          E('Elevaciones Laterales en Polea Baja', 4, '12-15', 60, 'Tensión mecánica continua en estiramiento.', 'side_delt'),
+          E('Press Francés con Barra Z', 4, '8-10', 90, 'Tumbado. Codos estables, estiramiento profundo.', 'triceps'),
+          E('Extensión de Tríceps en Polea con Cuerda', 3, '10-12', 75, 'Bloqueo estricto, 1 s de isometría.', 'triceps'),
+          E('Fondos entre Bancos', 3, '12-15', 75, 'Entre bancos o máquina de tríceps. Fallo metabólico final.', 'triceps')] },
+        { dk: 'martes', name: 'Pull (Espalda, Deltoides Posterior, Bíceps)', vol: 'Volumen de la sesión: Espalda 10 | Hombro post./Trapecio 10 | Bíceps 10.', ex: [
+          ...B('Biserie Preagotamiento (Dorsal)', E('Pullover en Polea Alta con Barra Recta', 3, '10-12', 0, 'Brazos semirrígidos, contracción en dorsal.', 'lats'), E('Jalón al Pecho Agarre Neutro', 3, '6-8', 150, 'Inmediato; agarre neutro o prono. Los bíceps frescos asisten la tracción.', 'lats')),
+          E('Remo en T (apoyado o libre)', 4, '6-8', 150, 'Carga pesada, retracción escapular completa.', 'midback'),
+          E('Remo Unilateral con Mancuerna', 3, '8-10', 90, 'Recorrido largo, estiramiento del dorsal bajo.', 'midback'),
+          E('Face Pull con Cuerda', 4, '15-20', 60, 'Polea media. Rotación externa al final.', 'rear_delt'),
+          E('Pájaros en Peck Deck Invertido', 3, '12-15', 60, 'Codos altos, aislamiento del deltoides posterior.', 'rear_delt'),
+          E('Encogimientos con Barra o Mancuernas', 3, '10-12', 75, 'Trapecio superior, pausa de 2 s arriba.', 'rear_delt'),
+          E('Curl con Barra Z', 4, '6-8', 90, 'De pie. Control excéntrico de 3 s.', 'biceps'),
+          E('Curl Inclinado con Mancuernas', 3, '10-12', 75, 'Énfasis en la cabeza larga en estiramiento.', 'biceps'),
+          E('Curl Martillo en Polea con Cuerda', 3, '10-12', 60, 'Braquial anterior y braquiorradial.', 'biceps')] },
+        { dk: 'miercoles', name: 'Legs (Cuádriceps, Femorales, Glúteos, Gemelos)', vol: 'Volumen de la sesión: Cuádriceps 10 | Femorales 10 | Gemelos 10.', ex: [
+          ...B('Biserie Preagotamiento (Cuádriceps)', E('Extensión de Cuádriceps', 3, '12-15', 0, 'Aguante de 2 s arriba, fallo estricto.', 'quads'), E('Prensa de Piernas 45°', 3, '8-10', 150, 'Inmediato (o Sentadilla Hack); los glúteos asisten el empuje.', 'quads')),
+          E('Sentadilla Libre con Barra', 4, '6-8', 180, 'Profundidad paralela, tensión continua.', 'quads'),
+          ...B('Biserie Preagotamiento (Femoral)', E('Curl Femoral Tumbado', 3, '10-12', 0, 'Aislamiento puro de isquiosurales.', 'hams'), E('Peso Muerto Rumano con Mancuernas', 3, '8-10', 150, 'Caderas atrás, máximo estiramiento excéntrico.', 'hams')),
+          E('Curl Femoral Sentado', 4, '10-12', 90, 'Isquios en posición alargada de cadera.', 'hams'),
+          E('Elevación de Talones de Pie', 5, '10-12', 75, 'En máquina. Rango completo, pausa de 2 s abajo.', 'calves'),
+          E('Elevación de Talones Sentado (sóleo)', 5, '15-20', 60, 'Contracción controlada.', 'calves')] },
+        { dk: 'jueves', name: 'Descanso Activo / Recuperación', vol: 'Recuperación activa: sin carga pesada.', recovery: true, ex: [
+          E('Bici Estática Suave', 1, '30 min', 60, 'Cardio suave en bicicleta o ergómetro a baja intensidad.', null, { timedTxt: '30 min', baseMultiplier: 0 }),
+          E('Movilidad de Cadera y Columna Torácica', 2, '5 min', 30, 'Estiramientos de movilidad y descarga articular.', null, { timedTxt: '5 min', baseMultiplier: 0 })] },
+        { dk: 'viernes', name: 'Upper Body (Torso Completo)', vol: 'Volumen acumulado del día: Pecho +10 (Total 20) | Espalda +10 (Total 20) | Hombro +10 (Total 20) | Bíceps +7 / Tríceps +7 (cerrando las 20 semanales sumando el estímulo indirecto de los empujes/tirones pesados).', ex: [
+          E('Press Inclinado con Barra', 4, '6-8', 180, 'Carga progresiva, bajada en 3 s.', 'upper_chest'),
+          E('Cruce de Poleas de Abajo hacia Arriba', 3, '12-15', 75, 'Cables de abajo hacia arriba. Énfasis en haz clavicular/esternal.', 'upper_chest'),
+          E('Fondos en Paralelas (torso inclinado)', 3, 'fail', 120, 'Al fallo con peso corporal. Estiramiento profundo.', 'chest', { baseMultiplier: 0 }),
+          E('Dominadas Lastradas', 4, '6-8', 150, 'Lastradas (o Jalón agarre cerrado). Rango completo.', 'lats'),
+          E('Remo en Polea Baja Agarre en V', 3, '8-10', 90, 'Contracción escapular sostenida.', 'midback'),
+          E('Remo en Máquina Unilateral', 3, '10-12', 90, 'Tensión uniforme en todo el recorrido.', 'midback'),
+          E('Press Militar en Multipower (Smith)', 3, '8-10', 120, 'Tensión constante sin balanceo.', 'front_delt'),
+          E('Elevaciones Laterales en Máquina', 4, '12-15', 60, 'En máquina o poleas cruzadas. Aislamiento lateral.', 'side_delt'),
+          E('Pájaros en Polea', 3, '15', 60, 'Sin inercia.', 'rear_delt'),
+          E('Curl Spider con Barra', 4, '10-12', 75, 'En banco inclinado. Tensión en acortamiento del bíceps.', 'biceps'),
+          E('Extensión de Tríceps sobre la Cabeza en Polea', 4, '10-12', 75, 'Trasnuca (over-head). Máximo estiramiento de la cabeza larga del tríceps.', 'triceps'),
+          E('Curl en Banco Scott (polea o máquina)', 3, '12', 0, 'Superserie final con el tríceps en polea: bombeo glucolítico.', 'biceps', { group: { id: 'Superserie final', kind: 'ss', pos: 1 } }),
+          E('Extensión de Tríceps en Polea con Barra Recta', 3, '12', 75, 'Superserie final con el curl predicador, sin descanso entre ambos.', 'triceps', { group: { id: 'Superserie final', kind: 'ss', pos: 2 } })] },
+        { dk: 'sabado', name: 'Lower Body (Pierna Completa y Core)', vol: 'Volumen acumulado del día: Cuádriceps +10 (Total 20) | Femorales/Glúteo +10 (Total 20) | Gemelos +10 (Total 20).', ex: [
+          E('Sentadilla Hack o Péndulo', 4, '8-10', 180, 'Profundidad máxima, control en la bajada.', 'quads'),
+          E('Zancadas Estáticas o Búlgaras con Mancuernas', 3, '10/leg', 120, '10 por pierna. Glúteo y cuádriceps.', 'quads'),
+          E('Prensa con Pies Juntos y Abajo', 3, '12-15', 120, 'Enfoque vasto externo.', 'quads'),
+          E('Peso Muerto Convencional', 4, '6-8', 180, 'Convencional o semirrígido. Cadena posterior y carga neural alta.', 'hams'),
+          E('Curl Femoral de Pie Unilateral', 3, '10-12', 90, 'De pie unilateral o sentado. Aislamiento estricto.', 'hams'),
+          E('Hip Thrust con Barra', 3, '8-10', 120, 'Glúteos, 2 s de bloqueo arriba.', 'glutes'),
+          E('Elevación de Talones en Máquina Donkey', 5, '12-15', 75, 'Donkey o en prensa. Pausa estricta en el punto más bajo.', 'calves'),
+          E('Elevación de Talones Sentado (sóleo)', 5, '15-20', 60, 'Énfasis en sóleo.', 'calves'),
+          E('Elevaciones de Piernas Colgado', 4, '15-20', 60, 'Colgado o crunch en polea. Estabilidad central.', 'abs', { baseMultiplier: 0 })] }
+      ];
+      const program = {}, weekly = {};
+      D.forEach(d => {
+        const exercises = d.ex.map(e => {
+          let sets = e.sets;
+          if (vf < 1 && sets >= 4 && !e.group && !d.recovery) sets -= 1; // definición / pre-contest: un poco menos de volumen, misma intensidad
+          if (e.muscle) weekly[e.muscle] = (weekly[e.muscle] || 0) + sets;
+          const reps = e.timedTxt ? e.timedTxt : e.reps === 'fail' ? tc('al fallo (peso corporal)') : e.reps === '10/leg' ? tc('10 por pierna') : e.reps + ' reps';
+          const rir = d.recovery ? t('rest.conv') : e.restSeconds === 0 ? t('bis.rest') : 'RIR 0-1 | ' + (e.restSeconds >= 120 ? `${fmtN(e.restSeconds / 60)} min` : `${e.restSeconds}s`);
+          return { name: e.name, target: tgtTxt(sets, reps), rest: rir, restSeconds: e.restSeconds, note: tc(e.note), sets,
+            baseMultiplier: e.baseMultiplier != null ? e.baseMultiplier : hpMult(e.name), muscle: e.muscle, group: e.group, origNote: e.note };
+        });
+        if (!d.recovery && (phase === 'definicion' || phase === 'precontest'))
+          exercises.push({ name: 'Cardio LISS post-entreno', target: tgtTxt(1, `${phase === 'precontest' ? 30 : 20} min`), rest: t('rest.zone2'), restSeconds: 60, note: tc('Caminadora inclinada o bici a ritmo moderado (RPE 4-5).'), sets: 1, baseMultiplier: 0 });
+        const short = tc(d.name);
+        program[d.dk] = { short, title: `${upper(tc(WEEKDAY_LABEL[d.dk]))}: ${upper(short)}`, exercises, recovery: !!d.recovery, volume: tc(d.vol) };
+      });
+      const wp = analyzeWeakPoints(user);
+      return { program, weekly, target: weekly, wp, freq: 5, phase, goal: 'open', schedule: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'], fixed: 'open5' };
+    }
+
+    // ---- Cambios de ejercicio (hp_swaps_<email> en user_data) ----
+    function swapsKey() { return `hp_swaps_${currentUser}`; }
+    function getSwaps() { try { return JSON.parse(cloudStore.getItem(swapsKey()) || '{}') || {}; } catch (e) { return {}; } }
+    function saveSwaps(s) { cloudStore.setItem(swapsKey(), JSON.stringify(s)); }
+    function slotKey(dk, i, orig) { return `${dk}|${i}|${orig}`; }
+    function applySwaps(program) {
+      if (!currentUser) return program;
+      const sw = getSwaps(); const out = {};
+      Object.keys(program).forEach(dk => {
+        const day = program[dk];
+        out[dk] = Object.assign({}, day, { exercises: day.exercises.map((ex, i) => {
+          const to = sw[slotKey(dk, i, ex.name)];
+          const base = Object.assign({}, ex, { origName: ex.name });
+          if (!to || to === ex.name) return base;
+          return Object.assign(base, { name: to, baseMultiplier: hpMult(to), swapped: true });
+        }) });
+      });
+      return out;
+    }
+    function hpAlternatives(name) { const g = HP_EX2ALT[name]; return g ? HP_ALT[g].slice(1).filter(n => n !== name).slice(0, 5) : []; }
+    let _swapCtx = null;
+    function openSwap(dk, i) {
+      const ex = getProgramForUser(getUsersDB()[currentUser] || {})[dk].exercises[i]; if (!ex) return;
+      _swapCtx = { dk, i, orig: ex.origName };
+      const alts = hpAlternatives(ex.origName).concat(ex.swapped ? [] : []).filter(n => n !== ex.name);
+      if (ex.swapped && !alts.includes(ex.origName)) {} // el original se ofrece abajo
+      const list = alts.filter(n => n !== ex.origName).map(n => `<button type="button" class="swap-opt" onclick="chooseSwap(${JSON.stringify(n).replace(/"/g, '&quot;')})">${catEsc(exName(n))}<small>${catEsc(hpAngle(n))}</small></button>`).join('');
+      document.getElementById('swap-body').innerHTML =
+        `<p class="swap-cur">${t('swap.current')}: <b>${catEsc(exName(ex.name))}</b></p>` +
+        (list || `<p class="pc-note">${t('swap.none')}</p>`) +
+        (ex.swapped ? `<button type="button" class="swap-opt swap-orig" onclick="chooseSwap(null)">${t('swap.orig')}<small>${catEsc(exName(ex.origName))}</small></button>` : '');
+      document.getElementById('swap-title').textContent = t('swap.title'); document.querySelector('#swap-sheet .swap-panel > .pc-note').textContent = t('swap.sub');
+      document.getElementById('swap-sheet').style.display = 'flex';
+    }
+    function closeSwap() { const s = document.getElementById('swap-sheet'); if (s) s.style.display = 'none'; }
+    function chooseSwap(name) {
+      if (!_swapCtx) return; const sw = getSwaps(); const k = slotKey(_swapCtx.dk, _swapCtx.i, _swapCtx.orig);
+      if (!name || name === _swapCtx.orig) delete sw[k]; else sw[k] = name;
+      saveSwaps(sw); closeSwap(); loadWorkoutDay(_swapCtx.dk);
+      const c = document.getElementById(`card_${_swapCtx.dk}_${_swapCtx.i}`); if (c) c.scrollIntoView({ block: 'center' });
+    }
+
+    // ---- Ciclo / mesociclo (hp_cycle_<email>) ----
+    const CYCLE = { beg: { len: 12, deload: 0, rotate: 0, master: 6 }, int: { len: 8, deload: 6, rotate: 5, master: 3 }, adv: { len: 6, deload: 5, rotate: 4, master: 2 } };
+    function cycleKey() { return `hp_cycle_${currentUser}`; }
+    function getCycle() {
+      let c = {}; try { c = JSON.parse(cloudStore.getItem(cycleKey()) || '{}') || {}; } catch (e) {}
+      if (!c.start) { c.start = getTodayISO(); c.level = c.level || 'int'; cloudStore.setItem(cycleKey(), JSON.stringify(c)); }
+      if (!CYCLE[c.level]) c.level = 'int';
+      return c;
+    }
+    function setCycleLevel(l) { const c = getCycle(); c.level = l; cloudStore.setItem(cycleKey(), JSON.stringify(c)); renderCycle(); }
+    function resetCycle() { const c = getCycle(); c.start = getTodayISO(); cloudStore.setItem(cycleKey(), JSON.stringify(c)); renderCycle(); }
+    function renderCycle() {
+      const box = document.getElementById('cycle-card'); if (!box || !currentUser) return;
+      const c = getCycle(), cfg = CYCLE[c.level];
+      const days = Math.max(0, Math.floor((new Date(getTodayISO() + 'T12:00:00') - new Date(c.start + 'T12:00:00')) / 864e5));
+      const w = Math.floor(days / 7) + 1;
+      let msg, cls = '';
+      if (w > cfg.len) { msg = t('cyc.end'); cls = ' warn'; }
+      else if (cfg.deload && w === cfg.deload) { msg = t('cyc.deload'); cls = ' warn'; }
+      else if (cfg.rotate && w >= cfg.rotate) { msg = t('cyc.rotate'); cls = ' ok'; }
+      else if (w === cfg.len && !cfg.deload) { msg = t('cyc.deload'); cls = ' warn'; }
+      else msg = t('cyc.master');
+      const lv = ['beg', 'int', 'adv'].map(l => `<button type="button" class="chip${l === c.level ? ' on' : ''}" aria-pressed="${l === c.level}" onclick="setCycleLevel('${l}')">${t('cyc.lv.' + l)}</button>`).join('');
+      box.innerHTML = `<h3 class="cyc-title">${t('cyc.title')}</h3>
+        <div class="cyc-week">${t('cyc.week', { w: Math.min(w, cfg.len + 1), y: cfg.len })}</div>
+        <div class="cyc-bar"><span style="width:${Math.min(100, Math.round(Math.min(w, cfg.len) / cfg.len * 100))}%"></span></div>
+        <p class="cyc-msg${cls}">${msg}</p><p class="pc-note">${t('cyc.stall')}</p>
+        <div class="pc-row"><span class="pc-label">${t('cyc.level')}</span><div class="chips" role="group">${lv}</div></div>
+        <button type="button" class="btn-3d btn-secondary btn-small" onclick="resetCycle()">${t('cyc.reset')}</button>`;
+    }
+  </script>
   <script>
     // ===== BOTÓN ATRÁS (Android / navegador): historial por pestañas y ventanas =====
     // Atrás cierra primero la ventana abierta más arriba (zoom, perfil, chat, formularios),
@@ -5892,7 +6321,8 @@ ${timedSecs ? `
         plans:    { open: () => shown($('plans-modal')) && !window._plansForced, close: () => closePlans() },
         del:      { open: () => shown($('delete-modal')), close: () => closeDeleteAccount() },
         coach:    { open: () => !!$('coach-panel') && $('coach-panel').classList.contains('open'), close: () => coachToggle(false) },
-        zoom:     { open: () => shown($('coach-zoom')), close: () => { $('coach-zoom').style.display = 'none'; } }
+        zoom:     { open: () => shown($('coach-zoom')), close: () => { $('coach-zoom').style.display = 'none'; } },
+        swap:     { open: () => shown($('swap-sheet')), close: () => closeSwap() }
       };
       const OV_IDS = Object.keys(OV);
       const tabToHash = id => id.replace(/-tab$/, '');
@@ -5981,7 +6411,7 @@ ${timedSecs ? `
       }
 
       const mo = new MutationObserver(schedule);
-      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom']
+      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom', 'swap-sheet']
         .forEach(id => { const el = $(id); if (el) mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); });
       schedule();
       window.hpNav = { state: cur, reconcile };
