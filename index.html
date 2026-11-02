@@ -797,6 +797,11 @@
     .meal ul { list-style: none; padding: 0; margin: 6px 0 0; }
     .meal li { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px dashed rgba(255,255,255,.06); font-size: .9rem; }
     .meal li span { flex: 1; } .meal li b { color: var(--orange-light, #ffb37a); white-space: nowrap; }
+    .dl-progress{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:10px 0}.dl-progress h3{margin:0 0 6px;font-size:1rem}
+    .dl-bar{margin:6px 0}.dl-bar-l{display:flex;justify-content:space-between;font-size:.85rem}.dl-track{height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-top:3px}.dl-track i{display:block;height:100%;background:linear-gradient(90deg,#f97316,#22c55e);border-radius:6px;transition:width .3s}
+    .dl-actions,.dl-tools{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dl-btn{flex:1;min-height:46px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
+    .dl-ok{background:rgba(34,197,94,.18);border-color:#22c55e}.dl-no{background:rgba(239,68,68,.12);border-color:#ef4444}
+    .meal-done{border-color:#22c55e;background:rgba(34,197,94,.06)}.meal-skip{opacity:.6}.meal-skip ul,.dl-off span,.dl-off b{text-decoration:line-through;opacity:.55}.meal li s{opacity:.5;font-weight:400;font-size:.8em}.dl-adj{font-size:.8rem;color:#fbbf24;margin-top:4px}
     .swap { background: none; border: 1px solid var(--border); border-radius: 8px; min-width: 40px; min-height: 40px; cursor: pointer; font-size: 1rem; }
     .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
     .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
@@ -5584,11 +5589,62 @@ ${timedSecs ? `
       if (fd.unit) { const u = Math.round(g / fd.unit * 2) / 2; return `${fmtN(g)} g (≈ ${fmtN(u)} ${t('unit.' + fd.un)})`; }
       return `${fmtN(g)} ${fd.ml ? 'ml' : 'g'}`;
     }
+    // ===== Registro diario de comidas (cumplido / no comido + redistribución) =====
+    function dlKey() { return `hp_dietlog_${currentUser}`; }
+    function dlToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function getDietLog() {
+      let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
+      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, undo: [] };
+      o.meals = o.meals || {}; o.items = o.items || {}; o.undo = o.undo || []; return o;
+    }
+    function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
+    function dlAct(kind, mk, idx) {
+      const o = getDietLog(); o.undo.push(JSON.stringify({ meals: o.meals, items: o.items })); if (o.undo.length > 15) o.undo.shift();
+      if (kind === 'meal') { o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; }
+      else { const k = mk + '_' + idx; if (o.items[k]) delete o.items[k]; else o.items[k] = 1; }
+      saveDietLog(o); renderDiet();
+      if (kind === 'meal' && o.meals[mk]) showToast(o.meals[mk] === 'done' ? '✅ Comida cumplida' : '⏭️ Marcada como no comida: se reparte en las siguientes');
+    }
+    function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); }
+    function dlReset() { const o = getDietLog(); o.undo.push(JSON.stringify({ meals: o.meals, items: o.items })); o.meals = {}; o.items = {}; saveDietLog(o); renderDiet(); }
+    // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
+    function applyDietLog(d, tg, log) {
+      const mac = (key, g) => { const f = FOODS[key]; return { p: f.p * g / 100, c: f.c * g / 100, f: f.f * g / 100 }; };
+      const eaten = { p: 0, c: 0, f: 0 }; const pend = [];
+      d.meals.forEach(m => {
+        m.state = log.meals[m.mk] || 'pend';
+        m.items.forEach((it, i) => { it.idx = i; it.off = !!log.items[m.mk + '_' + i]; });
+        if (m.state === 'done') m.items.forEach(it => { if (!it.off) { const x = mac(it.key, it.g); eaten.p += x.p; eaten.c += x.c; eaten.f += x.f; } });
+        else if (m.state === 'pend') pend.push(m);
+      });
+      const kc = x => x.p * 4 + x.c * 4 + x.f * 9;
+      const rem = { p: Math.max(0, tg.protein - eaten.p), c: Math.max(0, tg.carbs - eaten.c), f: Math.max(0, tg.fat - eaten.f) };
+      const plan = { p: 0, c: 0, f: 0 };
+      pend.forEach(m => m.items.forEach(it => { if (!it.off) { const x = mac(it.key, it.g); plan.p += x.p; plan.c += x.c; plan.f += x.f; } }));
+      const ratio = s => { const pl = plan[s]; return pl > 1 ? Math.min(1.8, Math.max(0.4, rem[s] / pl)) : 1; };
+      const fr = { p: ratio('p'), c: ratio('c'), f: ratio('f') };
+      const changed = d.meals.some(m => m.state !== 'pend') || Object.keys(log.items).length > 0;
+      pend.forEach(m => {
+        let p = 0, c = 0, f = 0;
+        m.items.forEach(it => {
+          const fd = FOODS[it.key]; const dom = it.slot === 'fix' ? null : (fd.p * 4 >= fd.c * 4 && fd.p * 4 >= fd.f * 9 ? 'p' : fd.f * 9 >= fd.c * 4 ? 'f' : 'c');
+          if (changed && dom && !it.off) { const ng = Math.max(0, Math.round(it.g * fr[dom] / 5) * 5); if (ng !== it.g) { it.orig = it.g; it.g = ng; } }
+          if (!it.off) { const x = mac(it.key, it.g); p += x.p; c += x.c; f += x.f; }
+        });
+        m.adj = m.items.some(it => it.orig !== undefined); m.p = Math.round(p); m.c = Math.round(c); m.f = Math.round(f); m.kcal = Math.round(p * 4 + c * 4 + f * 9);
+      });
+      return { eaten: { p: Math.round(eaten.p), c: Math.round(eaten.c), f: Math.round(eaten.f), kcal: Math.round(kc(eaten)) }, pendN: pend.length, canUndo: log.undo.length > 0, any: changed };
+    }
+    function dlBar(label, v, tgt, unit) {
+      const pct = tgt > 0 ? Math.min(100, Math.round(v / tgt * 100)) : 0;
+      return `<div class="dl-bar"><div class="dl-bar-l"><span>${label}</span><b>${fmtN(v)} / ${fmtN(tgt)} ${unit}</b></div><div class="dl-track"><i style="width:${pct}%"></i></div></div>`;
+    }
     function renderDiet() {
       const box = document.getElementById('diet-content'); if (!box || !currentUser) return;
       const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u);
       if (!tg) { box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
       const d = buildDiet(tg, getDietPrefs()); const ph = PHASES[tg.phase];
+      const lg = applyDietLog(d, tg, getDietLog());
       const P = t('m.p'), C = t('m.c'), F = t('m.f');
       box.innerHTML = `
         <div class="macro-grid">
@@ -5597,9 +5653,17 @@ ${timedSecs ? `
           <div><strong>${fmtN(tg.carbs)} g</strong><span>${t('nut.carbs')}</span></div>
           <div><strong>${fmtN(tg.fat)} g</strong><span>${t('nut.fat')}</span></div>
         </div>
+        <div class="dl-progress"><h3>📊 Progreso de hoy</h3>
+          ${dlBar('Calorías', lg.eaten.kcal, tg.kcal, 'kcal')}${dlBar('Proteína', lg.eaten.p, tg.protein, 'g')}${dlBar('Carbohidratos', lg.eaten.c, tg.carbs, 'g')}${dlBar('Grasas', lg.eaten.f, tg.fat, 'g')}
+          <p class="pc-note" style="margin:6px 0 0">Te faltan <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> · ${P} ${Math.max(0, tg.protein - lg.eaten.p)} g · ${C} ${Math.max(0, tg.carbs - lg.eaten.c)} g · ${F} ${Math.max(0, tg.fat - lg.eaten.f)} g${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}.</p>
+          <div class="dl-tools">${lg.canUndo ? `<button type="button" class="dl-btn" onclick="dlUndo()">↩️ Deshacer</button>` : ''}${lg.any ? `<button type="button" class="dl-btn" onclick="dlReset()">🔄 Reiniciar día</button>` : ''}</div>
+          ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
+        </div>
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
-        ${d.meals.map(m => `<div class="meal"><div class="meal-head"><strong>${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
-          <ul>${m.items.map(it => `<li><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}</b>${it.slot !== 'fix' || MEAL_TPL[m.mk].fix ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul></div>`).join('')}
+        ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
+          ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
+          <ul>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b>${m.state === 'skip' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul>
+          <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
     }
