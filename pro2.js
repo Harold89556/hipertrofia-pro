@@ -134,7 +134,7 @@
   document.addEventListener('pointerdown', () => { if (voiceOn() && !unlocked) unlock(); }, { capture: true });
   let sysVoices = [];
   const loadV = () => { try { sysVoices = speechSynthesis.getVoices() || []; } catch (e) {} };
-  if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = () => { loadV(); const s = document.getElementById('vc-voice'); if (s && !s.options.length) fillVoices(s); }; }
+  if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = () => { loadV(); const s = document.getElementById('vc-voice'); if (s && +s.dataset.n !== sysVoices.length) fillVoices(s); }; }
   const FEM = /female|mujer|femenin|paulina|sabina|m[oó]nica|ang[eé]lica|helena|laura|elvira|dalia|lupe|pe?nelope|samantha|victoria|karen|zira|aria|jenny|ava|allison|susan|luciana|francisca|joana|fernanda|vit[oó]ria|maria|google (español|us english|português)/i;
   const MALE = /male\b|hombre|jorge|diego|carlos|juan|pablo|alex|daniel|fred|tom\b|david|mark|guy|ant[oô]nio|felipe/i;
   const norm = v => String(v.lang || '').replace('_', '-');
@@ -152,9 +152,16 @@
     return (saved && sysVoices.find(v => v.name === saved)) || bestVoice(l);
   }
   function fillVoices(s) {
-    const l = VL(); const list = sysVoices.filter(v => norm(v).toLowerCase().startsWith(l));
-    const cur = pickVoice(l);
-    s.innerHTML = list.map(v => `<option value="${v.name.replace(/"/g, '&quot;')}"${cur && v.name === cur.name ? ' selected' : ''}>${v.name} (${norm(v)})</option>`).join('');
+    const l = VL(); const pref = PREF[l].map(x => x.toLowerCase());
+    const rank = v => { const g = norm(v).toLowerCase(); const i = pref.findIndex(p => g.startsWith(p) && !(l === 'es' && p === 'es' && g.startsWith('es-es'))); return i >= 0 ? i : g.startsWith(l) ? pref.length : 99; };
+    const all = sysVoices.slice().sort((a, b) => rank(a) - rank(b) || norm(a).localeCompare(norm(b)) || a.name.localeCompare(b.name));
+    const cur = pickVoice(l); const esc = x => String(x).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const tag = v => v.localService === true ? ' · local' : v.localService === false ? ' · online' : '';
+    const opt = v => `<option value="${esc(v.name)}"${cur && v.name === cur.name ? ' selected' : ''}>${esc(v.name)} (${esc(norm(v))}${tag(v)})</option>`;
+    const mine = all.filter(v => rank(v) < 99), rest = all.filter(v => rank(v) >= 99);
+    const G = { es: ['Español', 'Otros idiomas'], en: ['English', 'Other languages'], pt: ['Português', 'Outros idiomas'] }[l];
+    s.innerHTML = (mine.length ? `<optgroup label="${G[0]}">${mine.map(opt).join('')}</optgroup>` : '') + (rest.length ? `<optgroup label="${G[1]}">${rest.map(opt).join('')}</optgroup>` : '');
+    s.dataset.n = sysVoices.length;
   }
   let playId = 0;
   const end = x => /[.!?:,¡¿]$/.test(x) ? x : x + '.';
