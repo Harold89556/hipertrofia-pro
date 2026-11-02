@@ -127,15 +127,16 @@
     } catch (e) {}
   }
   // audio natural: URL pública cacheada por frase (Supabase Storage) + copia local en Cache API
-  const urls = new Map();
+  const urls = new Map(); let ttsDownUntil = 0;
   async function getAudio(t) {
     const k = VL() + '|' + t; if (urls.has(k)) return urls.get(k);
     const p = (async () => {
       const ck = new Request(location.origin + '/__hp_voice/' + encodeURIComponent(k));
       let c = null; try { c = await caches.open('hp-voice-v1'); const m = await c.match(ck); if (m) return URL.createObjectURL(await m.blob()); } catch (e) {}
       if (typeof sb === 'undefined') throw new Error('nosb');
+      if (Date.now() < ttsDownUntil) throw new Error('tts-pausa');
       const { data, error } = await sb.functions.invoke('tts', { body: { text: t, lang: VL() } });
-      if (error || !data || !data.url) throw error || new Error('tts');
+      if (error || !data || !data.url) { ttsDownUntil = Date.now() + 10 * 60000; throw error || new Error('tts'); }
       const r = await fetch(data.url); if (!r.ok) throw new Error('audio ' + r.status);
       const blob = await r.blob(); try { c && await c.put(ck, new Response(blob, { headers: { 'Content-Type': 'audio/wav' } })); } catch (e) {}
       return URL.createObjectURL(blob);
@@ -144,19 +145,29 @@
   }
   const prefetch = list => list.forEach(t => getAudio(t).catch(() => {}));
   let playId = 0;
+  const waitEnd = () => new Promise(res => { const f = () => { audio.removeEventListener('ended', f); audio.removeEventListener('error', f); res(); }; audio.addEventListener('ended', f); audio.addEventListener('error', f); setTimeout(f, 15000); });
+  // reproduce una o varias frases en orden; si la voz natural no llega a tiempo usa la voz del sistema
   function say(t, force) {
-    if (!t || (!voiceOn() && !force)) return;
+    const list = (Array.isArray(t) ? t : [t]).filter(Boolean);
+    if (!list.length || (!voiceOn() && !force)) return;
     const id = ++playId, t0 = Date.now();
-    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('lento')), 3500));
-    Promise.race([getAudio(t), timeout]).then(u => {
-      if (id !== playId) return; // ya se pidió otra frase
-      try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
-      audio.pause(); audio.src = u; audio.currentTime = 0;
-      return audio.play().then(() => window._hpVoice.log.push('tts:' + t + ' ' + (Date.now() - t0) + 'ms'));
-    }).catch(e => { if (id === playId) { window._hpVoice.log.push('fallback:' + (e && e.message)); sysSay(t); } });
+    const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('lento')), ms));
+    (async () => {
+      for (let k = 0; k < list.length; k++) {
+        let u;
+        try { u = await Promise.race([getAudio(list[k]), timeout(k ? 6000 : 3500)]); }
+        catch (e) { if (id === playId) { window._hpVoice.log.push('fallback:' + (e && e.message)); sysSay(list.slice(k).join(' ')); } return; }
+        if (id !== playId) return; // ya se pidió otra frase
+        try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
+        audio.pause(); audio.src = u; audio.currentTime = 0;
+        try { await audio.play(); window._hpVoice.log.push('tts:' + list[k] + ' ' + (Date.now() - t0) + 'ms'); }
+        catch (e) { window._hpVoice.log.push('playfail:' + (e && e.name)); sysSay(list.slice(k).join(' ')); return; }
+        if (k < list.length - 1) await waitEnd();
+      }
+    })();
   }
   window.hpSay = say;
-  const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone]; };
+  const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest)]; };
   let lastSet = null;
   const origCSW = window.completeSetWorkflow;
   if (typeof origCSW === 'function') window.completeSetWorkflow = function (dk, i, s) { lastSet = { dk, i, s }; return origCSW.apply(this, arguments); };
@@ -176,7 +187,7 @@
     if (voiceOn()) {
       const ls = lastSet; lastSet = null;
       const ni = nextInfo(ls);
-      say((ls ? (ni && ni.last ? P().exDone : P().done) + ' ' : '') + P().rest(sec));
+      say([ls ? (ni && ni.last ? P().exDone : P().done) : '', P().rest(sec)]);
       if (ni) prefetch([ni.msg]);
       clearInterval(window._hpVoiceInt); let said10 = false, said3 = false;
       window._hpVoiceInt = setInterval(() => {
