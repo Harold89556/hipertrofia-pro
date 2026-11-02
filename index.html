@@ -4246,6 +4246,7 @@ ${timedSecs ? `
             </div>
           </div>
           ${angle ? `<span class="angle-chip">${catEsc(angle)}</span>` : ''}${ex.swapped ? `<span class="angle-chip swapped">${t('swap.swapped', { o: catEsc(exName(ex.origName)) })}</span>` : ''}
+          ${typeof hpAnimHtml === 'function' ? hpAnimHtml(ex.name) : ''}
           <div class="exercise-meta">${ex.target} | ${ex.rest}</div>
           ${timedSecs ? `<div class="rec-box">${t('ex.timed', { s: timedSecs })}</div>` : `<div class="rec-box">${t('ex.suggested', { w: recommended })}</div>`}
           <div class="exercise-note">💡 ${ex.note}</div>
@@ -6456,11 +6457,11 @@ ${timedSecs ? `
       _swapCtx = { dk, i, orig: ex.origName };
       const alts = hpAlternatives(ex.origName).concat(ex.swapped ? [] : []).filter(n => n !== ex.name);
       if (ex.swapped && !alts.includes(ex.origName)) {} // el original se ofrece abajo
-      const list = alts.filter(n => n !== ex.origName).map(n => `<button type="button" class="swap-opt" onclick="chooseSwap(${JSON.stringify(n).replace(/"/g, '&quot;')})">${catEsc(exName(n))}<small>${catEsc(hpAngle(n))}</small></button>`).join('');
+      const list = alts.filter(n => n !== ex.origName).map(n => `<button type="button" class="swap-opt" onclick="chooseSwap(${JSON.stringify(n).replace(/"/g, '&quot;')})">${typeof hpAnimThumb === 'function' ? hpAnimThumb(n) : ''}${catEsc(exName(n))}<small>${catEsc(hpAngle(n))}</small></button>`).join('');
       document.getElementById('swap-body').innerHTML =
         `<p class="swap-cur">${t('swap.current')}: <b>${catEsc(exName(ex.name))}</b></p>` +
         (list || `<p class="pc-note">${t('swap.none')}</p>`) +
-        (ex.swapped ? `<button type="button" class="swap-opt swap-orig" onclick="chooseSwap(null)">${t('swap.orig')}<small>${catEsc(exName(ex.origName))}</small></button>` : '');
+        (ex.swapped ? `<button type="button" class="swap-opt swap-orig" onclick="chooseSwap(null)">${t('swap.orig')}${typeof hpAnimThumb === 'function' ? hpAnimThumb(ex.origName) : ''}<small>${catEsc(exName(ex.origName))}</small></button>` : '');
       document.getElementById('swap-title').textContent = t('swap.title'); document.querySelector('#swap-sheet .swap-panel > .pc-note').textContent = t('swap.sub');
       document.getElementById('swap-sheet').style.display = 'flex';
     }
@@ -6703,9 +6704,10 @@ ${timedSecs ? `
     labels(); renderRegCards(); sync();
   })();
   </script>
+  <script src="anim.js?v=1"></script>
   <script src="pro.js?v=6"></script>
   <script src="cues.js?v=1"></script>
   <script src="pro2.js?v=9"></script>
-  <script src="superset.js?v=2"></script>
+  <script src="superset.js?v=3"></script>
 </body>
 </html>

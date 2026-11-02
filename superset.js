@@ -104,7 +104,7 @@
       G.members.forEach(j => {
         const c = document.getElementById(`card_${dk}_${j}`); if (!c) return; block.appendChild(c); c.classList.add('ss-card');
         const tt = c.querySelector('.exercise-title > span'); if (tt && !tt.querySelector('.ss-tag')) tt.insertAdjacentHTML('afterbegin', `<span class="ss-tag">${LET[j]}</span>`);
-        const keep = new Set(['exercise-title', 'angle-chip', 'ap-box', 'inj-flag', 'rec-box']);
+        const keep = new Set(['exercise-title', 'angle-chip', 'ex-anim', 'ap-box', 'inj-flag', 'rec-box']);
         const det = document.createElement('details'); det.className = 'ss-more'; det.innerHTML = `<summary>${T().more}</summary>`;
         [...c.children].forEach(ch => { if (ch.classList.contains('sets-table-wrapper')) return; if (![...ch.classList].some(k => keep.has(k))) det.appendChild(ch); });
         c.appendChild(det);
