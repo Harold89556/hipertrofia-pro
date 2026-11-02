@@ -4904,7 +4904,7 @@ ${timedSecs ? `
     // Accesos rápidos / widget: ?go=train|food|diet|progress
     function hpGoRoute() {
       const u = new URL(location.href); const go = u.searchParams.get('go'); if (!go) return;
-      u.searchParams.delete('go'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      u.searchParams.delete('go'); history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash);
       const map = { train: 'workout-tab', food: 'diet-tab', diet: 'diet-tab', progress: 'history-tab' };
       const tab = map[go]; if (!tab) return;
       const btn = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`); if (btn) switchTab(tab, btn);
@@ -6548,7 +6548,9 @@ ${timedSecs ? `
         del:      { open: () => shown($('delete-modal')), close: () => closeDeleteAccount() },
         coach:    { open: () => !!$('coach-panel') && $('coach-panel').classList.contains('open'), close: () => coachToggle(false) },
         zoom:     { open: () => shown($('coach-zoom')), close: () => { $('coach-zoom').style.display = 'none'; } },
-        swap:     { open: () => shown($('swap-sheet')), close: () => closeSwap() }
+        swap:     { open: () => shown($('swap-sheet')), close: () => closeSwap() },
+        more:     { open: () => !!$('more-sheet') && $('more-sheet').classList.contains('open'), close: () => hpMore(false) },
+        anim:     { open: () => !!document.querySelector('.ex-anim-modal'), close: () => { const m = document.querySelectorAll('.ex-anim-modal'); if (m.length) m[m.length - 1].remove(); } }
       };
       const OV_IDS = Object.keys(OV);
       const tabToHash = id => id.replace(/-tab$/, '');
@@ -6573,6 +6575,12 @@ ${timedSecs ? `
         origSwitch(tabId, btn || btnFor(tabId));
         if (applying || tabId === from) return;            // mismo botón tocado dos veces: sin entrada duplicada
         const st = cur();
+        const live = (st.ov || []).filter(id => OV[id].open());
+        if ((st.ov || []).length && live.length < st.ov.length) {   // se cerró una ventana (ej. "Más") para cambiar de pestaña:
+          const d = st.d - (st.ov.length - live.length) + 1;        // reutilizar su entrada en vez de apilar otra
+          history.replaceState({ hp: 1, d: Math.max(1, d), tab: tabId, ov: [] }, '', urlFor(tabId));
+          return;
+        }
         if (tabId === HOME) {                               // volver al inicio = volver a la raíz del historial
           if (st.d > 0) { pendingBack++; history.go(-st.d); }
           else history.replaceState({ hp: 1, d: 0, tab: HOME, ov: [] }, '', urlFor(HOME));
@@ -6637,8 +6645,12 @@ ${timedSecs ? `
       }
 
       const mo = new MutationObserver(schedule);
-      ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom', 'swap-sheet']
-        .forEach(id => { const el = $(id); if (el) mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); });
+      const watch = () => {
+        ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom', 'swap-sheet', 'more-sheet']
+          .forEach(id => { const el = $(id); if (el && !el._hpw) { el._hpw = 1; mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); } });
+      };
+      watch(); document.addEventListener('DOMContentLoaded', () => { watch(); schedule(); });
+      mo.observe(document.body, { childList: true });          // modal de animación (se agrega/quita del body)
       schedule();
       window.hpNav = { state: cur, reconcile };
     })();
