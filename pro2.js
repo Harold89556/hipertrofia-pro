@@ -186,12 +186,12 @@
       for (let k = 0; k < list.length; k++) {
         let u;
         try { u = await Promise.race([getAudio(list[k]), timeout(k ? 6000 : 3500)]); }
-        catch (e) { if (id === playId) { window._hpVoice.log.push('fallback:' + (e && e.message)); sysSay(list.slice(k).join(' ')); } return; }
+        catch (e) { if (id === playId) { window._hpVoice.log.push('fallback:' + (e && e.message)); sysSay(list.slice(k).map(x => /[.!?:,¡¿]$/.test(x) ? x : x + '.').join(' ')); } return; }
         if (id !== playId) return; // ya se pidió otra frase
         try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
         audio.pause(); audio.src = u; audio.currentTime = 0;
         try { await audio.play(); window._hpVoice.log.push('tts:' + list[k] + ' ' + (Date.now() - t0) + 'ms'); }
-        catch (e) { window._hpVoice.log.push('playfail:' + (e && e.name)); sysSay(list.slice(k).join(' ')); return; }
+        catch (e) { window._hpVoice.log.push('playfail:' + (e && e.name)); sysSay(list.slice(k).map(x => /[.!?:,¡¿]$/.test(x) ? x : x + '.').join(' ')); return; }
         if (k < list.length - 1) await waitEnd();
       }
     })();
