@@ -255,7 +255,7 @@
     if (tb && !$('voice-tg')) { const b = document.createElement('button'); b.type = 'button'; b.id = 'voice-tg'; b.className = 'voice-tg'; b.onclick = () => setVoice(!voiceOn()); lab(b); tb.appendChild(b); }
     const wt = $('workout-tab');
     if (wt && !$('voice-card')) {
-      const c = document.createElement('div'); c.className = 'exercise-card voice-card'; c.id = 'voice-card';
+      const c = document.createElement('div'); c.className = 'exercise-card voice-card'; c.id = 'voice-card'; c.dataset.lang = VL();
       const T = { es: ['🎙️ Coach de voz', 'Te habla durante el descanso: cuenta regresiva y tu siguiente serie.', '▶️ Probar voz'], en: ['🎙️ Voice coach', 'Talks to you during rest: countdown and your next set.', '▶️ Test voice'], pt: ['🎙️ Coach de voz', 'Fala com você no descanso: contagem regressiva e sua próxima série.', '▶️ Testar voz'] }[VL()];
       c.innerHTML = `<div class="vc-row"><div><b>${T[0]}</b><div class="vc-sub">${T[1]}</div></div><div class="vc-btns"><button type="button" id="voice-set-tg" class="btn-3d btn-small"></button><button type="button" id="voice-test" class="btn-3d btn-small">${T[2]}</button></div></div>`;
       const T2 = { es: ['🎯 Decir técnica', '💪 Frases de ánimo'], en: ['🎯 Say technique', '💪 Encouragement'], pt: ['🎯 Dizer técnica', '💪 Frases de ânimo'] }[VL()];
@@ -272,6 +272,7 @@
   // 🎯 Técnica en cada tarjeta + claves habladas al empezar un ejercicio
   const spokenStart = {};
   function techCards() {
+    const vc = $('voice-card'); if (vc && vc.dataset.lang !== VL()) { vc.remove(); voiceToggle(); }
     if (!currentUser) return; let prog; try { prog = getProgramForUser(getUsersDB()[currentUser] || {}); } catch (e) { return; }
     const H = { es: '🎯 Técnica', en: '🎯 Technique', pt: '🎯 Técnica' }[VL()];
     document.querySelectorAll('#exercises-container .exercise-card[id^="card_"]').forEach(card => {
