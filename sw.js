@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v11';
+const CACHE = 'hp-shell-v12';
 const SHELL = ['./', './index.html', './manifest.json', './pro.js', './pro2.js', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
@@ -10,7 +10,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && !k.startsWith('hp-voice')).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

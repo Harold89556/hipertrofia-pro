@@ -78,40 +78,141 @@
   const origLWD = window.loadWorkoutDay;
   if (typeof origLWD === 'function') window.loadWorkoutDay = function () { const r = origLWD.apply(this, arguments); try { renderReadiness(); decorateWorkout(); } catch (e) { console.warn(e); } return r; };
 
-  // ---------- 14. COACH POR VOZ ----------
+  // ---------- 14. COACH POR VOZ (voz natural Gemini TTS + respaldo del sistema) ----------
   const voiceOn = () => localStorage.getItem('hp_voice') === '1';
+  const VL = () => (typeof LANG !== 'undefined' && (LANG === 'en' || LANG === 'pt')) ? LANG : 'es';
+  const num = (n, l) => String(n).replace('.', l === 'en' ? '.' : ',');
+  const PH = {
+    es: { on: 'Coach de voz activado. ¡Vamos con todo!', test: 'Hola, soy tu coach de voz. ¡Vamos a entrenar juntos!', ten: 'Diez segundos', cd: 'Tres, dos, uno', go: '¡A trabajar!', done: 'Serie completada. ¡Muy bien!', exDone: '¡Ejercicio terminado! Excelente trabajo.',
+      rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('es') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
+      next: (ex, r, w) => `Siguiente serie de ${ex}: ${r} repeticiones${w ? ' con ' + num(w, 'es') + ' kilos' : ''}. ¡Vamos!`, nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!` },
+    en: { on: 'Voice coach activated. Let\'s go!', test: 'Hi, I\'m your voice coach. Let\'s train together!', ten: 'Ten seconds', cd: 'Three, two, one', go: 'Let\'s work!', done: 'Set complete. Great job!', exDone: 'Exercise finished! Excellent work.',
+      rest: s => `Rest for ${s >= 60 && s % 30 === 0 ? (s / 60) + (s === 60 ? ' minute' : ' minutes') : s + ' seconds'}`,
+      next: (ex, r, w) => `Next set of ${ex}: ${r} reps${w ? ' with ' + num(w, 'en') + ' kilos' : ''}. Let's go!`, nextEx: ex => `Next up: ${ex}. Let's go!` },
+    pt: { on: 'Coach de voz ativado. Vamos com tudo!', test: 'Olá, sou sua coach de voz. Vamos treinar juntos!', ten: 'Dez segundos', cd: 'Três, dois, um', go: 'Bora trabalhar!', done: 'Série concluída. Muito bem!', exDone: 'Exercício concluído! Excelente trabalho.',
+      rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('pt') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
+      next: (ex, r, w) => `Próxima série de ${ex}: ${r} repetições${w ? ' com ' + num(w, 'pt') + ' quilos' : ''}. Vamos!`, nextEx: ex => `Agora vem ${ex}. Vamos!` },
+  };
+  const P = () => PH[VL()];
+  const audio = new Audio(); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); audio.id = 'hp-voice-audio';
+  window._hpVoice = { audio, log: [] };
+  const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+  let unlocked = false;
+  function unlock() { // debe correr dentro del toque del usuario (Android/iOS bloquean audio sin gesto)
+    try { audio.src = SILENT; const pr = audio.play(); pr && pr.then(() => { unlocked = true; }).catch(() => {}); } catch (e) {}
+    try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
+  }
+  document.addEventListener('pointerdown', () => { if (voiceOn() && !unlocked) unlock(); }, { capture: true });
+  // voces del sistema (respaldo): se cargan de forma asíncrona
+  let sysVoices = [];
+  const loadV = () => { try { sysVoices = speechSynthesis.getVoices() || []; } catch (e) {} };
+  if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = loadV; }
+  const FEM = /female|mujer|femenin|paulina|sabina|m[oó]nica|helena|laura|elvira|dalia|lupe|pe?nelope|samantha|victoria|karen|zira|aria|jenny|ava|allison|susan|luciana|francisca|joana|fernanda|vit[oó]ria|maria|google (español|us english|português)/i;
+  const MALE = /male\b|hombre|jorge|diego|carlos|juan|pablo|alex|daniel|fred|tom\b|david|mark|guy|ant[oô]nio|felipe/i;
+  function pickVoice(l) {
+    loadV(); const pref = { es: ['es-US', 'es-MX', 'es-419', 'es-CO', 'es-AR', 'es-CL', 'es-PY', 'es'], en: ['en-US', 'en-GB', 'en'], pt: ['pt-BR', 'pt'] }[l];
+    const norm = v => String(v.lang || '').replace('_', '-');
+    for (const pre of pref) {
+      const c = sysVoices.filter(v => norm(v).toLowerCase().startsWith(pre.toLowerCase()) && !(l === 'es' && /^es-ES/i.test(norm(v)) && pre === 'es'));
+      if (!c.length) continue;
+      return c.find(v => FEM.test(v.name) && !MALE.test(v.name)) || c.find(v => !MALE.test(v.name)) || c[0];
+    }
+    return sysVoices.find(v => norm(v).toLowerCase().startsWith(l)) || null;
+  }
+  function sysSay(t) {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      const go = () => { const u = new SpeechSynthesisUtterance(t); const l = VL(); u.lang = { es: 'es-US', en: 'en-US', pt: 'pt-BR' }[l]; const v = pickVoice(l); if (v) { u.voice = v; u.lang = v.lang; } u.rate = 1; u.pitch = 1.1; speechSynthesis.speak(u); window._hpVoice.log.push('sys:' + t); };
+      if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 150); } else go(); // cancel()+speak() juntos se pierden en Chrome Android
+    } catch (e) {}
+  }
+  // audio natural: URL pública cacheada por frase (Supabase Storage) + copia local en Cache API
+  const urls = new Map();
+  async function getAudio(t) {
+    const k = VL() + '|' + t; if (urls.has(k)) return urls.get(k);
+    const p = (async () => {
+      const ck = new Request(location.origin + '/__hp_voice/' + encodeURIComponent(k));
+      let c = null; try { c = await caches.open('hp-voice-v1'); const m = await c.match(ck); if (m) return URL.createObjectURL(await m.blob()); } catch (e) {}
+      if (typeof sb === 'undefined') throw new Error('nosb');
+      const { data, error } = await sb.functions.invoke('tts', { body: { text: t, lang: VL() } });
+      if (error || !data || !data.url) throw error || new Error('tts');
+      const r = await fetch(data.url); if (!r.ok) throw new Error('audio ' + r.status);
+      const blob = await r.blob(); try { c && await c.put(ck, new Response(blob, { headers: { 'Content-Type': 'audio/wav' } })); } catch (e) {}
+      return URL.createObjectURL(blob);
+    })();
+    urls.set(k, p); p.catch(() => urls.delete(k)); return p;
+  }
+  const prefetch = list => list.forEach(t => getAudio(t).catch(() => {}));
+  let playId = 0;
+  function say(t, force) {
+    if (!t || (!voiceOn() && !force)) return;
+    const id = ++playId, t0 = Date.now();
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('lento')), 3500));
+    Promise.race([getAudio(t), timeout]).then(u => {
+      if (id !== playId) return; // ya se pidió otra frase
+      try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
+      audio.pause(); audio.src = u; audio.currentTime = 0;
+      return audio.play().then(() => window._hpVoice.log.push('tts:' + t + ' ' + (Date.now() - t0) + 'ms'));
+    }).catch(e => { if (id === playId) { window._hpVoice.log.push('fallback:' + (e && e.message)); sysSay(t); } });
+  }
+  window.hpSay = say;
+  const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone]; };
   let lastSet = null;
-  function say(t) { if (!voiceOn() || !('speechSynthesis' in window)) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'es-419'; const v = speechSynthesis.getVoices().find(v => /^es/.test(v.lang) && /419|MX|US|AR/.test(v.lang)) || speechSynthesis.getVoices().find(v => /^es/.test(v.lang)); if (v) u.voice = v; u.rate = 1.05; speechSynthesis.speak(u); } catch (e) {} }
   const origCSW = window.completeSetWorkflow;
   if (typeof origCSW === 'function') window.completeSetWorkflow = function (dk, i, s) { lastSet = { dk, i, s }; return origCSW.apply(this, arguments); };
+  function nextInfo(ls) {
+    if (!ls) return null;
+    let sets = 0, nextName = '';
+    try { const pr = getProgramForUser(getUsersDB()[currentUser] || {}); const exs = pr[ls.dk].exercises; sets = exs[ls.i].sets; nextName = exs[ls.i + 1] ? exs[ls.i + 1].name : ''; } catch (e) {}
+    const tg = window._apTargets && window._apTargets[ls.dk + '_' + ls.i];
+    const nm = n => { try { return exName(n); } catch (e) { return n; } };
+    if (sets && ls.s >= sets) return { last: true, msg: nextName ? P().nextEx(nm(nextName)) : P().go };
+    if (tg) return { last: false, msg: P().next(nm(tg.name), tg.reps || tg.lo, tg.w) };
+    return { last: false, msg: P().go };
+  }
   const origST = window.startTimer;
   if (typeof origST === 'function') window.startTimer = function (sec) {
     const r = origST.apply(this, arguments);
     if (voiceOn()) {
-      say(`Descanso de ${sec >= 60 ? (sec / 60).toLocaleString('es') + (sec === 60 ? ' minuto' : ' minutos') : sec + ' segundos'}`);
-      const ls = lastSet; clearInterval(window._hpVoiceInt);
+      const ls = lastSet; lastSet = null;
+      const ni = nextInfo(ls);
+      say((ls ? (ni && ni.last ? P().exDone : P().done) + ' ' : '') + P().rest(sec));
+      if (ni) prefetch([ni.msg]);
+      clearInterval(window._hpVoiceInt); let said10 = false, said3 = false;
       window._hpVoiceInt = setInterval(() => {
         const left = typeof timerSeconds !== 'undefined' ? timerSeconds : 0;
-        if (left === 10) say('Diez segundos');
-        else if (left === 3) say('Tres, dos, uno');
-        else if (left <= 0) {
-          clearInterval(window._hpVoiceInt);
-          const tg = ls && window._apTargets && window._apTargets[ls.dk + '_' + ls.i]; let msg = '¡A trabajar!';
-          if (ls && tg) { let ex = ''; try { ex = exName(tg.name); } catch (e) { ex = tg.name; } msg = `Siguiente serie de ${ex}: ${tg.reps || tg.lo} repeticiones${tg.w ? ' con ' + String(tg.w).replace('.', ',') + ' kilos' : ''}. ¡Vamos!`; }
-          say(msg);
-        }
-      }, 1000);
+        if (!voiceOn()) return clearInterval(window._hpVoiceInt);
+        if (left <= 10 && left > 5 && !said10 && sec > 15) { said10 = true; say(P().ten); }
+        else if (left <= 3 && left > 0 && !said3) { said3 = true; say(P().cd); }
+        else if (left <= 0) { clearInterval(window._hpVoiceInt); say(ni ? ni.msg : P().go); }
+      }, 500);
     }
     return r;
   };
+  const origRT = window.resetTimer;
+  if (typeof origRT === 'function') window.resetTimer = function () { clearInterval(window._hpVoiceInt); return origRT.apply(this, arguments); };
+  function setVoice(on) {
+    localStorage.setItem('hp_voice', on ? '1' : '0');
+    if (on) { unlock(); say(P().on, true); prefetch(fixed()); } else { playId++; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} }
+    document.querySelectorAll('.voice-tg,#voice-set-tg').forEach(lab);
+  }
+  function lab(b) { if (b.id === 'voice-set-tg') { b.textContent = voiceOn() ? '🔊 Activado' : '🔇 Desactivado'; b.classList.toggle('on', voiceOn()); } else b.textContent = voiceOn() ? '🔊 Voz' : '🔇 Voz'; b.setAttribute('aria-pressed', voiceOn()); }
   function voiceToggle() {
-    const tb = $('timer-bubble'); if (!tb || $('voice-tg')) return;
-    const b = document.createElement('button'); b.type = 'button'; b.id = 'voice-tg'; b.className = 'voice-tg';
-    const lab = () => { b.textContent = voiceOn() ? '🔊 Voz' : '🔇 Voz'; b.setAttribute('aria-pressed', voiceOn()); };
-    b.onclick = () => { localStorage.setItem('hp_voice', voiceOn() ? '0' : '1'); lab(); if (voiceOn()) say('Coach por voz activado'); else speechSynthesis && speechSynthesis.cancel(); };
-    lab(); tb.appendChild(b);
+    const tb = $('timer-bubble');
+    if (tb && !$('voice-tg')) { const b = document.createElement('button'); b.type = 'button'; b.id = 'voice-tg'; b.className = 'voice-tg'; b.onclick = () => setVoice(!voiceOn()); lab(b); tb.appendChild(b); }
+    const wt = $('workout-tab');
+    if (wt && !$('voice-card')) {
+      const c = document.createElement('div'); c.className = 'exercise-card voice-card'; c.id = 'voice-card';
+      const T = { es: ['🎙️ Coach de voz', 'Te habla durante el descanso: cuenta regresiva y tu siguiente serie.', '▶️ Probar voz'], en: ['🎙️ Voice coach', 'Talks to you during rest: countdown and your next set.', '▶️ Test voice'], pt: ['🎙️ Coach de voz', 'Fala com você no descanso: contagem regressiva e sua próxima série.', '▶️ Testar voz'] }[VL()];
+      c.innerHTML = `<div class="vc-row"><div><b>${T[0]}</b><div class="vc-sub">${T[1]}</div></div><div class="vc-btns"><button type="button" id="voice-set-tg" class="btn-3d btn-small"></button><button type="button" id="voice-test" class="btn-3d btn-small">${T[2]}</button></div></div>`;
+      wt.insertBefore(c, wt.firstChild);
+      $('voice-set-tg').onclick = () => setVoice(!voiceOn());
+      $('voice-test').onclick = () => { unlock(); say(P().test, true); };
+      lab($('voice-set-tg'));
+    }
   }
   voiceToggle();
+  if (voiceOn()) setTimeout(() => prefetch(fixed()), 3000);
 
   // ---------- 9. DIETA ADAPTATIVA ----------
   const origCWA = window.checkWeightAlert;
