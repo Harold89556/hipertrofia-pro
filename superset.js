@@ -5,15 +5,15 @@
     es: { badge: 'Sin descanso entre ejercicios', flow: (a, s) => `${a} sin pausa · descanso ${s} al terminar cada ronda`, round: (r, n) => `Ronda ${r} de ${n}`, more: 'Técnica, notas y cambiar ejercicio',
       noRest: (ex, r, w) => `¡Sin descanso! Ahora ${ex}${r ? ': ' + r + ' repeticiones' : ''}${w ? ' con ' + num(w) + ' kilos' : ''}`,
       roundDone: r => `¡Ronda ${r} completa!`, nextRound: (r, ex, rp, w) => `Siguiente ronda, la ${r}: ${ex}${rp ? ', ' + rp + ' repeticiones' : ''}${w ? ' con ' + num(w) + ' kilos' : ''}. ¡Vamos!`,
-      lastRound: '¡Última ronda, dejá todo!', ssDone: '¡Superserie terminada! Excelente trabajo.', nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!`, sess: '¡Entrenamiento completo! Estoy orgullosa de vos.', go: '¡A trabajar!', toast: ex => `⚡ Sin descanso → ${ex}` },
+      lastRound: '¡Última ronda, dejá todo!', ssDone: '¡Superserie terminada! Excelente trabajo.', bisDone: '¡Biserie terminada! Excelente trabajo.', nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!`, sess: '¡Entrenamiento completo! Estoy orgullosa de vos.', go: '¡A trabajar!', toast: ex => `⚡ Sin descanso → ${ex}` },
     en: { badge: 'No rest between exercises', flow: (a, s) => `${a} back to back · rest ${s} after each round`, round: (r, n) => `Round ${r} of ${n}`, more: 'Technique, notes and swap',
       noRest: (ex, r, w) => `No rest! Now ${ex}${r ? ': ' + r + ' reps' : ''}${w ? ' with ' + num(w) + ' kilos' : ''}`,
       roundDone: r => `Round ${r} complete!`, nextRound: (r, ex, rp, w) => `Next round, number ${r}: ${ex}${rp ? ', ' + rp + ' reps' : ''}${w ? ' with ' + num(w) + ' kilos' : ''}. Let's go!`,
-      lastRound: 'Last round, give it everything!', ssDone: 'Superset finished! Excellent work.', nextEx: ex => `Next up: ${ex}. Let's go!`, sess: 'Workout complete! I\'m proud of you.', go: 'Let\'s work!', toast: ex => `⚡ No rest → ${ex}` },
+      lastRound: 'Last round, give it everything!', ssDone: 'Superset finished! Excellent work.', bisDone: 'Bi-set finished! Excellent work.', nextEx: ex => `Next up: ${ex}. Let's go!`, sess: 'Workout complete! I\'m proud of you.', go: 'Let\'s work!', toast: ex => `⚡ No rest → ${ex}` },
     pt: { badge: 'Sem descanso entre exercícios', flow: (a, s) => `${a} sem pausa · descanso ${s} ao terminar cada rodada`, round: (r, n) => `Rodada ${r} de ${n}`, more: 'Técnica, notas e trocar exercício',
       noRest: (ex, r, w) => `Sem descanso! Agora ${ex}${r ? ': ' + r + ' repetições' : ''}${w ? ' com ' + num(w) + ' quilos' : ''}`,
       roundDone: r => `Rodada ${r} completa!`, nextRound: (r, ex, rp, w) => `Próxima rodada, a ${r}: ${ex}${rp ? ', ' + rp + ' repetições' : ''}${w ? ' com ' + num(w) + ' quilos' : ''}. Vamos!`,
-      lastRound: 'Última rodada, dê tudo!', ssDone: 'Supersérie concluída! Excelente trabalho.', nextEx: ex => `Agora vem ${ex}. Vamos!`, sess: 'Treino completo! Estou orgulhosa de você.', go: 'Bora trabalhar!', toast: ex => `⚡ Sem descanso → ${ex}` } };
+      lastRound: 'Última rodada, dê tudo!', ssDone: 'Supersérie concluída! Excelente trabalho.', bisDone: 'Bi-set concluído! Excelente trabalho.', nextEx: ex => `Agora vem ${ex}. Vamos!`, sess: 'Treino completo! Estou orgulhosa de você.', go: 'Bora trabalhar!', toast: ex => `⚡ Sem descanso → ${ex}` } };
   const T = () => TX[L()];
   function num(w) { const n = +w; return Number.isInteger(n) ? String(n) : String(n).replace('.', L() === 'en' ? '.' : ','); }
   const nm = n => { try { return exName(n); } catch (e) { return n; } };
@@ -80,7 +80,7 @@
     }
     const after = exs[G.end + 1];
     const msg = [after ? T().nextEx(nm(after.name)) : T().go]; if (after && techOn() && coach().fullCues) msg.push(...coach().fullCues(after.origName || after.name));
-    return { last: true, lastEx: !after, first: after ? T().ssDone : T().sess, msg };
+    return { last: true, lastEx: !after, first: after ? (G.g.kind === 'bis' ? T().bisDone : T().ssDone) : T().sess, msg };
   };
 
   // Render: un solo bloque con las tarjetas compactas y una tabla de rondas alternadas
@@ -132,6 +132,7 @@
 .ss-more summary{cursor:pointer;color:#a1a1aa;font-size:13px;padding:8px 0;min-height:32px}
 .ss-rounds{width:100%}.ss-round-h td{font-weight:800;color:var(--accent);padding:10px 4px 4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
 .ss-row td:first-child{white-space:nowrap}.ss-row td:first-child small{display:block;color:#a1a1aa;font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis}
+.ss-row .prev-ref{font-size:10px;white-space:nowrap;display:block;line-height:1.2;margin-bottom:2px}
 .ss-row button[id^="btn_"]{min-height:44px;min-width:64px}
 .set-row.ss-next{outline:2px solid var(--accent);outline-offset:-2px;animation:ssPulse 1.2s ease-in-out 3}
 @keyframes ssPulse{50%{background:rgba(255,255,255,.12)}}`;
