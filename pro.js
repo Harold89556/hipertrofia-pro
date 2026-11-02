@@ -318,7 +318,7 @@
   // ---------- 5. COACH HUMANO ----------
   async function renderCoachH() {
     const box = $('coachh-tab-body'); if (!pro()) { box.innerHTML = lockHTML(); return; }
-    box.innerHTML = `<p class="pc-note">Una vez por mes mandá tu check-in y Harold, tu coach, revisa tu progreso y te responde por acá (normalmente en 24–48 h).</p>
+    box.innerHTML = `<p class="pc-note">Una vez por mes mandá tu check-in y un coach profesional certificado revisa tu progreso y te responde por acá (normalmente en 24–48 h).</p>
       <div id="ch-msgs" class="ch-msgs">Cargando…</div>
       <textarea id="ch-in" rows="4" maxlength="2000" placeholder="Escribí tu mensaje…"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d" id="ch-send">Enviar</button><button class="btn-3d btn-secondary" id="ch-tpl">📝 Usar plantilla de check-in</button></div>`;

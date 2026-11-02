@@ -1474,6 +1474,7 @@
         <button class="btn-3d" style="background:#15803d;" onclick="exportMetricsExcel()" data-i18n="bk.xlsM">📊 Exportar Medidas a Excel</button>
       </div>
       <p style="margin-top:14px;font-size:.85rem"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--accent)" data-i18n="lnk.privacy">Política de privacidad</a></p>
+      <div id="app-info" style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);font-size:.85rem;color:var(--text-muted)"><strong data-i18n="info.title">Información de la app</strong><br>Hipertrofia Pro<br><span data-i18n="info.by">Creado por</span> Harold Lezcano</div>
     </div>
   </div>
 
@@ -1591,7 +1592,7 @@
   "tab.mhist": "Historial de medidas",
   "tab.science": "Guía científica",
   "tab.backup": "Copias y datos",
-  "lnk.privacy": "Política de privacidad",
+  "lnk.privacy": "Política de privacidad", "info.title": "Información de la app", "info.by": "Creado por",
   "plan.title": "Tu plan semanal",
   "wp.title": "🎯 Puntos a mejorar",
   "day.aria": "Día de la rutina",
@@ -1997,7 +1998,7 @@
   "tab.mhist": "Measurement history",
   "tab.science": "Science guide",
   "tab.backup": "Backup & data",
-  "lnk.privacy": "Privacy policy",
+  "lnk.privacy": "Privacy policy", "info.title": "App info", "info.by": "Created by",
   "plan.title": "Your weekly plan",
   "wp.title": "🎯 Areas to improve",
   "day.aria": "Workout day",
@@ -2644,7 +2645,7 @@
   "tab.mhist": "Histórico de medidas",
   "tab.science": "Guia científico",
   "tab.backup": "Backup e dados",
-  "lnk.privacy": "Política de privacidade",
+  "lnk.privacy": "Política de privacidade", "info.title": "Informações do app", "info.by": "Criado por",
   "plan.title": "Seu plano semanal",
   "wp.title": "🎯 Pontos a melhorar",
   "day.aria": "Dia do treino",
@@ -3557,7 +3558,7 @@
       wellness: 'Wellness', bikini: 'Bikini', mujer_gluteos: 'Enfoque Glúteos', mujer_tonificar: 'Tonificación y Pérdida de Grasa',
       figure: 'Figure', womens_physique: "Women's Physique", ms_olympia: 'Ms. Olympia', fitness: 'Fitness', tonificacion: 'Tonificación'
     };
-    // ===== Imágenes de categorías: reemplazar las URL cuando Harold envíe sus fotos =====
+    // ===== Imágenes de categorías: reemplazar las URL cuando lleguen las fotos =====
     // Dejar '' para usar la tarjeta de degradado provisoria.
     const CATEGORY_IMAGES = {
       open: 'img/cat/open.webp', classic: 'img/cat/classic.webp', mens_physique: 'img/cat/mens_physique.webp', ganar_masa: 'img/cat/ganar_masa.webp',
@@ -5267,7 +5268,7 @@ ${timedSecs ? `
     }
     function buildProgram(user, settings) {
       const goal = planKey(user.goal), plan = CATEGORY_PLAN[goal], freq = settings.frequency, phase = settings.phase;
-      if (goal === 'open' && freq === 5 && typeof buildOpen5 === 'function') return buildOpen5(user, settings); // rutina Open de Harold (PPL + Upper/Lower)
+      if (goal === 'open' && freq === 5 && typeof buildOpen5 === 'function') return buildOpen5(user, settings); // rutina Open (PPL + Upper/Lower)
       const wp = analyzeWeakPoints(user);
       const trainDays = Math.min(freq, 6);
       const types = SPLITS[plan.split][trainDays].slice();
@@ -6110,7 +6111,7 @@ ${timedSecs ? `
       <p class="pc-note" data-i18n="swap.sub">Alternativas que trabajan el mismo músculo y ángulo. Se mantienen las series y repeticiones.</p><div id="swap-body"></div></div>
   </div>
   <script>
-    // ===== RUTINA OPEN 5 DÍAS (Harold) + CAMBIAR EJERCICIO + CICLO =====
+    // ===== RUTINA OPEN 5 DÍAS + CAMBIAR EJERCICIO + CICLO =====
     // Nombres nuevos: [es, en, pt]
     const HP_NEWEX = [
       ['Press de Banca con Barra', 'Barbell Bench Press', 'Supino Reto com Barra'],
