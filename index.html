@@ -919,6 +919,22 @@
     .badge{background:var(--accent);color:#000;border-radius:999px;padding:0 8px;font-size:.8rem}
     .rk-tabs{display:flex;gap:6px;overflow-x:auto;margin:8px 0}.rk-tabs button{flex:1;white-space:nowrap;padding:8px 10px;min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit}.rk-tabs button.on{background:var(--accent);color:#000;font-weight:700}
     .rk-list{list-style:none;padding:0}.rk-list li{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid rgba(255,255,255,.08)}.rk-list li.me{background:var(--accent-glow);border-radius:8px}.rk-list .pos{width:28px;text-align:center}.rk-list .nm{flex:1}.rk-list small{display:block;opacity:.7}
+    .rd-sub{font-size:.75rem;color:var(--text-muted);font-weight:500}
+    .rd-q{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}.rd-q>span{font-size:.9rem}.rd-q div{display:flex;gap:4px}
+    .rd-q button,.ap-rir button{min-width:38px;min-height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit;font-weight:700}
+    .rd-q button.on,.ap-rir button.on{background:var(--accent);color:#000;border-color:var(--accent)}
+    .rd-res{margin-top:8px;font-weight:600}
+    .ap-box{background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:.9rem}.ap-box small{display:block;opacity:.8}
+    .ap-rir{margin-top:6px;font-size:.8rem;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+    .set-row.rd-skip{opacity:.4}
+    .inj-flag{background:rgba(239,68,68,.12);border:1px solid #ef4444;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:.88rem}.inj-flag button{margin-top:6px}
+    .inj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.inj-grid button{min-height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit;font-weight:700}.inj-grid button.on{background:#ef4444;border-color:#ef4444}
+    .voice-tg{margin-top:6px;border:1px solid rgba(255,255,255,.2);background:none;color:inherit;border-radius:999px;padding:4px 10px;font-size:.8rem}
+    .pose-guide{border:1px dashed var(--accent);border-radius:10px;padding:8px 10px;font-size:.85rem;margin-bottom:8px}
+    .pc-side{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.pc-side figure{margin:0}.pc-side figcaption{text-align:center;font-size:.8rem}
+    .pc-ov{position:relative}.pc-ov img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block}
+    .pc-ov .gl{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,107,26,.7)}.gl1{top:18%}.gl2{top:45%}.gl3{top:72%}
+    .supp-dose{margin-bottom:6px}
     body.has-bnav .bnav { display:block; }
     body.has-bnav .nav-tabs { display:none !important; }
     body.has-bnav #user-profile-bar > div:not(.user-info-text) { display:none !important; } /* Mi plan / Perfil / Salir pasan a «Más» */
@@ -5654,13 +5670,13 @@ ${timedSecs ? `
         <div class="plan best">
           <span class="plan-badge" data-i18n="pro.best">Mejor valor · Ahorrás 33%</span>
           <span class="plan-name" data-i18n="pro.annual">Anual</span>
-          <span class="plan-price">US$ <span class="pp-annual">39.99</span> <small data-i18n="pro.perYear">/ año</small></span>
+          <span class="plan-price">US$ <span class="pp-annual">79.99</span> <small data-i18n="pro.perYear">/ año</small></span>
           <span class="plan-sub" id="pp-annual-sub"></span>
           <a class="btn-3d" id="buy-annual" href="#" target="_blank" rel="noopener" onclick="return startCheckout('annual', this)" data-i18n="pro.start">Empezar 7 días gratis</a>
         </div>
         <div class="plan">
           <span class="plan-name" data-i18n="pro.monthly">Mensual</span>
-          <span class="plan-price">US$ <span class="pp-monthly">4.99</span> <small data-i18n="pro.perMonth">/ mes</small></span>
+          <span class="plan-price">US$ <span class="pp-monthly">9.99</span> <small data-i18n="pro.perMonth">/ mes</small></span>
           <span class="plan-sub" data-i18n="pro.flex">Flexible, cancelá cuando quieras</span>
           <a class="btn-3d btn-secondary" id="buy-monthly" href="#" target="_blank" rel="noopener" onclick="return startCheckout('monthly', this)" data-i18n="pro.start">Empezar 7 días gratis</a>
         </div>
@@ -5786,8 +5802,8 @@ ${timedSecs ? `
   <script>
     // ===== PLANES PRO (Lemon Squeezy) Y CUENTA =====
     const LS_PLANS = {
-      monthly: { variant: '2259802', price: 4.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/3a72cc80-5283-4282-bc9a-4bec04f39d08?enabled=2259802' },
-      annual:  { variant: '2259805', price: 39.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/40f20c5c-8b0e-477b-815b-80207b9a0e6d?enabled=2259805' }
+      monthly: { variant: '2259802', price: 9.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/3a72cc80-5283-4282-bc9a-4bec04f39d08?enabled=2259802' },
+      annual:  { variant: '2259805', price: 79.99, url: 'https://hipertrofiapro.lemonsqueezy.com/checkout/buy/40f20c5c-8b0e-477b-815b-80207b9a0e6d?enabled=2259805' }
     };
     window._access = null; window._plansForced = false;
     const fmtDate = d => d ? new Date(d).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
@@ -6573,5 +6589,6 @@ ${timedSecs ? `
   })();
   </script>
   <script src="pro.js?v=6"></script>
+  <script src="pro2.js?v=1"></script>
 </body>
 </html>
