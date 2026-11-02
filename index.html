@@ -5630,20 +5630,27 @@ ${timedSecs ? `
     // ===== Registrar lo que comí (texto libre → IA) =====
     let dlDraft = null, dlBusy = false;
     const dlEsc = x => String(x ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-    async function dlAiParse() {
+    function dlCompress(file) {
+      return new Promise((res, rej) => { const fr = new FileReader(); fr.onerror = rej; fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => { const M = 800, sc = Math.min(1, M / Math.max(im.width, im.height)); const c = document.createElement('canvas'); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.72)); }; im.src = fr.result; }; fr.readAsDataURL(file); });
+    }
+    async function dlPhotoPick(inp) {
+      const f = inp.files && inp.files[0]; inp.value = ''; if (!f) return;
+      try { const img = await dlCompress(f); dlAiParse(img); } catch (e) { showToast('No pude leer la foto'); }
+    }
+    async function dlAiParse(img) {
       const ta = document.getElementById('dl-ai-text'); const txt = (ta && ta.value || '').trim();
       const mk = (document.getElementById('dl-ai-meal') || {}).value || 'extra';
-      if (txt.length < 2) { showToast('Escribí qué comiste'); return; }
-      if (dlBusy) return; dlBusy = true; dlDraft = { text: txt, mk, loading: true, items: [] }; renderDiet();
+      if (!img && txt.length < 2) { showToast('Escribí qué comiste o sacá una foto'); return; }
+      if (dlBusy) return; dlBusy = true; dlDraft = { text: txt, mk, loading: true, items: [], img }; renderDiet();
       let data = null, err = null;
-      try { const r = await sb.functions.invoke('ai-vision', { body: { kind: 'food_text', lang: 'es', text: txt } }); data = r.data; if (r.error) { try { err = await r.error.context.json(); } catch (_) { err = { error: 'fail' }; } } } catch (e) { err = { error: 'fail' }; }
+      try { const r = await sb.functions.invoke('ai-vision', { body: img ? { kind: 'food_photo', lang: 'es', text: txt, image: img.split(',')[1] } : { kind: 'food_text', lang: 'es', text: txt } }); data = r.data; if (r.error) { try { err = await r.error.context.json(); } catch (_) { err = { error: 'fail' }; } } } catch (e) { err = { error: 'fail' }; }
       dlBusy = false;
       if (err || !data || !data.result) {
-        const msg = err && err.error === 'limit_day' ? (err.pro ? `Llegaste al límite de ${err.limit} registros por día. Mañana se renueva.` : `Usaste tus ${err.limit} registros gratis de hoy. Con Pro tenés hasta 60 por día.`) : err && err.error === 'login' ? 'Iniciá sesión para usar la IA.' : err && err.error === 'nokey' ? 'La IA todavía no está disponible.' : 'La IA no pudo responder. Probá de nuevo en un momento.';
-        dlDraft = { text: txt, mk, items: [], error: msg }; renderDiet(); return;
+        const msg = err && err.error === 'limit_day' ? (err.pro ? `Llegaste al límite de ${err.limit} registros por día. Mañana se renueva.` : `Usaste tus ${err.limit} registros gratis de hoy. Con Pro tenés hasta ${img ? 20 : 60} por día.`) : err && err.error === 'login' ? 'Iniciá sesión para usar la IA.' : err && err.error === 'nokey' ? 'La IA todavía no está disponible.' : 'La IA no pudo responder. Probá de nuevo en un momento.';
+        dlDraft = { text: txt, mk, items: [], error: msg, img }; renderDiet(); return;
       }
       const items = data.result.items.map(i => ({ name: i.name, unit: i.unit, grams: i.grams, base: i.grams > 0 ? i.grams : 1, k0: i.kcal, p0: i.protein, c0: i.carbs, f0: i.fat }));
-      dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit };
+      dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit, img };
       renderDiet();
     }
     function dlDraftScale(it) { const r = (it.grams || 0) / it.base; return { kcal: Math.round(it.k0 * r), p: Math.round(it.p0 * r), c: Math.round(it.c0 * r), f: Math.round(it.f0 * r) }; }
@@ -5670,13 +5677,14 @@ ${timedSecs ? `
     function dlAiBox(d) {
       const opts = `<option value="extra">Extra / colación</option>` + d.meals.map(m => `<option value="${m.mk}"${dlDraft && dlDraft.mk === m.mk ? ' selected' : ''}>${dlEsc(tc(m.name))}</option>`).join('');
       let draft = (!dlDraft && dlLastAdd !== null && d._left !== undefined) ? `<p class="dl-sum">✅ ${dlT('added')}: <b>${fmtN(dlLastAdd)} kcal</b>. ${dlT('left')} <b>${fmtN(d._left)} kcal</b> ${dlT('for')}.</p>` : '';
-      if (dlDraft && dlDraft.loading) draft = '<p class="pc-note">⏳ Analizando con IA…</p>';
+      const thumb = dlDraft && dlDraft.img ? `<img src="${dlDraft.img}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:8px">` : '';
+      if (dlDraft && dlDraft.loading) draft = thumb + '<p class="pc-note">⏳ Analizando con IA…</p>';
       else if (dlDraft && dlDraft.error) draft = `<p class="pc-note" style="color:#f87171">${dlEsc(dlDraft.error)}</p>`;
       else if (dlDraft) {
         const tot = dlDraft.items.reduce((a, it) => { const x = dlDraftScale(it); a.k += x.kcal; a.p += x.p; a.c += x.c; a.f += x.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
-        draft = `<div class="dl-draft"><h4 style="margin:8px 0 4px">${dlT('review')}</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="dlr-x" aria-label="${dlT('del')}" onclick="dlDraftDel(${i})">✕</button><div class="dlr-ch" id="dl-dr-${i}"><b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}</div></div>`; }).join('') + `<div class="dlr dlr-tot"><div class="dlr-m"><b>Total</b> <small>(${dlT('est')})</small><div class="dlr-ch">${dlChips(tot.p, tot.c, tot.f)}</div></div><div class="dlr-k">${fmtN(tot.k)}<small> kcal</small></div></div>` : `<p class="pc-note">No encontré alimentos en el texto.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
+        draft = thumb + `<div class="dl-draft"><h4 style="margin:8px 0 4px">${dlT('review')}</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="dlr-x" aria-label="${dlT('del')}" onclick="dlDraftDel(${i})">✕</button><div class="dlr-ch" id="dl-dr-${i}"><b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}</div></div>`; }).join('') + `<div class="dlr dlr-tot"><div class="dlr-m"><b>Total</b> <small>(${dlT('est')})</small><div class="dlr-ch">${dlChips(tot.p, tot.c, tot.f)}</div></div><div class="dlr-k">${fmtN(tot.k)}<small> kcal</small></div></div>` : `<p class="pc-note">No encontré alimentos ${dlDraft.img ? 'en la foto' : 'en el texto'}.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
       }
-      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button></div>${draft}</div>`;
+      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
     }
     // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
     function applyDietLog(d, tg, log) {
