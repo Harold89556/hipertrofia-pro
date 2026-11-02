@@ -6397,10 +6397,7 @@ ${timedSecs ? `
           E('Curl Femoral Sentado', 4, '10-12', 90, 'Isquios en posición alargada de cadera.', 'hams'),
           E('Elevación de Talones de Pie', 5, '10-12', 75, 'En máquina. Rango completo, pausa de 2 s abajo.', 'calves'),
           E('Elevación de Talones Sentado (sóleo)', 5, '15-20', 60, 'Contracción controlada.', 'calves')] },
-        { dk: 'jueves', name: 'Descanso Activo / Recuperación', vol: 'Recuperación activa: sin carga pesada.', recovery: true, ex: [
-          E('Bici Estática Suave', 1, '30 min', 60, 'Cardio suave en bicicleta o ergómetro a baja intensidad.', null, { timedTxt: '30 min', baseMultiplier: 0 }),
-          E('Movilidad de Cadera y Columna Torácica', 2, '5 min', 30, 'Estiramientos de movilidad y descarga articular.', null, { timedTxt: '5 min', baseMultiplier: 0 })] },
-        { dk: 'viernes', name: 'Upper Body (Torso Completo)', vol: 'Volumen acumulado del día: Pecho +10 (Total 20) | Espalda +10 (Total 20) | Hombro +10 (Total 20) | Bíceps +7 / Tríceps +7 (cerrando las 20 semanales sumando el estímulo indirecto de los empujes/tirones pesados).', ex: [
+        { dk: 'jueves', name: 'Upper Body (Torso Completo)', vol: 'Volumen acumulado del día: Pecho +10 (Total 20) | Espalda +10 (Total 20) | Hombro +10 (Total 20) | Bíceps +7 / Tríceps +7 (cerrando las 20 semanales sumando el estímulo indirecto de los empujes/tirones pesados).', ex: [
           E('Press Inclinado con Barra', 4, '6-8', 180, 'Carga progresiva, bajada en 3 s.', 'upper_chest'),
           E('Cruce de Poleas de Abajo hacia Arriba', 3, '12-15', 75, 'Cables de abajo hacia arriba. Énfasis en haz clavicular/esternal.', 'upper_chest'),
           E('Fondos en Paralelas (torso inclinado)', 3, 'fail', 120, 'Al fallo con peso corporal. Estiramiento profundo.', 'chest', { baseMultiplier: 0 }),
@@ -6414,7 +6411,7 @@ ${timedSecs ? `
           E('Extensión de Tríceps sobre la Cabeza en Polea', 4, '10-12', 75, 'Trasnuca (over-head). Máximo estiramiento de la cabeza larga del tríceps.', 'triceps'),
           E('Curl en Banco Scott (polea o máquina)', 3, '12', 0, 'Superserie final con el tríceps en polea: bombeo glucolítico.', 'biceps', { group: { id: 'Superserie final', kind: 'ss', pos: 1 } }),
           E('Extensión de Tríceps en Polea con Barra Recta', 3, '12', 75, 'Superserie final con el curl predicador, sin descanso entre ambos.', 'triceps', { group: { id: 'Superserie final', kind: 'ss', pos: 2 } })] },
-        { dk: 'sabado', name: 'Lower Body (Pierna Completa y Core)', vol: 'Volumen acumulado del día: Cuádriceps +10 (Total 20) | Femorales/Glúteo +10 (Total 20) | Gemelos +10 (Total 20).', ex: [
+        { dk: 'viernes', name: 'Lower Body (Pierna Completa y Core)', vol: 'Volumen acumulado del día: Cuádriceps +10 (Total 20) | Femorales/Glúteo +10 (Total 20) | Gemelos +10 (Total 20).', ex: [
           E('Sentadilla Hack o Péndulo', 4, '8-10', 180, 'Profundidad máxima, control en la bajada.', 'quads'),
           E('Zancadas Estáticas o Búlgaras con Mancuernas', 3, '10/leg', 120, '10 por pierna. Glúteo y cuádriceps.', 'quads'),
           E('Prensa con Pies Juntos y Abajo', 3, '12-15', 120, 'Enfoque vasto externo.', 'quads'),
@@ -6442,7 +6439,7 @@ ${timedSecs ? `
         program[d.dk] = { short, title: `${upper(tc(WEEKDAY_LABEL[d.dk]))}: ${upper(short)}`, exercises, recovery: !!d.recovery, volume: tc(d.vol) };
       });
       const wp = analyzeWeakPoints(user);
-      return { program, weekly, target: weekly, wp, freq: 5, phase, goal: 'open', schedule: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'], fixed: 'open5' };
+      return { program, weekly, target: weekly, wp, freq: 5, phase, goal: 'open', schedule: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'], fixed: 'open5' };
     }
 
     // ---- Cambios de ejercicio (hp_swaps_<email> en user_data) ----
@@ -6452,7 +6449,12 @@ ${timedSecs ? `
     function slotKey(dk, i, orig) { return `${dk}|${i}|${orig}`; }
     function applySwaps(program) {
       if (!currentUser) return program;
-      const sw = getSwaps(); const out = {};
+      let sw = getSwaps(); const out = {};
+      // migración 5 días (SW v25): Open5 pasó Upper viernes→jueves y Lower sábado→viernes
+      if (!sw._m5 && program.jueves && !program.sabado && /Upper/.test(program.jueves.short + program.jueves.title)) {
+        const n = { _m5: 1 }; Object.keys(sw).forEach(k => { const m = k.match(/^(viernes|sabado|jueves)\|(.*)$/); n[m ? ({ viernes: 'jueves', sabado: 'viernes', jueves: 'x_jueves' })[m[1]] + '|' + m[2] : k] = sw[k]; });
+        sw = n; saveSwaps(sw);
+      }
       Object.keys(program).forEach(dk => {
         const day = program[dk];
         out[dk] = Object.assign({}, day, { exercises: day.exercises.map((ex, i) => {
