@@ -4555,6 +4555,7 @@ ${timedSecs ? `
         document.getElementById('body-date').valueAsDate = new Date();
         showDateHint(document.getElementById('body-date'));
         try { onSessionAccess(); } catch (e) { console.error(e); }
+        try { hpGoRoute(); } catch (e) { console.error(e); }
       } else {
         document.getElementById('auth-modal').style.display = 'flex';
         window._isAdmin = false;
@@ -4899,6 +4900,18 @@ ${timedSecs ? `
       `).join('');
     }
 
+    // Accesos rápidos / widget: ?go=train|food|diet|progress
+    function hpGoRoute() {
+      const u = new URL(location.href); const go = u.searchParams.get('go'); if (!go) return;
+      u.searchParams.delete('go'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      const map = { train: 'workout-tab', food: 'diet-tab', diet: 'diet-tab', progress: 'history-tab' };
+      const tab = map[go]; if (!tab) return;
+      const btn = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`); if (btn) switchTab(tab, btn);
+      setTimeout(() => {
+        if (go === 'train') { const el = document.getElementById('workout-tab'); el && el.scrollIntoView({ behavior: 'smooth' }); }
+        if (go === 'food') { const ta = document.getElementById('dl-ai-text'); if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus(); } }
+      }, 400);
+    }
     // NAVEGACIÓN
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
