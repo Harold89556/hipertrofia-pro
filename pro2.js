@@ -94,6 +94,36 @@
       next: (ex, r, w) => `Próxima série de ${ex}: ${r} repetições${w ? ' com ' + num(w, 'pt') + ' quilos' : ''}. Vamos!`, nextEx: ex => `Agora vem ${ex}. Vamos!` },
   };
   const P = () => PH[VL()];
+  // frases de ánimo variadas (cortas y fijas => cacheables)
+  const MOT = {
+    es: { set: ['¡Muy bien!', '¡Eso es!', '¡Excelente serie!', '¡Bien hecho, seguí así!', '¡Qué fuerza!', '¡Así se entrena!', '¡Impecable!', '¡Vas muy bien!'],
+      mid: ['Respirá profundo y recuperá', 'Soltá los hombros y relajá', 'Tomá un poco de agua', 'Visualizá la próxima serie', 'Cada serie te acerca a tu objetivo', 'La constancia vence al talento'],
+      exLast: ['¡Ejercicio terminado! Excelente trabajo.', '¡Listo ese ejercicio! Lo diste todo.', '¡Terminaste! Ese músculo ya trabajó.', '¡Gran trabajo! Uno menos.'],
+      sess: ['¡Entrenamiento completo! Estoy orgullosa de vos.', '¡Terminaste la sesión! Hoy ganaste.', '¡Sesión cumplida! Ahora a comer y descansar.'],
+      pr: ['¡Subimos el peso! Te estás haciendo más fuerte.', '¡Nuevo récord a la vista! Vamos con todo.', '¡Más carga hoy! Tu progreso se nota.'],
+      lastSet: ['Última serie, ¡dejá todo!', 'Última serie, ¡a fondo!', 'Última, ¡vos podés!'] },
+    en: { set: ['Great job!', 'That\'s it!', 'Excellent set!', 'Well done, keep it up!', 'So strong!', 'That\'s how you train!', 'Flawless!', 'You\'re doing great!'],
+      mid: ['Breathe deep and recover', 'Relax your shoulders', 'Grab some water', 'Visualize your next set', 'Every set gets you closer to your goal', 'Consistency beats talent'],
+      exLast: ['Exercise finished! Excellent work.', 'That exercise is done! You gave it all.', 'Finished! That muscle got worked.', 'Great work! One down.'],
+      sess: ['Workout complete! I\'m proud of you.', 'Session done! You won today.', 'Session complete! Now eat and rest.'],
+      pr: ['Weight goes up! You\'re getting stronger.', 'New record ahead! Let\'s go all in.', 'More load today! Your progress shows.'],
+      lastSet: ['Last set, give it everything!', 'Last set, all out!', 'Last one, you\'ve got this!'] },
+    pt: { set: ['Muito bem!', 'Isso aí!', 'Excelente série!', 'Bom trabalho, continue assim!', 'Que força!', 'É assim que se treina!', 'Impecável!', 'Você está indo muito bem!'],
+      mid: ['Respire fundo e recupere', 'Solte os ombros e relaxe', 'Beba um pouco de água', 'Visualize a próxima série', 'Cada série te aproxima do objetivo', 'A constância vence o talento'],
+      exLast: ['Exercício concluído! Excelente trabalho.', 'Esse exercício já foi! Você deu tudo.', 'Terminou! Esse músculo trabalhou.', 'Ótimo trabalho! Menos um.'],
+      sess: ['Treino completo! Estou orgulhosa de você.', 'Sessão concluída! Hoje você venceu.', 'Sessão cumprida! Agora coma e descanse.'],
+      pr: ['Subimos o peso! Você está ficando mais forte.', 'Novo recorde à vista! Vamos com tudo.', 'Mais carga hoje! Seu progresso aparece.'],
+      lastSet: ['Última série, dê tudo!', 'Última série, com tudo!', 'Última, você consegue!'] } };
+  const techOn = () => localStorage.getItem('hp_vtech') !== '0';
+  const motOn = () => localStorage.getItem('hp_vmot') !== '0';
+  const lastPick = {};
+  function pick(pool) { const arr = MOT[VL()][pool]; let i, k = VL() + pool; do { i = Math.floor(Math.random() * arr.length); } while (arr.length > 1 && i === lastPick[k]); lastPick[k] = i; return arr[i]; }
+  const TECH = { es: 'Técnica', en: 'Technique', pt: 'Técnica' };
+  const cuesOf = n => (typeof hpCues === 'function' ? hpCues(n, VL()).cues : []);
+  const cueRot = {};
+  function oneCue(n) { const c = cuesOf(n); if (!c.length) return ''; const k = VL() + n; cueRot[k] = ((cueRot[k] === undefined ? Math.floor(Math.random() * c.length) : cueRot[k]) + 1) % c.length; return c[cueRot[k]]; }
+  const fullCues = n => { const c = cuesOf(n); return c.length ? [TECH[VL()] + ':', ...c] : []; };
+  window._hpCoach = { MOT, pick, oneCue, fullCues };
   const audio = new Audio(); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); audio.id = 'hp-voice-audio';
   window._hpVoice = { audio, log: [] };
   const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
@@ -167,19 +197,28 @@
     })();
   }
   window.hpSay = say;
-  const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest)]; };
+  const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest), ...(motOn() ? MOT[VL()].set.slice(0, 4) : [])]; };
   let lastSet = null;
   const origCSW = window.completeSetWorkflow;
   if (typeof origCSW === 'function') window.completeSetWorkflow = function (dk, i, s) { lastSet = { dk, i, s }; return origCSW.apply(this, arguments); };
+  const prSaid = {};
   function nextInfo(ls) {
     if (!ls) return null;
-    let sets = 0, nextName = '';
-    try { const pr = getProgramForUser(getUsersDB()[currentUser] || {}); const exs = pr[ls.dk].exercises; sets = exs[ls.i].sets; nextName = exs[ls.i + 1] ? exs[ls.i + 1].name : ''; } catch (e) {}
+    let sets = 0, nextName = '', curName = '', lastEx = false;
+    try { const pr = getProgramForUser(getUsersDB()[currentUser] || {}); const exs = pr[ls.dk].exercises; sets = exs[ls.i].sets; curName = exs[ls.i].origName || exs[ls.i].name; const nx = exs[ls.i + 1]; nextName = nx ? (nx.origName || nx.name) : ''; lastEx = !nx; } catch (e) {}
     const tg = window._apTargets && window._apTargets[ls.dk + '_' + ls.i];
     const nm = n => { try { return exName(n); } catch (e) { return n; } };
-    if (sets && ls.s >= sets) return { last: true, msg: nextName ? P().nextEx(nm(nextName)) : P().go };
-    if (tg) return { last: false, msg: P().next(nm(tg.name), tg.reps || tg.lo, tg.w) };
-    return { last: false, msg: P().go };
+    if (sets && ls.s >= sets) {
+      const msg = [nextName ? P().nextEx(nm(nextName)) : P().go];
+      if (nextName && techOn()) msg.push(...fullCues(nextName));
+      return { last: true, lastEx, msg };
+    }
+    const msg = [];
+    if (motOn() && tg && tg.w && tg.prevW && tg.w > tg.prevW && !prSaid[ls.dk + ls.i]) { prSaid[ls.dk + ls.i] = 1; msg.push(pick('pr')); }
+    if (motOn() && sets && ls.s === sets - 1) msg.push(pick('lastSet'));
+    msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, tg.w) : P().go);
+    if (techOn() && curName) msg.push(oneCue(curName));
+    return { last: false, msg };
   }
   const origST = window.startTimer;
   if (typeof origST === 'function') window.startTimer = function (sec) {
@@ -187,12 +226,15 @@
     if (voiceOn()) {
       const ls = lastSet; lastSet = null;
       const ni = nextInfo(ls);
-      say([ls ? (ni && ni.last ? P().exDone : P().done) : '', P().rest(sec)]);
-      if (ni) prefetch([ni.msg]);
+      const first = !ls ? '' : ni && ni.last ? (ni.lastEx ? (motOn() ? pick('sess') : P().exDone) : (motOn() ? pick('exLast') : P().exDone)) : (motOn() ? pick('set') : P().done);
+      say([first, P().rest(sec)]);
+      if (ni) prefetch(ni.msg);
+      const mid = sec >= 60 && motOn() ? Math.round(sec / 2) : 0; let saidMid = false;
       clearInterval(window._hpVoiceInt); let said10 = false, said3 = false;
       window._hpVoiceInt = setInterval(() => {
         const left = typeof timerSeconds !== 'undefined' ? timerSeconds : 0;
         if (!voiceOn()) return clearInterval(window._hpVoiceInt);
+        if (mid && !saidMid && left <= mid && left > 12) { saidMid = true; say(pick('mid')); }
         if (left <= 10 && left > 5 && !said10 && sec > 15) { said10 = true; say(P().ten); }
         else if (left <= 3 && left > 0 && !said3) { said3 = true; say(P().cd); }
         else if (left <= 0) { clearInterval(window._hpVoiceInt); say(ni ? ni.msg : P().go); }
@@ -216,13 +258,41 @@
       const c = document.createElement('div'); c.className = 'exercise-card voice-card'; c.id = 'voice-card';
       const T = { es: ['🎙️ Coach de voz', 'Te habla durante el descanso: cuenta regresiva y tu siguiente serie.', '▶️ Probar voz'], en: ['🎙️ Voice coach', 'Talks to you during rest: countdown and your next set.', '▶️ Test voice'], pt: ['🎙️ Coach de voz', 'Fala com você no descanso: contagem regressiva e sua próxima série.', '▶️ Testar voz'] }[VL()];
       c.innerHTML = `<div class="vc-row"><div><b>${T[0]}</b><div class="vc-sub">${T[1]}</div></div><div class="vc-btns"><button type="button" id="voice-set-tg" class="btn-3d btn-small"></button><button type="button" id="voice-test" class="btn-3d btn-small">${T[2]}</button></div></div>`;
+      const T2 = { es: ['🎯 Decir técnica', '💪 Frases de ánimo'], en: ['🎯 Say technique', '💪 Encouragement'], pt: ['🎯 Dizer técnica', '💪 Frases de ânimo'] }[VL()];
+      c.innerHTML += `<div class="vc-opts"><label class="pro-sw"><input type="checkbox" id="vc-tech" ${techOn() ? 'checked' : ''}> ${T2[0]}</label><label class="pro-sw"><input type="checkbox" id="vc-mot" ${motOn() ? 'checked' : ''}> ${T2[1]}</label></div>`;
       wt.insertBefore(c, wt.firstChild);
+      $('vc-tech').onchange = e => localStorage.setItem('hp_vtech', e.target.checked ? '1' : '0');
+      $('vc-mot').onchange = e => localStorage.setItem('hp_vmot', e.target.checked ? '1' : '0');
       $('voice-set-tg').onclick = () => setVoice(!voiceOn());
       $('voice-test').onclick = () => { unlock(); say(P().test, true); };
       lab($('voice-set-tg'));
     }
   }
   voiceToggle();
+  // 🎯 Técnica en cada tarjeta + claves habladas al empezar un ejercicio
+  const spokenStart = {};
+  function techCards() {
+    if (!currentUser) return; let prog; try { prog = getProgramForUser(getUsersDB()[currentUser] || {}); } catch (e) { return; }
+    const H = { es: '🎯 Técnica', en: '🎯 Technique', pt: '🎯 Técnica' }[VL()];
+    document.querySelectorAll('#exercises-container .exercise-card[id^="card_"]').forEach(card => {
+      const m = card.id.match(/^card_(.+)_(\d+)$/); if (!m) return; const ex = prog[m[1]] && prog[m[1]].exercises[+m[2]]; if (!ex) return;
+      const n = ex.origName || ex.name; const c = cuesOf(n); if (!c.length) return;
+      let b = card.querySelector('.tech-box'); if (!b) { b = document.createElement('div'); b.className = 'tech-box'; const note = card.querySelector('.exercise-note'); note ? note.after(b) : card.appendChild(b); }
+      b.innerHTML = `<div class="tech-h"><b>${H}</b><button type="button" class="tech-say" aria-label="${H}">🔊</button></div><ul>${c.map((x, j) => `<li${j === c.length - 1 ? ' class="tech-safe"' : ''}>${j === c.length - 1 ? '⚠️ ' : ''}${x}</li>`).join('')}</ul>`;
+      b.querySelector('.tech-say').onclick = ev => { ev.stopPropagation(); unlock(); say(fullCues(n), true); };
+      card.dataset.techName = n;
+    });
+  }
+  document.addEventListener('pointerdown', ev => {
+    if (!voiceOn() || !techOn()) return; const card = ev.target.closest && ev.target.closest('#exercises-container .exercise-card[id^="card_"]'); if (!card || !card.dataset.techName || ev.target.closest('.tech-say')) return;
+    if (card.querySelector('.btn-complete') || card.classList.contains('card-completed')) return; // ya empezó
+    const k = today() + card.id; if (spokenStart[k]) return; spokenStart[k] = 1;
+    if (ev.target.closest('button[id^="btn_"]')) return; // al marcar serie habla el flujo del descanso
+    say(fullCues(card.dataset.techName));
+  }, { capture: true });
+  const origLWD2 = window.loadWorkoutDay;
+  if (typeof origLWD2 === 'function') window.loadWorkoutDay = function () { const r = origLWD2.apply(this, arguments); try { techCards(); } catch (e) { console.warn(e); } return r; };
+  setTimeout(() => { try { techCards(); } catch (e) {} }, 500);
   if (voiceOn()) setTimeout(() => prefetch(fixed()), 3000);
 
   // ---------- 9. DIETA ADAPTATIVA ----------
