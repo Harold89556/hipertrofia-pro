@@ -6,6 +6,9 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const img = (s, cls) => `<img class="${cls}" src="img/ex/${s}.webp" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='img/ex/${s}.jpg'}">`;
   window.hpAnimSlugs = slugs;
+  // Demos aproximadas (la fuente no tiene la variante exacta): mantienen el botón de Google
+  const APPROX = new Set(["abduccion en polea de pie","curl bayesian en polea","elevaciones laterales en maquina","patada de triceps en polea","patada en polea cruzada","caminata o bici suave zona 2","cardio liss post entreno","estiramientos suaves globales","movilidad de cadera y columna toracica"]);
+  window.hpAnimApprox = function (name) { const k = norm(name); return APPROX.has(k) || k.startsWith('cardio liss') || !slugs(name).length; };
   window.hpAnimHtml = function (name) {
     const ss = slugs(name); if (!ss.length) return '';
     return `<div class="ex-anim" role="button" tabindex="0" aria-label="Ver demostración" onclick="hpAnimOpen(${esc(JSON.stringify(name))})">${ss.map(s => img(s, 'ex-anim-img')).join('')}<span class="ex-anim-zoom">🔍</span></div>`;

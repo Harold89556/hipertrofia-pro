@@ -4251,7 +4251,7 @@ ${timedSecs ? `
           ${timedSecs ? `<div class="rec-box">${t('ex.timed', { s: timedSecs })}</div>` : `<div class="rec-box">${t('ex.suggested', { w: recommended })}</div>`}
           <div class="exercise-note">💡 ${ex.note}</div>
           <div style="margin-bottom: 12px;">
-            <a href="${searchUrl}" target="_blank" rel="noopener" class="btn-3d btn-secondary btn-small" style="text-decoration:none; width:100%;">${t('ex.google')}</a>
+            ${(!window.hpAnimApprox || hpAnimApprox(ex.name)) ? `<a href="${searchUrl}" target="_blank" rel="noopener" class="btn-3d btn-secondary btn-small" style="text-decoration:none; width:100%;">${t('ex.google')}</a>` : ''}
             ${canSwap ? `<button type="button" class="btn-3d btn-secondary btn-small swap-btn" style="width:100%; margin-top:8px;" onclick="openSwap('${dayKey}', ${exIdx})">${t('swap.btn')}</button>` : ''}
           </div>
           <div class="sets-table-wrapper">
