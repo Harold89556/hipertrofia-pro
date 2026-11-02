@@ -4321,13 +4321,14 @@ ${timedSecs ? `
       const program = getProgramForUser(userData);
       const exObj = program[dayKey].exercises[exIdx];
 
-      if (exObj.restSeconds !== 0) startTimer(exObj.restSeconds || 90, 'timer.restEx', { ex: exObj.name }); // biserie: 0 s, directo al siguiente
+      const ssHandled = typeof hpSuperset === 'function' && hpSuperset(dayKey, exIdx, setNum, program); // superserie/biserie: sin descanso hasta terminar la ronda
+      if (!ssHandled && exObj.restSeconds !== 0) startTimer(exObj.restSeconds || 90, 'timer.restEx', { name: exName(exObj.name) });
 
       if (setNum === exObj.sets) {
         document.getElementById(`card_${dayKey}_${exIdx}`).classList.add('card-completed');
         document.getElementById(`badge_done_${dayKey}_${exIdx}`).style.display = 'inline-block';
         const nextCard = document.getElementById(`card_${dayKey}_${exIdx + 1}`);
-        if (nextCard) {
+        if (nextCard && !ssHandled) {
           setTimeout(() => nextCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 500);
         }
       }
@@ -6704,6 +6705,7 @@ ${timedSecs ? `
   </script>
   <script src="pro.js?v=6"></script>
   <script src="cues.js?v=1"></script>
-  <script src="pro2.js?v=8"></script>
+  <script src="pro2.js?v=9"></script>
+  <script src="superset.js?v=1"></script>
 </body>
 </html>

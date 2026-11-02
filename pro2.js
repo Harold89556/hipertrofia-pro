@@ -185,6 +185,7 @@
   const prSaid = {};
   function nextInfo(ls) {
     if (!ls) return null;
+    if (window.hpSSNext) { const g = window.hpSSNext(ls); if (g) return g; }
     let sets = 0, nextName = '', curName = '', lastEx = false;
     try { const pr = getProgramForUser(getUsersDB()[currentUser] || {}); const exs = pr[ls.dk].exercises; sets = exs[ls.i].sets; curName = exs[ls.i].origName || exs[ls.i].name; const nx = exs[ls.i + 1]; nextName = nx ? (nx.origName || nx.name) : ''; lastEx = !nx; } catch (e) {}
     const tg = window._apTargets && window._apTargets[ls.dk + '_' + ls.i];
@@ -207,7 +208,7 @@
     if (voiceOn()) {
       const ls = lastSet; lastSet = null;
       const ni = nextInfo(ls);
-      const first = !ls ? '' : ni && ni.last ? (ni.lastEx ? (motOn() ? pick('sess') : P().exDone) : (motOn() ? pick('exLast') : P().exDone)) : (motOn() ? pick('set') : P().done);
+      const first = ni && ni.first ? ni.first : !ls ? '' : ni && ni.last ? (ni.lastEx ? (motOn() ? pick('sess') : P().exDone) : (motOn() ? pick('exLast') : P().exDone)) : (motOn() ? pick('set') : P().done);
       say([first, P().rest(sec)]);
       if (ni) prefetch(ni.msg);
       const mid = sec >= 60 && motOn() ? Math.round(sec / 2) : 0; let saidMid = false;
