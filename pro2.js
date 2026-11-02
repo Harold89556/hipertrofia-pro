@@ -133,8 +133,8 @@
   }
   document.addEventListener('pointerdown', () => { if (voiceOn() && !unlocked) unlock(); }, { capture: true });
   let sysVoices = [];
-  const loadV = () => { try { sysVoices = speechSynthesis.getVoices() || []; } catch (e) {} const s = document.getElementById('vc-voice'); if (s && !s.options.length) fillVoices(s); };
-  if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = loadV; }
+  const loadV = () => { try { sysVoices = speechSynthesis.getVoices() || []; } catch (e) {} };
+  if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = () => { loadV(); const s = document.getElementById('vc-voice'); if (s && !s.options.length) fillVoices(s); }; }
   const FEM = /female|mujer|femenin|paulina|sabina|m[oó]nica|ang[eé]lica|helena|laura|elvira|dalia|lupe|pe?nelope|samantha|victoria|karen|zira|aria|jenny|ava|allison|susan|luciana|francisca|joana|fernanda|vit[oó]ria|maria|google (español|us english|português)/i;
   const MALE = /male\b|hombre|jorge|diego|carlos|juan|pablo|alex|daniel|fred|tom\b|david|mark|guy|ant[oô]nio|felipe/i;
   const norm = v => String(v.lang || '').replace('_', '-');
