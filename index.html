@@ -801,7 +801,7 @@
     .dl-bar{margin:6px 0}.dl-bar-l{display:flex;justify-content:space-between;font-size:.85rem}.dl-track{height:10px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-top:3px}.dl-track i{display:block;height:100%;background:linear-gradient(90deg,#f97316,#22c55e);border-radius:6px;transition:width .3s}
     .dl-actions,.dl-tools{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.dl-btn{flex:1;min-height:46px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
     .dl-ok{background:rgba(34,197,94,.18);border-color:#22c55e}.dl-no{background:rgba(239,68,68,.12);border-color:#ef4444}
-    .meal-done{border-color:#22c55e;background:rgba(34,197,94,.06)}.meal-skip{opacity:.6}.meal-skip ul,.dl-off span,.dl-off b{text-decoration:line-through;opacity:.55}.meal li b{white-space:normal;text-align:right}.meal li .swap{flex-shrink:0}.meal li s{opacity:.5;font-weight:400;font-size:.8em}.dl-adj{font-size:.8rem;color:#fbbf24;margin-top:4px}
+    .meal-done{border-color:#22c55e;background:rgba(34,197,94,.06)}.meal-skip{opacity:.6}.meal-skip ul,.dl-off span,.dl-off b{text-decoration:line-through;opacity:.55}.meal li b{white-space:normal;text-align:right}.meal li .swap{flex-shrink:0}.meal li s{opacity:.5;font-weight:400;font-size:.8em}.dl-ai textarea{width:100%;box-sizing:border-box;font-size:16px;border-radius:10px;padding:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-ai select{flex:1;min-height:46px;font-size:16px;border-radius:10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow{display:grid;grid-template-columns:1fr 72px auto auto;gap:6px;align-items:center;margin:6px 0}.dl-drow input{font-size:16px;min-width:0;padding:6px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow small{grid-column:1/-1;opacity:.75}.dl-extra li,.meal li{gap:6px}.dl-adj{font-size:.8rem;color:#fbbf24;margin-top:4px}
     .swap { background: none; border: 1px solid var(--border); border-radius: 8px; min-width: 40px; min-height: 40px; cursor: pointer; font-size: 1rem; }
     .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
     .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
@@ -5594,19 +5594,63 @@ ${timedSecs ? `
     function dlToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
     function getDietLog() {
       let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
-      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, undo: [] };
-      o.meals = o.meals || {}; o.items = o.items || {}; o.undo = o.undo || []; return o;
+      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [] };
+      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; return o;
     }
     function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
     function dlAct(kind, mk, idx) {
-      const o = getDietLog(); o.undo.push(JSON.stringify({ meals: o.meals, items: o.items })); if (o.undo.length > 15) o.undo.shift();
-      if (kind === 'meal') { o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; }
+      const o = getDietLog(); dlSnap(o);
+      if (kind === 'meal') { if (o.meals[mk] === 'ate') o.extra.forEach(e => { if (e.mk === mk) e.mk = 'extra'; }); o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; }
       else { const k = mk + '_' + idx; if (o.items[k]) delete o.items[k]; else o.items[k] = 1; }
       saveDietLog(o); renderDiet();
       if (kind === 'meal' && o.meals[mk]) showToast(o.meals[mk] === 'done' ? '✅ Comida cumplida' : '⏭️ Marcada como no comida: se reparte en las siguientes');
     }
-    function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); }
-    function dlReset() { const o = getDietLog(); o.undo.push(JSON.stringify({ meals: o.meals, items: o.items })); o.meals = {}; o.items = {}; saveDietLog(o); renderDiet(); }
+    function dlSnap(o) { o.undo.push(JSON.stringify({ meals: o.meals, items: o.items, extra: o.extra })); if (o.undo.length > 15) o.undo.shift(); }
+    function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; o.extra = x.extra || []; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); }
+    function dlReset() { const o = getDietLog(); dlSnap(o); o.meals = {}; o.items = {}; o.extra = []; saveDietLog(o); dlDraft = null; renderDiet(); }
+    // ===== Registrar lo que comí (texto libre → IA) =====
+    let dlDraft = null, dlBusy = false;
+    const dlEsc = x => String(x ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    async function dlAiParse() {
+      const ta = document.getElementById('dl-ai-text'); const txt = (ta && ta.value || '').trim();
+      const mk = (document.getElementById('dl-ai-meal') || {}).value || 'extra';
+      if (txt.length < 2) { showToast('Escribí qué comiste'); return; }
+      if (dlBusy) return; dlBusy = true; dlDraft = { text: txt, mk, loading: true, items: [] }; renderDiet();
+      let data = null, err = null;
+      try { const r = await sb.functions.invoke('ai-vision', { body: { kind: 'food_text', lang: 'es', text: txt } }); data = r.data; if (r.error) { try { err = await r.error.context.json(); } catch (_) { err = { error: 'fail' }; } } } catch (e) { err = { error: 'fail' }; }
+      dlBusy = false;
+      if (err || !data || !data.result) {
+        const msg = err && err.error === 'limit_day' ? (err.pro ? `Llegaste al límite de ${err.limit} registros por día. Mañana se renueva.` : `Usaste tus ${err.limit} registros gratis de hoy. Con Pro tenés hasta 60 por día.`) : err && err.error === 'login' ? 'Iniciá sesión para usar la IA.' : err && err.error === 'nokey' ? 'La IA todavía no está disponible.' : 'La IA no pudo responder. Probá de nuevo en un momento.';
+        dlDraft = { text: txt, mk, items: [], error: msg }; renderDiet(); return;
+      }
+      const items = data.result.items.map(i => ({ name: i.name, unit: i.unit, grams: i.grams, base: i.grams > 0 ? i.grams : 1, k0: i.kcal, p0: i.protein, c0: i.carbs, f0: i.fat }));
+      dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit };
+      renderDiet();
+    }
+    function dlDraftScale(it) { const r = (it.grams || 0) / it.base; return { kcal: Math.round(it.k0 * r), p: Math.round(it.p0 * r), c: Math.round(it.c0 * r), f: Math.round(it.f0 * r) }; }
+    function dlDraftEdit(i, field, v) { if (!dlDraft || !dlDraft.items[i]) return; if (field === 'grams') dlDraft.items[i].grams = Math.max(0, parseFloat(v) || 0); else dlDraft.items[i].name = String(v).slice(0, 60); const row = document.getElementById('dl-dr-' + i); if (row && field === 'grams') { const x = dlDraftScale(dlDraft.items[i]); row.textContent = `${x.kcal} kcal · P ${x.p} · C ${x.c} · G ${x.f}`; } }
+    function dlDraftDel(i) { if (!dlDraft) return; dlDraft.items.splice(i, 1); renderDiet(); }
+    function dlDraftCancel() { dlDraft = null; renderDiet(); }
+    function dlDraftAdd() {
+      if (!dlDraft || !dlDraft.items.length) return;
+      const o = getDietLog(); dlSnap(o); const mk = dlDraft.mk;
+      dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f }); });
+      if (mk !== 'extra' && !o.meals[mk]) o.meals[mk] = 'ate';
+      saveDietLog(o); dlDraft = null; renderDiet(); showToast('🍽️ Agregado a lo comido de hoy');
+    }
+    function dlExtraDel(id) { const o = getDietLog(); dlSnap(o); const it = o.extra.find(e => e.id === id); o.extra = o.extra.filter(e => e.id !== id); if (it && it.mk !== 'extra' && o.meals[it.mk] === 'ate' && !o.extra.some(e => e.mk === it.mk)) delete o.meals[it.mk]; saveDietLog(o); renderDiet(); }
+    const dlExtraLi = e => `<li><span>🍽️ ${dlEsc(e.name)} <s style="text-decoration:none">${e.kcal} kcal · P ${e.p} · C ${e.c} · G ${e.f}</s></span><b>${fmtN(e.grams)} ${e.unit === 'ml' ? 'ml' : 'g'}</b><button type="button" class="swap" aria-label="Quitar" title="Quitar" onclick="dlExtraDel('${e.id}')">✖️</button></li>`;
+    function dlAiBox(d) {
+      const opts = `<option value="extra">Extra / colación</option>` + d.meals.map(m => `<option value="${m.mk}"${dlDraft && dlDraft.mk === m.mk ? ' selected' : ''}>${dlEsc(tc(m.name))}</option>`).join('');
+      let draft = '';
+      if (dlDraft && dlDraft.loading) draft = '<p class="pc-note">⏳ Analizando con IA…</p>';
+      else if (dlDraft && dlDraft.error) draft = `<p class="pc-note" style="color:#f87171">${dlEsc(dlDraft.error)}</p>`;
+      else if (dlDraft) {
+        const tot = dlDraft.items.reduce((a, it) => { const x = dlDraftScale(it); a.k += x.kcal; a.p += x.p; a.c += x.c; a.f += x.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
+        draft = `<div class="dl-draft"><h4 style="margin:8px 0 4px">Revisá antes de agregar</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="swap" aria-label="Quitar" onclick="dlDraftDel(${i})">✖️</button><small id="dl-dr-${i}">${x.kcal} kcal · P ${x.p} · C ${x.c} · G ${x.f}</small></div>`; }).join('') + `<p class="pc-note" style="margin:4px 0">Total: <b>${tot.k} kcal</b> · P ${tot.p} g · C ${tot.c} g · G ${tot.f} g (estimado)</p>` : `<p class="pc-note">No encontré alimentos en el texto.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
+      }
+      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button></div>${draft}</div>`;
+    }
     // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
     function applyDietLog(d, tg, log) {
       const mac = (key, g) => { const f = FOODS[key]; return { p: f.p * g / 100, c: f.c * g / 100, f: f.f * g / 100 }; };
@@ -5617,13 +5661,14 @@ ${timedSecs ? `
         if (m.state === 'done') m.items.forEach(it => { if (!it.off) { const x = mac(it.key, it.g); eaten.p += x.p; eaten.c += x.c; eaten.f += x.f; } });
         else if (m.state === 'pend') pend.push(m);
       });
+      (log.extra || []).forEach(e => { eaten.p += e.p; eaten.c += e.c; eaten.f += e.f; eaten.k = (eaten.k || 0) + e.kcal; });
       const kc = x => x.p * 4 + x.c * 4 + x.f * 9;
       const rem = { p: Math.max(0, tg.protein - eaten.p), c: Math.max(0, tg.carbs - eaten.c), f: Math.max(0, tg.fat - eaten.f) };
       const plan = { p: 0, c: 0, f: 0 };
       pend.forEach(m => m.items.forEach(it => { if (!it.off) { const x = mac(it.key, it.g); plan.p += x.p; plan.c += x.c; plan.f += x.f; } }));
       const ratio = s => { const pl = plan[s]; return pl > 1 ? Math.min(1.8, Math.max(0.4, rem[s] / pl)) : 1; };
       const fr = { p: ratio('p'), c: ratio('c'), f: ratio('f') };
-      const changed = d.meals.some(m => m.state !== 'pend') || Object.keys(log.items).length > 0;
+      const changed = d.meals.some(m => m.state !== 'pend') || Object.keys(log.items).length > 0 || (log.extra || []).length > 0;
       pend.forEach(m => {
         let p = 0, c = 0, f = 0;
         m.items.forEach(it => {
@@ -5633,7 +5678,7 @@ ${timedSecs ? `
         });
         m.adj = m.items.some(it => it.orig !== undefined); m.p = Math.round(p); m.c = Math.round(c); m.f = Math.round(f); m.kcal = Math.round(p * 4 + c * 4 + f * 9);
       });
-      return { eaten: { p: Math.round(eaten.p), c: Math.round(eaten.c), f: Math.round(eaten.f), kcal: Math.round(kc(eaten)) }, pendN: pend.length, canUndo: log.undo.length > 0, any: changed };
+      return { eaten: { p: Math.round(eaten.p), c: Math.round(eaten.c), f: Math.round(eaten.f), kcal: Math.round(kc(eaten)) }, extra: log.extra || [], pendN: pend.length, canUndo: log.undo.length > 0, any: changed };
     }
     function dlBar(label, v, tgt, unit) {
       const pct = tgt > 0 ? Math.min(100, Math.round(v / tgt * 100)) : 0;
@@ -5658,11 +5703,14 @@ ${timedSecs ? `
           <p class="pc-note" style="margin:6px 0 0">Te faltan <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> · ${P} ${Math.max(0, tg.protein - lg.eaten.p)} g · ${C} ${Math.max(0, tg.carbs - lg.eaten.c)} g · ${F} ${Math.max(0, tg.fat - lg.eaten.f)} g${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}.</p>
           <div class="dl-tools">${lg.canUndo ? `<button type="button" class="dl-btn" onclick="dlUndo()">↩️ Deshacer</button>` : ''}${lg.any ? `<button type="button" class="dl-btn" onclick="dlReset()">🔄 Reiniciar día</button>` : ''}</div>
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
+          ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:8px 0 2px">Extras registrados</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>` : ''}
         </div>
+        ${dlAiBox(d)}
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
-        ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
+        ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
           ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
-          <ul>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b>${m.state === 'skip' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul>
+          ${m.state === 'ate' ? `<div class="dl-adj">🍽️ Comiste otra cosa: cuenta lo registrado</div><ul>${lg.extra.filter(e => e.mk === m.mk).map(dlExtraLi).join('')}</ul>` : ''}
+          <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b>${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul>
           <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
