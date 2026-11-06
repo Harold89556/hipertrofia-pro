@@ -200,7 +200,7 @@
   let lastDK = null;
   window.hpAfterReady = () => { try { renderWear(); } catch (e) {} };
   const origLWD = window.loadWorkoutDay;
-  if (typeof origLWD === 'function') window.loadWorkoutDay = function (dk) { lastDK = dk; const r = origLWD.apply(this, arguments); setTimeout(() => { try { renderCycleCard(); renderWear(); } catch (e) { console.warn(e); } }, 0); return r; };
+  if (typeof origLWD === 'function') window.loadWorkoutDay = function (dk) { lastDK = dk; const r = origLWD.apply(this, arguments); setTimeout(() => { try { renderCycleCard(); renderWear(); if (window.renderFuelCard) window.renderFuelCard(); } catch (e) { console.warn(e); } }, 0); return r; };
   const origSW = window.switchTab;
   window.switchTab = function (id) { const r = origSW.apply(this, arguments); try { if (id === 'workout-history-tab') renderPredict(); if (id === 'diet-tab') logDietAdh(); } catch (e) { console.warn(e); } return r; };
   const origRD = window.renderDiet;

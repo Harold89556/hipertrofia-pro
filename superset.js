@@ -62,7 +62,7 @@
       focusRow(dk, pend, s); return true;
     }
     const nx = nextRound(dk, exs, G);
-    startTimer(G.rest, 'timer.restEx', { name: tc(G.g.id) });
+    startTimer(G.rest + ((window.hpFuelRestAdd && window.hpFuelRestAdd(G.rest)) || 0), 'timer.restEx', { name: tc(G.g.id) });
     if (nx) focusRow(dk, nx.j, nx.r);
     else { document.querySelectorAll('.set-row.ss-next').forEach(x => x.classList.remove('ss-next')); const c = document.getElementById(`card_${dk}_${G.end + 1}`); if (c) setTimeout(() => c.scrollIntoView({ behavior: 'smooth', block: 'start' }), 500); }
     return true;

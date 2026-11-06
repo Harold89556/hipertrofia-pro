@@ -108,8 +108,33 @@
     .user-info-text {
       font-size: 0.875rem;
       line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
     .user-info-text strong { color: var(--accent); }
+    .prof-ava {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--accent); overflow: hidden;
+      font-size: 1.15rem;
+    }
+    .prof-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .prof-ava-lg { width: 84px; height: 84px; font-size: 1.6rem; }
+    .dl-time { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--text-muted); margin: 6px 0 2px; font-weight: 600; }
+    .dl-time input[type=time], input.dl-time-i, .fuel-time-lbl input[type=time], #edit-train-time {
+      background: #141417; color: #fff; border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: 6px 8px; font-size: 16px;
+    }
+    input.dl-time-i { max-width: 132px; }
+    .fuel-card { margin: 0 0 14px; }
+    .fuel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center; }
+    .fuel-time-lbl { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text-muted); }
+    #fuel-note { margin: 8px 0 0; font-size: .88rem; line-height: 1.45; }
     .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
     .adm-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center}
     .adm-stat b{display:block;font-size:1.6rem;color:var(--accent)} .adm-stat span{font-size:.75rem;color:var(--text-muted)}
@@ -1105,8 +1130,11 @@
   <!-- PERFIL DEL USUARIO -->
   <div class="user-profile-bar" id="user-profile-bar" style="display: none;">
     <div class="user-info-text">
+      <div class="prof-ava" id="profile-ava" aria-hidden="true"></div>
+      <div>
       <span data-i18n="prof.athlete">Atleta:</span> <strong id="profile-name">-</strong><br>
       <span id="profile-details" style="font-size: 0.875rem; color:var(--text-muted);">-</span>
+      </div>
     </div>
     <div style="display:flex; gap:8px;">
       <button class="btn-3d btn-secondary btn-small" onclick="openPlans(false)" data-i18n="pro.myPlan">⭐ Mi plan</button>
@@ -1279,6 +1307,16 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div id="fuel-card" class="warmup-box fuel-card">
+      <div class="fuel-head">
+        <b data-i18n="fuel.title">Energía para el entreno</b>
+        <label class="fuel-time-lbl"><span data-i18n="fuel.when">Hoy entrenás a las</span>
+          <input type="time" id="train-time" onchange="saveTrainTime(this.value)">
+        </label>
+      </div>
+      <p id="fuel-note" class="pc-note"></p>
     </div>
 
     <div id="rest-day-message" class="warmup-box" style="display: none; border-color: #3b82f6;" data-i18n="rest.msg">
@@ -1484,6 +1522,14 @@
     <div class="auth-card">
       <h2 style="color:var(--accent); text-align:center; margin-bottom:14px; font-size:1.3rem;" data-i18n="prof.edit">Editar Perfil</h2>
       <form class="auth-form" onsubmit="saveProfileEdit(event)">
+        <div style="text-align:center;margin-bottom:14px">
+          <div class="prof-ava prof-ava-lg" id="edit-ava" aria-hidden="true" style="margin:0 auto 8px"></div>
+          <label class="btn-3d btn-secondary btn-small" style="display:inline-block;cursor:pointer;margin:4px">
+            <span data-i18n="prof.photoPick">Elegir foto</span>
+            <input type="file" id="edit-ava-file" accept="image/*" hidden onchange="pickProfilePhoto(this)">
+          </label>
+          <button type="button" class="btn-3d btn-secondary btn-small" id="edit-ava-remove" onclick="removeProfilePhoto()" style="display:none" data-i18n="prof.photoRemove">Quitar foto</button>
+        </div>
         <div class="grid-2">
           <div>
             <label data-i18n="f.first">Nombre</label>
@@ -1524,6 +1570,11 @@
           <span id="permanent-note" style="grid-column: 1 / -1; font-size: 0.875rem; color: var(--text-muted);" data-i18n="ed.permNote">
             ℹ️ Género y fecha de nacimiento solo pueden ser registrados una sola vez.
           </span>
+        </div>
+
+        <div>
+          <label data-i18n="prof.trainTime">Hora habitual de entrenamiento</label>
+          <input type="time" id="edit-train-time">
         </div>
 
         <button type="submit" class="btn-3d" style="width:100%; margin-top:10px;" data-i18n="ed.save">Guardar Cambios</button>
@@ -1815,6 +1866,29 @@
   "adm.confirmRevoke": "¿Revocar la clave {k}? Esta acción no se puede deshacer desde el panel.",
   "adm.revokeWho": "\n\nEl usuario {u} perderá el acceso a la app y al entrenador.",
   "adm.revoked": "Clave revocada",
+  "adm.delete": "Eliminar",
+  "adm.confirmDelete": "¿Eliminar la clave revocada {k}? Desaparece de la lista.",
+  "adm.deleted": "Clave eliminada",
+  "diet.time": "Hora",
+  "prof.photoPick": "Elegir foto",
+  "prof.photoRemove": "Quitar foto",
+  "prof.photoRemoveQ": "¿Quitar tu foto de perfil?",
+  "prof.photoSaved": "Foto de perfil actualizada",
+  "prof.photoErr": "No se pudo guardar la foto. Probá con un JPG o PNG.",
+  "prof.trainTime": "Hora habitual de entrenamiento",
+  "fuel.title": "Energía para el entreno",
+  "fuel.when": "Hoy entrenás a las",
+  "fuel.setTime": "Indicá a qué hora vas a entrenar para ajustar la rutina según lo que comiste.",
+  "fuel.needLogs": "Cargá a qué hora comiste cada comida para ajustar el entreno.",
+  "fuel.restday": "Hoy es descanso. La hora queda guardada para los días de entreno.",
+  "fuel.fueled": "Comiste hace {n} min{what}, con buena energía. Rutina completa.",
+  "fuel.snack": "Picoteaste hace {n} min{what}. Tenés energía: rutina completa.",
+  "fuel.heavy": "Comiste hace {n} min{what} (comida pesada). Vas a entrenar igual, con un calentamiento más largo para digerir.",
+  "fuel.fasted": "Hace más de 4 h que no registrás una comida decente. Bajo 1 serie por ejercicio y sumo un poco más de descanso. Si te queda tiempo, un snack liviano ayuda.",
+  "fuel.voice.fueled": "Comiste a tiempo y vas con buena energía. Rutina completa.",
+  "fuel.voice.snack": "Ese snack te deja con energía. Rutina completa.",
+  "fuel.voice.heavy": "Comiste hace poco una comida pesada. Calentá un poco más para digerir; la rutina no cambia.",
+  "fuel.voice.fasted": "Hace rato que no comés. Bajo una serie por ejercicio y dejo un poco más de descanso.",
   "alert.noWorkouts": "No hay entrenamientos para exportar.",
   "alert.noMetrics": "No hay medidas para exportar.",
   "csv.weightKg": "Peso (kg)",
@@ -2221,6 +2295,29 @@
   "adm.confirmRevoke": "Revoke key {k}? This can't be undone from the panel.",
   "adm.revokeWho": "\n\nUser {u} will lose access to the app and the coach.",
   "adm.revoked": "Key revoked",
+  "adm.delete": "Delete",
+  "adm.confirmDelete": "Delete revoked key {k}? It will disappear from the list.",
+  "adm.deleted": "Key deleted",
+  "diet.time": "Time",
+  "prof.photoPick": "Choose photo",
+  "prof.photoRemove": "Remove photo",
+  "prof.photoRemoveQ": "Remove your profile photo?",
+  "prof.photoSaved": "Profile photo updated",
+  "prof.photoErr": "Could not save the photo. Try a JPG or PNG.",
+  "prof.trainTime": "Usual training time",
+  "fuel.title": "Fuel for your workout",
+  "fuel.when": "You train today at",
+  "fuel.setTime": "Set the time you will train so the app can adjust today's workout from what you ate.",
+  "fuel.needLogs": "Add the time you ate each meal so the workout can be adjusted.",
+  "fuel.restday": "Today is a rest day. Your training time is saved for workout days.",
+  "fuel.fueled": "You ate {n} min ago{what}, with good energy. Full workout.",
+  "fuel.snack": "You had a snack {n} min ago{what}. You have energy: full workout.",
+  "fuel.heavy": "You ate {n} min ago{what} (a heavy meal). You will still train, with a longer warm-up to digest.",
+  "fuel.fasted": "No solid meal logged in the last 4 hours. Dropping 1 set per exercise and adding a bit more rest. A light snack helps if you still have time.",
+  "fuel.voice.fueled": "You ate on time and you have good energy. Full workout.",
+  "fuel.voice.snack": "That snack leaves you with energy. Full workout.",
+  "fuel.voice.heavy": "You ate a heavy meal recently. Warm up a bit longer to digest; the workout stays the same.",
+  "fuel.voice.fasted": "It has been a while since you ate. Dropping one set per exercise and leaving a bit more rest.",
   "alert.noWorkouts": "There are no workouts to export.",
   "alert.noMetrics": "There are no measurements to export.",
   "csv.weightKg": "Weight (kg)",
@@ -2868,6 +2965,29 @@
   "adm.confirmRevoke": "Revogar a chave {k}? Esta ação não pode ser desfeita pelo painel.",
   "adm.revokeWho": "\n\nO usuário {u} perderá o acesso ao app e ao treinador.",
   "adm.revoked": "Chave revogada",
+  "adm.delete": "Excluir",
+  "adm.confirmDelete": "Excluir a chave revogada {k}? Ela some da lista.",
+  "adm.deleted": "Chave excluída",
+  "diet.time": "Hora",
+  "prof.photoPick": "Escolher foto",
+  "prof.photoRemove": "Remover foto",
+  "prof.photoRemoveQ": "Remover sua foto de perfil?",
+  "prof.photoSaved": "Foto de perfil atualizada",
+  "prof.photoErr": "Não foi possível salvar a foto. Tente um JPG ou PNG.",
+  "prof.trainTime": "Horário habitual de treino",
+  "fuel.title": "Energia para o treino",
+  "fuel.when": "Hoje você treina às",
+  "fuel.setTime": "Indique a que horas vai treinar para ajustar a rotina conforme o que comeu.",
+  "fuel.needLogs": "Informe a que horas comeu cada refeição para ajustar o treino.",
+  "fuel.restday": "Hoje é descanso. O horário fica salvo para os dias de treino.",
+  "fuel.fueled": "Você comeu há {n} min{what}, com boa energia. Treino completo.",
+  "fuel.snack": "Você petiscou há {n} min{what}. Tem energia: treino completo.",
+  "fuel.heavy": "Você comeu há {n} min{what} (refeição pesada). Vai treinar do mesmo jeito, com um aquecimento mais longo para digerir.",
+  "fuel.fasted": "Há mais de 4 h sem uma refeição decente registrada. Reduzo 1 série por exercício e aumento um pouco o descanso. Se ainda der tempo, um lanche leve ajuda.",
+  "fuel.voice.fueled": "Você comeu a tempo e está com boa energia. Treino completo.",
+  "fuel.voice.snack": "Esse lanche te deixa com energia. Treino completo.",
+  "fuel.voice.heavy": "Você comeu há pouco uma refeição pesada. Aqueça um pouco mais para digerir; o treino não muda.",
+  "fuel.voice.fasted": "Já faz um tempo que você não come. Reduzo uma série por exercício e deixo um pouco mais de descanso.",
   "alert.noWorkouts": "Não há treinos para exportar.",
   "alert.noMetrics": "Não há medidas para exportar.",
   "csv.weightKg": "Peso (kg)",
@@ -4182,6 +4302,7 @@
       const program = getProgramForUser(userData);
       if (dayKey === 'descanso' || !program[dayKey] || program[dayKey].exercises.length === 0) {
         restMsg.style.display = 'block'; warmupSec.style.display = 'none'; container.style.display = 'none';
+        if (typeof renderFuelCard === 'function') renderFuelCard();
         return;
       }
       restMsg.style.display = 'none'; warmupSec.style.display = 'block'; container.style.display = 'block';
@@ -4267,6 +4388,7 @@ ${timedSecs ? `
       });
       if (dayData.volume) { const v = document.createElement('div'); v.className = 'session-volume'; v.textContent = '📊 ' + dayData.volume; container.appendChild(v); }
       if (typeof renderCycle === 'function') renderCycle();
+      if (typeof renderFuelCard === 'function') renderFuelCard();
     }
 
     // EJERCICIOS POR TIEMPO (isométricos)
@@ -4325,7 +4447,8 @@ ${timedSecs ? `
       const exObj = program[dayKey].exercises[exIdx];
 
       const ssHandled = typeof hpSuperset === 'function' && hpSuperset(dayKey, exIdx, setNum, program); // superserie/biserie: sin descanso hasta terminar la ronda
-      if (!ssHandled && exObj.restSeconds !== 0) startTimer(exObj.restSeconds || 90, 'timer.restEx', { name: exName(exObj.name) });
+      const restExtra = typeof hpFuelRestAdd === 'function' ? hpFuelRestAdd(exObj.restSeconds || 90) : 0;
+      if (!ssHandled && exObj.restSeconds !== 0) startTimer((exObj.restSeconds || 90) + restExtra, 'timer.restEx', { name: exName(exObj.name) });
 
       if (setNum === exObj.sets) {
         document.getElementById(`card_${dayKey}_${exIdx}`).classList.add('card-completed');
@@ -4548,6 +4671,7 @@ ${timedSecs ? `
         document.getElementById('user-profile-bar').style.display = 'flex';
         const userData = profileCache;
         document.getElementById('profile-name').innerText = userData.fullname || currentUser;
+        try { loadProfileAvatar(); } catch (e) { console.error(e); }
         try { renderProfileDetails(userData); updateNutritionAndHero(userData); } catch (e) { console.error(e); }
         document.getElementById('nutrition-banner').style.display = 'grid';
         try { detectAndSetDay(); } catch (e) { console.error(e); prefillDaySelect(); }
@@ -4743,6 +4867,9 @@ ${timedSecs ? `
       document.getElementById('edit-lastname').value = u.lastname || '';
       document.getElementById('edit-weight').value = u.weight || '';
       document.getElementById('edit-height').value = u.height || '';
+      const ett = document.getElementById('edit-train-time');
+      if (ett) ett.value = (getSettings().trainTime) || '';
+      try { loadProfileAvatar(); } catch (e) {}
 
 
       const gSelect = document.getElementById('edit-gender');
@@ -4787,6 +4914,9 @@ ${timedSecs ? `
         u.gender = document.getElementById('edit-gender').value;
       }
 
+      const st = getSettings();
+      st.trainTime = (document.getElementById('edit-train-time') || {}).value || '';
+      saveSettings(st);
       saveUsersDB(db);
       document.getElementById('edit-profile-modal').style.display = 'none';
       checkActiveUserSession();
@@ -4967,7 +5097,7 @@ ${timedSecs ? `
       document.getElementById('adm-keys').innerHTML = rows.map(k => `<tr>
         <td><code>${esc(k.key)}</code></td><td><span class="adm-badge adm-${esc(k.status)}">${esc(t('adm.st.' + k.status))}</span></td>
         <td>${esc(k.reserved_email || '—')}</td><td>${esc(k.redeemed_by || '—')}</td><td>${admDate(k.redeemed_at)}</td>
-        <td><button class="adm-mini" onclick="adminCopy('${esc(k.key)}')">${t('adm.copy')}</button>${k.status === 'libre' ? `<button class="adm-mini" onclick="adminCopyWA('${esc(k.key)}')">WhatsApp</button>` : ''}${k.status !== 'revocada' ? `<button class="adm-mini danger" onclick="adminRevoke('${esc(k.key)}')">${t('adm.revoke')}</button>` : ''}</td></tr>`).join('')
+        <td><button class="adm-mini" onclick="adminCopy('${esc(k.key)}')">${t('adm.copy')}</button>${k.status === 'libre' ? `<button class="adm-mini" onclick="adminCopyWA('${esc(k.key)}')">WhatsApp</button>` : ''}${k.status !== 'revocada' ? `<button class="adm-mini danger" onclick="adminRevoke('${esc(k.key)}')">${t('adm.revoke')}</button>` : ''}${k.status === 'revocada' ? `<button class="adm-mini danger" onclick="adminDeleteKey('${esc(k.key)}')">${t('adm.delete')}</button>` : ''}</td></tr>`).join('')
         || `<tr><td colspan="6">${t('adm.none')}</td></tr>`;
     }
     async function adminCopyText(t, msg) {
@@ -4999,6 +5129,12 @@ ${timedSecs ? `
       const { error } = await sb.rpc('admin_revoke_key', { p_key: k });
       if (error) { showToast(t('err.generic', { m: error.message })); return; }
       showToast(t('adm.revoked')); adminLoad();
+    }
+    async function adminDeleteKey(k) {
+      if (!confirm(t('adm.confirmDelete', { k }))) return;
+      const { error } = await sb.rpc('admin_delete_key', { p_key: k });
+      if (error) { showToast(t('err.generic', { m: error.message })); return; }
+      showToast(t('adm.deleted')); adminLoad();
     }
 
     // EXPORTACIÓN A EXCEL Y RESPALDO
@@ -5613,20 +5749,23 @@ ${timedSecs ? `
     function dlToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
     function getDietLog() {
       let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
-      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [] };
-      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; return o;
+      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [], times: {} };
+      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; return o;
     }
     function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
     function dlAct(kind, mk, idx) {
       const o = getDietLog(); dlSnap(o);
-      if (kind === 'meal') { if (o.meals[mk] === 'ate') o.extra.forEach(e => { if (e.mk === mk) e.mk = 'extra'; }); o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; }
+      if (kind === 'meal') { if (o.meals[mk] === 'ate') o.extra.forEach(e => { if (e.mk === mk) e.mk = 'extra'; }); o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; if (o.meals[mk] === 'done' && !o.times[mk]) o.times[mk] = dlNow(); }
       else { const k = mk + '_' + idx; if (o.items[k]) delete o.items[k]; else o.items[k] = 1; }
-      saveDietLog(o); renderDiet();
+      saveDietLog(o); renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel();
       if (kind === 'meal' && o.meals[mk]) showToast(o.meals[mk] === 'done' ? '✅ Comida cumplida' : '⏭️ Marcada como no comida: se reparte en las siguientes');
     }
-    function dlSnap(o) { o.undo.push(JSON.stringify({ meals: o.meals, items: o.items, extra: o.extra })); if (o.undo.length > 15) o.undo.shift(); }
-    function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; o.extra = x.extra || []; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); }
-    function dlReset() { const o = getDietLog(); dlSnap(o); o.meals = {}; o.items = {}; o.extra = []; saveDietLog(o); dlDraft = null; renderDiet(); }
+    function dlNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+    function dlSetMealTime(mk, v) { const o = getDietLog(); o.times = o.times || {}; if (v) o.times[mk] = v; else delete o.times[mk]; saveDietLog(o); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    function dlSetExtraTime(id, v) { const o = getDietLog(); const e = (o.extra || []).find(x => x.id === id); if (!e) return; if (v) e.at = v; else delete e.at; saveDietLog(o); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    function dlSnap(o) { o.undo.push(JSON.stringify({ meals: o.meals, items: o.items, extra: o.extra, times: o.times || {} })); if (o.undo.length > 15) o.undo.shift(); }
+    function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; o.extra = x.extra || []; o.times = x.times || {}; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    function dlReset() { const o = getDietLog(); dlSnap(o); o.meals = {}; o.items = {}; o.extra = []; o.times = {}; saveDietLog(o); dlDraft = null; renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
     // ===== Registrar lo que comí (texto libre → IA) =====
     let dlDraft = null, dlBusy = false;
     const dlEsc = x => String(x ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -5641,16 +5780,17 @@ ${timedSecs ? `
       const ta = document.getElementById('dl-ai-text'); const txt = (ta && ta.value || '').trim();
       const mk = (document.getElementById('dl-ai-meal') || {}).value || 'extra';
       if (!img && txt.length < 2) { showToast('Escribí qué comiste o sacá una foto'); return; }
-      if (dlBusy) return; dlBusy = true; dlDraft = { text: txt, mk, loading: true, items: [], img }; renderDiet();
+      const at = (document.getElementById('dl-ai-time') || {}).value || (dlDraft && dlDraft.at) || dlNow();
+      if (dlBusy) return; dlBusy = true; dlDraft = { text: txt, mk, loading: true, items: [], img, at }; renderDiet();
       let data = null, err = null;
       try { const r = await sb.functions.invoke('ai-vision', { body: img ? { kind: 'food_photo', lang: 'es', text: txt, image: img.split(',')[1] } : { kind: 'food_text', lang: 'es', text: txt } }); data = r.data; if (r.error) { try { err = await r.error.context.json(); } catch (_) { err = { error: 'fail' }; } } } catch (e) { err = { error: 'fail' }; }
       dlBusy = false;
       if (err || !data || !data.result) {
         const msg = err && err.error === 'limit_day' ? (err.pro ? `Llegaste al límite de ${err.limit} registros por día. Mañana se renueva.` : `Usaste tus ${err.limit} registros gratis de hoy. Con Pro tenés hasta ${img ? 20 : 60} por día.`) : err && err.error === 'login' ? 'Iniciá sesión para usar la IA.' : err && err.error === 'nokey' ? 'La IA todavía no está disponible.' : 'La IA no pudo responder. Probá de nuevo en un momento.';
-        dlDraft = { text: txt, mk, items: [], error: msg, img }; renderDiet(); return;
+        dlDraft = { text: txt, mk, items: [], error: msg, img, at }; renderDiet(); return;
       }
       const items = data.result.items.map(i => ({ name: i.name, unit: i.unit, grams: i.grams, base: i.grams > 0 ? i.grams : 1, k0: i.kcal, p0: i.protein, c0: i.carbs, f0: i.fat }));
-      dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit, img };
+      dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit, img, at };
       renderDiet();
     }
     function dlDraftScale(it) { const r = (it.grams || 0) / it.base; return { kcal: Math.round(it.k0 * r), p: Math.round(it.p0 * r), c: Math.round(it.c0 * r), f: Math.round(it.f0 * r) }; }
@@ -5659,9 +5799,10 @@ ${timedSecs ? `
     function dlDraftCancel() { dlDraft = null; renderDiet(); }
     function dlDraftAdd() {
       if (!dlDraft || !dlDraft.items.length) return;
-      const o = getDietLog(); dlSnap(o); const mk = dlDraft.mk;
-      dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f }); });
-      if (mk !== 'extra' && !o.meals[mk]) o.meals[mk] = 'ate';
+      const o = getDietLog(); dlSnap(o); const mk = (document.getElementById('dl-ai-meal') || {}).value || dlDraft.mk;
+      const at = (document.getElementById('dl-ai-time') || {}).value || dlDraft.at || dlNow();
+      dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f, at }); });
+      if (mk !== 'extra') { if (!o.meals[mk]) o.meals[mk] = 'ate'; if (!o.times[mk]) o.times[mk] = at; }
       dlLastAdd = dlDraft.items.reduce((a, it) => a + (it.grams > 0 ? dlDraftScale(it).kcal : 0), 0);
       saveDietLog(o); dlDraft = null; renderDiet(); showToast('🍽️ ' + dlT('added') + ': ' + fmtN(dlLastAdd) + ' kcal');
     }
@@ -5671,7 +5812,7 @@ ${timedSecs ? `
       pt: { prot: 'Prot', carb: 'Carb', fat: 'Gord', del: 'Remover', extras: 'Extras registrados', total: 'Total extras', left: 'Faltam', for: 'para hoje', added: 'Adicionado', review: 'Confira antes de adicionar', est: 'estimado' } };
     const dlT = k => (DLT[typeof LANG !== 'undefined' && DLT[LANG] ? LANG : 'es'])[k];
     const dlChips = (p, c, f) => `<span class="dlc dlc-p">${dlT('prot')} ${fmtN(p)} g</span><span class="dlc dlc-c">${dlT('carb')} ${fmtN(c)} g</span><span class="dlc dlc-f">${dlT('fat')} ${fmtN(f)} g</span>`;
-    const dlExtraLi = e => `<li class="dlr"><div class="dlr-m"><div class="dlr-t"><b>${dlEsc(e.name)}</b><span class="dlr-q">${fmtN(e.grams)} ${e.unit === 'ml' ? 'ml' : 'g'}</span></div><div class="dlr-ch">${dlChips(e.p, e.c, e.f)}</div></div><div class="dlr-k">${fmtN(e.kcal)}<small> kcal</small></div><button type="button" class="dlr-x" aria-label="${dlT('del')}" title="${dlT('del')}" onclick="dlExtraDel('${e.id}')">✕</button></li>`;
+    const dlExtraLi = e => `<li class="dlr"><div class="dlr-m"><div class="dlr-t"><b>${dlEsc(e.name)}</b><span class="dlr-q">${fmtN(e.grams)} ${e.unit === 'ml' ? 'ml' : 'g'}</span><input type="time" class="dl-time-i" value="${e.at || ''}" aria-label="${t('diet.time')}" onchange="dlSetExtraTime('${e.id}',this.value)"></div><div class="dlr-ch">${dlChips(e.p, e.c, e.f)}</div></div><div class="dlr-k">${fmtN(e.kcal)}<small> kcal</small></div><button type="button" class="dlr-x" aria-label="${dlT('del')}" title="${dlT('del')}" onclick="dlExtraDel('${e.id}')">✕</button></li>`;
     const dlTotRow = arr => { const t2 = arr.reduce((a, e) => ({ k: a.k + e.kcal, p: a.p + e.p, c: a.c + e.c, f: a.f + e.f }), { k: 0, p: 0, c: 0, f: 0 }); return `<div class="dlr dlr-tot"><div class="dlr-m"><b>${dlT('total')}</b><div class="dlr-ch">${dlChips(t2.p, t2.c, t2.f)}</div></div><div class="dlr-k">${fmtN(t2.k)}<small> kcal</small></div></div>`; };
     let dlLastAdd = null;
     function dlAiBox(d) {
@@ -5684,7 +5825,7 @@ ${timedSecs ? `
         const tot = dlDraft.items.reduce((a, it) => { const x = dlDraftScale(it); a.k += x.kcal; a.p += x.p; a.c += x.c; a.f += x.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
         draft = thumb + `<div class="dl-draft"><h4 style="margin:8px 0 4px">${dlT('review')}</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="dlr-x" aria-label="${dlT('del')}" onclick="dlDraftDel(${i})">✕</button><div class="dlr-ch" id="dl-dr-${i}"><b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}</div></div>`; }).join('') + `<div class="dlr dlr-tot"><div class="dlr-m"><b>Total</b> <small>(${dlT('est')})</small><div class="dlr-ch">${dlChips(tot.p, tot.c, tot.f)}</div></div><div class="dlr-k">${fmtN(tot.k)}<small> kcal</small></div></div>` : `<p class="pc-note">No encontré alimentos ${dlDraft.img ? 'en la foto' : 'en el texto'}.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
       }
-      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
+      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><label class="dl-time"><span>${t('diet.time')}</span><input type="time" id="dl-ai-time" value="${(dlDraft && dlDraft.at) || dlNow()}" onchange="if(dlDraft)dlDraft.at=this.value"></label><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
     }
     // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
     function applyDietLog(d, tg, log) {
@@ -5715,6 +5856,174 @@ ${timedSecs ? `
       });
       return { eaten: { p: Math.round(eaten.p), c: Math.round(eaten.c), f: Math.round(eaten.f), kcal: Math.round(kc(eaten)) }, extra: log.extra || [], pendN: pend.length, canUndo: log.undo.length > 0, any: changed };
     }
+
+    function hpParseMin(s) {
+      const m = String(s || '').match(/^(\d{1,2}):(\d{2})$/);
+      if (!m) return null;
+      const h = +m[1], mi = +m[2];
+      if (h > 23 || mi > 59) return null;
+      return h * 60 + mi;
+    }
+    function hpMinsBefore(trainMin, eatMin) {
+      let d = trainMin - eatMin;
+      if (d < -12 * 60) d += 24 * 60;
+      return d < 0 ? null : d;
+    }
+    function hpCollectEvents() {
+      const log = getDietLog();
+      const events = [];
+      (log.extra || []).forEach(e => {
+        const at = e.at || (log.times && e.mk && log.times[e.mk]);
+        const min = hpParseMin(at);
+        if (min == null) return;
+        events.push({ min, at, kcal: +e.kcal || 0, p: +e.p || 0, c: +e.c || 0, f: +e.f || 0, name: e.name || '' });
+      });
+      try {
+        const u = getUsersDB()[currentUser] || {};
+        const tg = computeTargets(u);
+        if (tg) {
+          const d = buildDiet(tg, getDietPrefs());
+          applyDietLog(d, tg, log);
+          d.meals.forEach(m => {
+            if (m.state !== 'done') return;
+            if ((log.extra || []).some(e => e.mk === m.mk)) return;
+            const at = log.times && log.times[m.mk];
+            const min = hpParseMin(at);
+            if (min == null) return;
+            events.push({ min, at, kcal: +m.kcal || 0, p: +m.p || 0, c: +m.c || 0, f: +m.f || 0, name: m.name || '' });
+          });
+        }
+      } catch (err) {}
+      return events;
+    }
+    function hpFuelAdj() {
+      if (!currentUser) return null;
+      const trainMin = hpParseMin((getSettings() || {}).trainTime);
+      if (trainMin == null) return { sets: 0, load: 1, restAdd: 0, lbl: t('fuel.setTime'), voice: '', kind: 'needTime' };
+      const events = hpCollectEvents();
+      if (!events.length) return { sets: 0, load: 1, restAdd: 0, lbl: t('fuel.needLogs'), voice: '', kind: 'needLogs' };
+      const pre = [];
+      events.forEach(e => {
+        const dt = hpMinsBefore(trainMin, e.min);
+        if (dt != null && dt <= 8 * 60) pre.push(Object.assign({ dt }, e));
+      });
+      pre.sort((a, b) => a.dt - b.dt);
+      const last = pre[0];
+      const window4 = pre.filter(e => e.dt <= 240);
+      const kcal4 = window4.reduce((sum, e) => sum + e.kcal, 0);
+      const c4 = window4.reduce((sum, e) => sum + e.c, 0);
+      const what = last && last.name ? ' (' + last.name + ')' : '';
+      if (last && last.dt < 60 && (last.kcal >= 400 || last.f >= 20)) {
+        return { sets: 0, load: 1, restAdd: 0, kind: 'heavy', lbl: t('fuel.heavy', { n: last.dt, what }), voice: t('fuel.voice.heavy') };
+      }
+      if (!last || last.dt > 240 || (kcal4 < 150 && c4 < 15)) {
+        return { sets: -1, load: 1, restAdd: 20, kind: 'fasted', lbl: t('fuel.fasted'), voice: t('fuel.voice.fasted') };
+      }
+      if (last && last.dt >= 30 && last.dt <= 90 && last.kcal >= 120 && last.kcal < 400) {
+        return { sets: 0, load: 1, restAdd: 0, kind: 'snack', lbl: t('fuel.snack', { n: last.dt, what }), voice: t('fuel.voice.snack') };
+      }
+      if (last && (last.kcal >= 150 || last.c >= 20 || c4 >= 25 || kcal4 >= 200)) {
+        return { sets: 0, load: 1, restAdd: 0, kind: 'fueled', lbl: t('fuel.fueled', { n: last.dt, what }), voice: t('fuel.voice.fueled') };
+      }
+      return { sets: -1, load: 1, restAdd: 20, kind: 'fasted', lbl: t('fuel.fasted'), voice: t('fuel.voice.fasted') };
+    }
+    function hpFuelVoice() {
+      const a = hpFuelAdj();
+      if (!a || !a.voice) return [];
+      const k = 'hp_fuelv_' + dlToday();
+      try { if (sessionStorage.getItem(k)) return []; sessionStorage.setItem(k, a.kind || '1'); } catch (e) {}
+      return [a.voice];
+    }
+    function hpFuelRestAdd(secOrEx) {
+      const a = hpFuelAdj();
+      if (!a || !a.restAdd) return 0;
+      const sec = typeof secOrEx === 'number' ? secOrEx : (secOrEx && secOrEx.restSeconds) || 0;
+      return sec >= 90 ? a.restAdd : 0;
+    }
+    function renderFuelCard() {
+      const note = document.getElementById('fuel-note');
+      const inp = document.getElementById('train-time');
+      if (!note) return;
+      const tt = ((typeof getSettings === 'function' ? getSettings() : {}) || {}).trainTime || '';
+      if (inp && inp.value !== tt) inp.value = tt;
+      const sel = document.getElementById('select-day');
+      if (sel && sel.value === 'descanso') { note.textContent = tt ? t('fuel.restday') : t('fuel.setTime'); return; }
+      const a = hpFuelAdj();
+      note.textContent = (a && a.lbl) || t('fuel.setTime');
+    }
+    function saveTrainTime(v) {
+      const st = getSettings();
+      st.trainTime = v || '';
+      saveSettings(st);
+      const et = document.getElementById('edit-train-time');
+      if (et && et.value !== st.trainTime) et.value = st.trainTime;
+      hpRefreshFuel();
+    }
+    let _fuelBusy = false;
+    function hpRefreshFuel() {
+      if (_fuelBusy) return;
+      _fuelBusy = true;
+      try {
+        if (typeof renderFuelCard === 'function') renderFuelCard();
+        const sel = document.getElementById('select-day');
+        if (sel && typeof loadWorkoutDay === 'function') loadWorkoutDay(sel.value);
+      } finally { _fuelBusy = false; }
+    }
+    let _avaObj = null;
+    function compressAvatar(file) {
+      return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 512, sc = Math.min(1, max / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(img.src);
+          c.toBlob(b => b ? res(b) : rej(new Error('img')), 'image/jpeg', 0.82);
+        };
+        img.onerror = rej;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+    async function loadProfileAvatar() {
+      const slots = ['profile-ava', 'edit-ava'].map(id => document.getElementById(id)).filter(Boolean);
+      const src = (profileCache && (profileCache.firstname || profileCache.fullname)) || currentUser || '?';
+      const initial = String(src).trim().charAt(0).toUpperCase() || '?';
+      const ph = () => {
+        slots.forEach(el => { el.innerHTML = ''; el.textContent = initial; });
+        const rm = document.getElementById('edit-ava-remove'); if (rm) rm.style.display = 'none';
+      };
+      if (!slots.length) return;
+      if (!sb || !cloudUserId) { ph(); return; }
+      try {
+        const { data, error } = await sb.storage.from('avatars').download(cloudUserId + '/avatar.jpg');
+        if (error || !data) { ph(); return; }
+        if (_avaObj) URL.revokeObjectURL(_avaObj);
+        _avaObj = URL.createObjectURL(data);
+        slots.forEach(el => { el.textContent = ''; el.innerHTML = '<img src="' + _avaObj + '" alt="">'; });
+        const rm = document.getElementById('edit-ava-remove'); if (rm) rm.style.display = '';
+      } catch (e) { ph(); }
+    }
+    async function pickProfilePhoto(inp) {
+      const f = inp.files && inp.files[0]; inp.value = ''; if (!f) return;
+      if (!sb || !cloudUserId) { showToast(t('prof.photoErr')); return; }
+      try {
+        const blob = await compressAvatar(f);
+        const { error } = await sb.storage.from('avatars').upload(cloudUserId + '/avatar.jpg', blob, { upsert: true, contentType: 'image/jpeg' });
+        if (error) { showToast(t('err.generic', { m: error.message })); return; }
+        showToast(t('prof.photoSaved'));
+        loadProfileAvatar();
+      } catch (e) { showToast(t('prof.photoErr')); }
+    }
+    async function removeProfilePhoto() {
+      if (!confirm(t('prof.photoRemoveQ'))) return;
+      if (!sb || !cloudUserId) return;
+      const { error } = await sb.storage.from('avatars').remove([cloudUserId + '/avatar.jpg']);
+      if (error) { showToast(t('err.generic', { m: error.message })); return; }
+      const rm = document.getElementById('edit-ava-remove'); if (rm) rm.style.display = 'none';
+      loadProfileAvatar();
+    }
+
     function dlBar(label, v, tgt, unit) {
       const pct = tgt > 0 ? Math.min(100, Math.round(v / tgt * 100)) : 0;
       return `<div class="dl-bar"><div class="dl-bar-l"><span>${label}</span><b>${fmtN(v)} / ${fmtN(tgt)} ${unit}</b></div><div class="dl-track"><i style="width:${pct}%"></i></div></div>`;
@@ -5743,6 +6052,7 @@ ${timedSecs ? `
         ${dlAiBox(d)}
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
+          <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(getDietLog().times || {})[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)"></label>
           ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
           ${m.state === 'ate' ? `<div class="dl-adj">🍽️ Comiste otra cosa: cuenta lo registrado</div><ul class="dl-extra">${lg.extra.filter(e => e.mk === m.mk).map(dlExtraLi).join('')}</ul>` : ''}
           <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b>${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul>
@@ -6752,8 +7062,8 @@ ${timedSecs ? `
   <script src="anim.js?v=2"></script>
   <script src="pro.js?v=6"></script>
   <script src="cues.js?v=1"></script>
-  <script src="pro2.js?v=11"></script>
-  <script src="superset.js?v=3"></script>
-  <script src="features.js?v=1"></script>
+  <script src="pro2.js?v=12"></script>
+  <script src="superset.js?v=4"></script>
+  <script src="features.js?v=2"></script>
 </body>
 </html>

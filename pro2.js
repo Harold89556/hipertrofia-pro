@@ -14,7 +14,7 @@
   const RQ = [['sleep', '😴 Sueño', ['Pésimo', 'Malo', 'Normal', 'Bueno', 'Excelente']], ['sore', '🦵 Dolor muscular', ['Mucho', 'Bastante', 'Algo', 'Poco', 'Nada']], ['stress', '🧠 Estrés', ['Muy alto', 'Alto', 'Normal', 'Bajo', 'Muy bajo']], ['energy', '⚡ Energía', ['Muy baja', 'Baja', 'Normal', 'Buena', 'Muy buena']]];
   // Hook para Google Fit / Health Connect (futuro): window.hpReadinessSource = async () => ({ sleep: 1-5, ... })
   window.hpReadinessSource = window.hpReadinessSource || null;
-  function readiness() { const b = readiness0(), ex = [window.hpCycleAdj && window.hpCycleAdj(), window.hpWearAdj && window.hpWearAdj()].filter(Boolean); if (!ex.length) return b; const f = Object.assign({ sets: 0, load: 1, lbl: '' }, b ? b.f : {}); ex.forEach(x => { f.sets = Math.max(-2, Math.min(f.sets, 0) + x.sets); f.load = Math.max(0.85, f.load * x.load); }); f.lbl = [b && b.f.lbl, ...ex.map(x => x.lbl)].filter(Boolean).join('<br>'); return { r: b ? b.r : {}, avg: b ? b.avg : 3, f }; }
+  function readiness() { const b = readiness0(), ex = [window.hpCycleAdj && window.hpCycleAdj(), window.hpWearAdj && window.hpWearAdj(), window.hpFuelAdj && window.hpFuelAdj()].filter(Boolean); if (!ex.length) return b; const f = Object.assign({ sets: 0, load: 1, lbl: '' }, b ? b.f : {}); ex.forEach(x => { f.sets = Math.max(-2, Math.min(f.sets, 0) + x.sets); f.load = Math.max(0.85, f.load * x.load); }); f.lbl = [b && b.f.lbl, ...ex.map(x => x.lbl)].filter(Boolean).join('<br>'); return { r: b ? b.r : {}, avg: b ? b.avg : 3, f }; }
   function readiness0() { const r = store.get('hp_ready', {})[today()]; if (!r) return null; const avg = RQ.reduce((a, [k]) => a + (r[k] || 3), 0) / 4; return { r, avg, f: avg >= 4 ? { sets: 0, load: 1, lbl: '🟢 Listo para rendir: entrená normal y buscá superar tus marcas.' } : avg >= 3 ? { sets: 0, load: 1, lbl: '🟡 Normal: seguí el plan.' } : avg >= 2 ? { sets: -1, load: 0.95, lbl: '🟠 Recuperación baja: hoy 1 serie menos por ejercicio y −5 % de carga.' } : { sets: -2, load: 0.9, lbl: '🔴 Muy cansado: hacé la mitad del volumen, −10 % de carga, o descansá / caminá.' } }; }
   function renderReadiness() {
     const wt = $('workout-tab'); if (!wt || !currentUser) return;
@@ -218,7 +218,7 @@
       const ls = lastSet; lastSet = null;
       const ni = nextInfo(ls);
       const first = ni && ni.first ? ni.first : !ls ? '' : ni && ni.last ? (ni.lastEx ? (motOn() ? pick('sess') : P().exDone) : (motOn() ? pick('exLast') : P().exDone)) : (motOn() ? pick('set') : P().done);
-      say([first, P().rest(sec), ...(window.hpCycleVoice ? window.hpCycleVoice() : [])]);
+      say([first, P().rest(sec), ...(window.hpCycleVoice ? window.hpCycleVoice() : []), ...(window.hpFuelVoice ? window.hpFuelVoice() : [])]);
       if (ni) prefetch(ni.msg);
       const mid = sec >= 60 && motOn() ? Math.round(sec / 2) : 0; let saidMid = false;
       clearInterval(window._hpVoiceInt); let said10 = false, said3 = false;
