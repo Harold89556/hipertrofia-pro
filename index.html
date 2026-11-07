@@ -1001,6 +1001,33 @@
     .more-card button { width:100%; min-height:50px; display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:12px; padding:0 14px; margin-bottom:8px; font:inherit; font-size:1rem; font-weight:600; cursor:pointer; text-align:left; }
     .more-card button.danger { color:#fca5a5; border-color:#7f1d1d; }
 
+
+    #science-tab { display:flex; flex-direction:column; gap:14px; }
+    #science-tab .exercise-card { line-height:1.55; font-size:0.9rem; }
+    .sci-hero .pc-title { margin-bottom:8px; }
+    .sci-audio-bar { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 8px; }
+    .sci-audio-bar #sci-play-all { flex:1 1 220px; }
+    .sci-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+    .sci-head h3 { color:var(--accent); font-size:1.05rem; margin:0; }
+    .sci-role { color:var(--text-muted); font-size:0.8rem; margin:4px 0 0; }
+    .sci-speak p { margin:0 0 10px; color:#e2e8f0; }
+    .sci-speak ul { padding-left:18px; margin:0 0 8px; color:#e2e8f0; }
+    .sci-speak li { margin-bottom:8px; }
+    .sci-fig { margin:0 0 14px; background:#f3e7d3; border-radius:14px; padding:10px; }
+    .sci-fig img { width:100%; height:auto; display:block; border-radius:8px; }
+    .sci-fig figcaption { color:#5a4a38; font-size:0.72rem; margin-top:6px; text-align:center; }
+    .sci-person { display:grid; grid-template-columns:132px 1fr; gap:14px; align-items:start; }
+    .sci-photo { width:100%; aspect-ratio:4/5; object-fit:cover; object-position:top center; border-radius:14px; background:#111; }
+    .sci-portrait { aspect-ratio:1; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:linear-gradient(160deg, rgba(255,107,26,.28), #18181c 55%); color:var(--accent); border:1px solid rgba(255,107,26,.25); }
+    .sci-portrait span { font-size:2rem; font-weight:800; letter-spacing:0.04em; }
+    .sci-portrait small { color:var(--text-muted); font-size:0.72rem; }
+    .sci-lesson.sci-on { box-shadow:0 0 0 1px var(--accent); }
+    @media (max-width:560px) {
+      .sci-person { grid-template-columns:1fr; }
+      .sci-photo { max-height:320px; }
+      .sci-portrait { aspect-ratio:16/7; }
+    }
+
     /* ===== UX v6: diseño más aireado y controles bien colocados ===== */
     .dl-progress {
       padding: 16px 16px 18px;
@@ -1622,17 +1649,117 @@
 
   <!-- PESTAÑA 5: FUNDAMENTOS CIENTÍFICOS -->
   <div id="science-tab" class="tab-content">
-    <div class="exercise-card" style="line-height: 1.6; font-size: 0.875rem;">
-      <h2 style="color: var(--accent); margin-bottom: 10px;" data-i18n="sci.title">Bases de Hipertrofia (Categoría Open & Evidencia)</h2>
-      <p style="margin-bottom: 10px; color: var(--text-muted);" data-i18n="sci.intro">
-        La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>:
-      </p>
-      <ul style="padding-left: 18px; margin-bottom: 12px; color: #e2e8f0;">
-        <li data-i18n="sci.l1"><strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.</li>
-        <li data-i18n="sci.l2"><strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.</li>
-        <li data-i18n="sci.l3"><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
-        <li data-i18n="sci.l4"><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
-      </ul>
+    <div class="exercise-card sci-hero">
+      <h2 class="pc-title" data-i18n="sci.title">Guía científica y clases</h2>
+      <div class="sci-speak">
+        <p class="pc-note" data-i18n="sci.intro">Acá aprendés cómo progresar de verdad: por qué el descanso es tan importante, qué dice la ciencia actual, y qué enseñaban <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> y <strong>Hany Rambod</strong>, el entrenador de Chris Bumstead (CBum). Tocá el botón para escuchar las clases con la voz de tu teléfono.</p>
+      </div>
+      <div class="sci-audio-bar">
+        <button type="button" id="sci-play-all" class="btn-3d" data-i18n="sci.audioOn">🎧 Activar audio de clases</button>
+        <button type="button" id="sci-stop" class="btn-3d btn-secondary" hidden data-i18n="sci.audioStop">⏹ Detener audio</button>
+      </div>
+      <p class="pc-note sci-audio-help" data-i18n="sci.audioHelp">La voz es la del teléfono (la misma que podés elegir en Rutina). El coach te explica sus ideas: no imita la voz de estas personas.</p>
+    </div>
+
+    <article class="exercise-card sci-lesson" data-lesson="rest">
+      <div class="sci-head">
+        <h3 data-i18n="sci.restTitle">La importancia del descanso</h3>
+        <button type="button" class="btn-3d btn-small sci-play" data-play="rest" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+      </div>
+      <div class="sci-speak">
+        <p data-i18n="sci.rest1">El músculo no crece mientras lo entrenás: crece cuando recuperás. El entrenamiento es el estímulo; el descanso es el momento en que el cuerpo construye.</p>
+        <p data-i18n="sci.rest2">La síntesis de proteína muscular sube después de entrenar, llega al pico alrededor de las 24 horas y baja entre las 36 y 48 horas. Por eso esta app vuelve a estimular cada músculo dos veces por semana, y respeta los días de descanso para recargar glucógeno y el sistema nervioso.</p>
+        <p data-i18n="sci.rest3">Dormí entre 7 y 9 horas. Entre series pesadas, descansá 2 a 3 minutos para repetir con calidad: los descansos cortos de un FST-7 son para el cierre, no para reemplazar el trabajo pesado. Si llegás muy cansado, un día extra de descanso bien tomado rinde más que un entreno mediocre.</p>
+      </div>
+    </article>
+
+    <article class="exercise-card sci-lesson" data-lesson="science">
+      <figure class="sci-fig">
+        <img src="img/guide/anatomy.webp" alt="Músculos del pecho y del brazo" width="550" height="533">
+        <figcaption data-i18n="sci.figCap">Músculos del pecho y del brazo. Lámina de Gray's Anatomy (dominio público).</figcaption>
+      </figure>
+      <div class="sci-head">
+        <h3 data-i18n="sci.nowTitle">Lo que dice la ciencia actual</h3>
+        <button type="button" class="btn-3d btn-small sci-play" data-play="science" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+      </div>
+      <div class="sci-speak">
+        <p data-i18n="sci.nowLead">La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>. No hace falta copiar el volumen extremo de un profesional de los años 70 ni quedarse en una o dos series: el punto dulce para la mayoría es un volumen semanal que puedas recuperar.</p>
+        <ul>
+          <li data-i18n="sci.l1"><strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.</li>
+          <li data-i18n="sci.l2"><strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.</li>
+          <li data-i18n="sci.l3"><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
+          <li data-i18n="sci.l4"><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
+          <li data-i18n="sci.l5"><strong>Progresión:</strong> para crecer hay que subir poco a poco el estímulo (más peso, más repeticiones o mejor técnica). La app usa doble progresión: primero buscás más repeticiones en el rango y, cuando las completás, subís la carga.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="exercise-card sci-lesson sci-person" data-lesson="mentzer">
+      <div class="sci-photo-col">
+        <div class="sci-portrait" aria-hidden="true"><span>MM</span><small>1951–2001</small></div>
+      </div>
+      <div>
+        <div class="sci-head">
+          <div>
+            <h3 data-i18n="sci.mmTitle">Mike Mentzer</h3>
+            <p class="sci-role" data-i18n="sci.mmRole">Culturista y creador de Heavy Duty (1951–2001)</p>
+          </div>
+          <button type="button" class="btn-3d btn-small sci-play" data-play="mentzer" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+        </div>
+        <div class="sci-speak">
+          <p data-i18n="sci.mm1">Mentzer enseñaba que el estímulo debe ser breve e intenso, llevado cerca del fallo verdadero, y que después hace falta recuperarse de verdad. Insistía en que no crecés en el gimnasio: crecés cuando descansás.</p>
+          <p data-i18n="sci.mm2">En esta app vas a ver sus biseries de preagotamiento: un aislamiento cerca del fallo y, sin descanso, el ejercicio compuesto. Esa idea suya sigue vigente para intensificar sin alargar eterno el entreno.</p>
+          <p data-i18n="sci.mm3">La ciencia de hoy coincide con él en que la intensidad y el descanso importan. No coincide tanto con hacer muy pocas series y desaparecer del gym por muchos días: la mayoría progresa mejor con varias series de calidad por músculo y una frecuencia de dos veces por semana.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="exercise-card sci-lesson sci-person" data-lesson="arnold">
+      <div class="sci-photo-col">
+        <img class="sci-photo" src="img/guide/arnold.webp" alt="Arnold Schwarzenegger, 1985" width="884" height="900">
+      </div>
+      <div>
+        <div class="sci-head">
+          <div>
+            <h3 data-i18n="sci.arTitle">Arnold Schwarzenegger</h3>
+            <p class="sci-role" data-i18n="sci.arRole">7 veces Mr. Olympia</p>
+          </div>
+          <button type="button" class="btn-3d btn-small sci-play" data-play="arnold" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+        </div>
+        <div class="sci-speak">
+          <p data-i18n="sci.ar1">Arnold entrenaba con mucho volumen: varios ejercicios por músculo, muchas series y una conexión mente-músculo feroz. Visualizaba el músculo trabajando y disfrutaba el proceso, no solo el resultado.</p>
+          <p data-i18n="sci.ar2">Insistía en la constancia: el que progresa es el que vuelve, semana tras semana, a superar lo que hizo la vez anterior.</p>
+          <p data-i18n="sci.ar3">La ciencia actual apoya la conexión mente-músculo en ejercicios de aislamiento y el valor de acumular volumen de calidad. Advierte que no todos recuperan el volumen de un profesional de esa época: más no siempre es mejor si no dormís ni comés para bancarlo.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="exercise-card sci-lesson sci-person" data-lesson="rambod">
+      <div class="sci-photo-col">
+        <div class="sci-portrait" aria-hidden="true"><span>HR</span><small>FST-7</small></div>
+      </div>
+      <div>
+        <div class="sci-head">
+          <div>
+            <h3 data-i18n="sci.hrTitle">Hany Rambod</h3>
+            <p class="sci-role" data-i18n="sci.hrRole">Creador del FST-7 y entrenador de Chris Bumstead</p>
+          </div>
+          <button type="button" class="btn-3d btn-small sci-play" data-play="rambod" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+        </div>
+        <div class="sci-speak">
+          <p data-i18n="sci.hr1">Hany Rambod diseñó el FST-7: siete series finales de un ejercicio de aislamiento, con unos 30 segundos de descanso, para buscar un bombeo enorme y estirar la fascia que rodea el músculo.</p>
+          <p data-i18n="sci.hr2">Fue entrenador de varios Mr. Olympia y de Chris Bumstead (CBum) en Classic Physique. Su sello es el detalle, los puntos débiles, la pose y una nutrición constante, no solo el día de la competencia.</p>
+          <p data-i18n="sci.hr3">En esta app el cierre FST-7 viene de esa idea. La ciencia ve el bombeo como un mecanismo secundario: el motor principal sigue siendo la tensión mecánica progresiva. Usá el FST-7 como broche, no como todo el entreno.</p>
+        </div>
+      </div>
+    </article>
+
+    <div class="exercise-card">
+      <div class="sci-speak">
+        <p data-i18n="sci.close">Progresar no es magia: entrená con calidad, comé para bancar el estímulo, dormí de verdad y volvé a superar lo de la semana pasada. Eso es lo que une a Mentzer, Arnold, Rambod y la ciencia de hoy.</p>
+      </div>
+      <p class="pc-note" data-i18n="sci.attrib">Foto de Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, dominio público). Lámina anatómica: Henry Vandyke Carter, Gray's Anatomy (dominio público).</p>
+      <p class="pc-note pro-disc" data-i18n="sci.disc">Esta guía es educativa y resume evidencia general e ideas públicas de estos entrenadores. No reemplaza consejo médico ni un entrenador presencial.</p>
     </div>
   </div>
 
@@ -1912,12 +2039,42 @@
   "th.shoulders": "Hombros",
   "th.wrist": "Muñeca",
   "mh.empty": "Sin registros aún.",
-  "sci.title": "Bases de Hipertrofia (Categoría Open &amp; Evidencia)",
-  "sci.intro": "La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>:",
+  "sci.title": "Guía científica y clases",
+  "sci.intro": "Acá aprendés cómo progresar de verdad: por qué el descanso es tan importante, qué dice la ciencia actual, y qué enseñaban <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> y <strong>Hany Rambod</strong>, el entrenador de Chris Bumstead (CBum). Tocá el botón para escuchar las clases con la voz de tu teléfono.",
+  "sci.audioOn": "🎧 Activar audio de clases",
+  "sci.audioStop": "⏹ Detener audio",
+  "sci.listen": "▶️ Escuchar esta clase",
+  "sci.audioHelp": "La voz es la del teléfono (la misma que podés elegir en Rutina). El coach te explica sus ideas: no imita la voz de estas personas.",
+  "sci.restTitle": "La importancia del descanso",
+  "sci.rest1": "El músculo no crece mientras lo entrenás: crece cuando recuperás. El entrenamiento es el estímulo; el descanso es el momento en que el cuerpo construye.",
+  "sci.rest2": "La síntesis de proteína muscular sube después de entrenar, llega al pico alrededor de las 24 horas y baja entre las 36 y 48 horas. Por eso esta app vuelve a estimular cada músculo dos veces por semana, y respeta los días de descanso para recargar glucógeno y el sistema nervioso.",
+  "sci.rest3": "Dormí entre 7 y 9 horas. Entre series pesadas, descansá 2 a 3 minutos para repetir con calidad: los descansos cortos de un FST-7 son para el cierre, no para reemplazar el trabajo pesado. Si llegás muy cansado, un día extra de descanso bien tomado rinde más que un entreno mediocre.",
+  "sci.nowTitle": "Lo que dice la ciencia actual",
+  "sci.nowLead": "La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>. No hace falta copiar el volumen extremo de un profesional de los años 70 ni quedarse en una o dos series: el punto dulce para la mayoría es un volumen semanal que puedas recuperar.",
   "sci.l1": "<strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.",
   "sci.l2": "<strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.",
   "sci.l3": "<strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.",
   "sci.l4": "<strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.",
+  "sci.l5": "<strong>Progresión:</strong> para crecer hay que subir poco a poco el estímulo (más peso, más repeticiones o mejor técnica). La app usa doble progresión: primero buscás más repeticiones en el rango y, cuando las completás, subís la carga.",
+  "sci.figCap": "Músculos del pecho y del brazo. Lámina de Gray's Anatomy (dominio público).",
+  "sci.mmTitle": "Mike Mentzer",
+  "sci.mmRole": "Culturista y creador de Heavy Duty (1951–2001)",
+  "sci.mm1": "Mentzer enseñaba que el estímulo debe ser breve e intenso, llevado cerca del fallo verdadero, y que después hace falta recuperarse de verdad. Insistía en que no crecés en el gimnasio: crecés cuando descansás.",
+  "sci.mm2": "En esta app vas a ver sus biseries de preagotamiento: un aislamiento cerca del fallo y, sin descanso, el ejercicio compuesto. Esa idea suya sigue vigente para intensificar sin alargar eterno el entreno.",
+  "sci.mm3": "La ciencia de hoy coincide con él en que la intensidad y el descanso importan. No coincide tanto con hacer muy pocas series y desaparecer del gym por muchos días: la mayoría progresa mejor con varias series de calidad por músculo y una frecuencia de dos veces por semana.",
+  "sci.arTitle": "Arnold Schwarzenegger",
+  "sci.arRole": "7 veces Mr. Olympia",
+  "sci.ar1": "Arnold entrenaba con mucho volumen: varios ejercicios por músculo, muchas series y una conexión mente-músculo feroz. Visualizaba el músculo trabajando y disfrutaba el proceso, no solo el resultado.",
+  "sci.ar2": "Insistía en la constancia: el que progresa es el que vuelve, semana tras semana, a superar lo que hizo la vez anterior.",
+  "sci.ar3": "La ciencia actual apoya la conexión mente-músculo en ejercicios de aislamiento y el valor de acumular volumen de calidad. Advierte que no todos recuperan el volumen de un profesional de esa época: más no siempre es mejor si no dormís ni comés para bancarlo.",
+  "sci.hrTitle": "Hany Rambod",
+  "sci.hrRole": "Creador del FST-7 y entrenador de Chris Bumstead",
+  "sci.hr1": "Hany Rambod diseñó el FST-7: siete series finales de un ejercicio de aislamiento, con unos 30 segundos de descanso, para buscar un bombeo enorme y estirar la fascia que rodea el músculo.",
+  "sci.hr2": "Fue entrenador de varios Mr. Olympia y de Chris Bumstead (CBum) en Classic Physique. Su sello es el detalle, los puntos débiles, la pose y una nutrición constante, no solo el día de la competencia.",
+  "sci.hr3": "En esta app el cierre FST-7 viene de esa idea. La ciencia ve el bombeo como un mecanismo secundario: el motor principal sigue siendo la tensión mecánica progresiva. Usá el FST-7 como broche, no como todo el entreno.",
+  "sci.close": "Progresar no es magia: entrená con calidad, comé para bancar el estímulo, dormí de verdad y volvé a superar lo de la semana pasada. Eso es lo que une a Mentzer, Arnold, Rambod y la ciencia de hoy.",
+  "sci.attrib": "Foto de Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, dominio público). Lámina anatómica: Henry Vandyke Carter, Gray's Anatomy (dominio público).",
+  "sci.disc": "Esta guía es educativa y resume evidencia general e ideas públicas de estos entrenadores. No reemplaza consejo médico ni un entrenador presencial.",
   "adm.title": "Panel de administrador",
   "adm.refresh": "Actualizar",
   "adm.gen": "Generar claves",
@@ -2348,12 +2505,42 @@
   "th.shoulders": "Shoulders",
   "th.wrist": "Wrist",
   "mh.empty": "No records yet.",
-  "sci.title": "Hypertrophy Fundamentals (Open Category & Evidence)",
-  "sci.intro": "The programmed routine follows the meta-analyses by <strong>Schoenfeld, Fisher and Helms</strong>:",
+  "sci.title": "Science guide and classes",
+  "sci.intro": "Here you learn how to progress for real: why rest matters so much, what current science says, and what <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> and <strong>Hany Rambod</strong> (coach of Chris Bumstead, CBum) taught. Tap the button to hear the classes with your phone voice.",
+  "sci.audioOn": "🎧 Play the class audio",
+  "sci.audioStop": "⏹ Stop audio",
+  "sci.listen": "▶️ Listen to this class",
+  "sci.audioHelp": "The voice is your phone (the same one you can pick in Workout). The coach explains their ideas — it does not imitate these people's voices.",
+  "sci.restTitle": "Why rest matters",
+  "sci.rest1": "Muscle does not grow while you train it: it grows while you recover. Training is the stimulus; rest is when the body builds.",
+  "sci.rest2": "Muscle protein synthesis rises after training, peaks around 24 hours and drops between 36 and 48 hours. That is why this app hits each muscle twice a week, and keeps rest days so you can refill glycogen and recover the nervous system.",
+  "sci.rest3": "Sleep 7 to 9 hours. Between heavy sets, rest 2 to 3 minutes so you can repeat with quality: the short rests in an FST-7 are for the finisher, not to replace heavy work. If you arrive exhausted, an extra rest day well taken beats a mediocre session.",
+  "sci.nowTitle": "What current science says",
+  "sci.nowLead": "The programmed routine follows the meta-analyses by <strong>Schoenfeld, Fisher and Helms</strong>. You do not need a 1970s pro's extreme volume or only one or two sets: for most people the sweet spot is a weekly volume you can recover from.",
   "sci.l1": "<strong>2x Weekly Frequency:</strong> Muscle protein synthesis (MPS) peaks at about 24h and drops after 36-48 hours. Training each muscle twice a week keeps growth going and avoids wasted weeks of fatigue.",
   "sci.l2": "<strong>Effective Weekly Volume (~18-22 sets):</strong> For advanced lifters, maximal hypertrophy happens between 16 and 22 quality sets close to failure (RIR 0-1), spread over two sessions per week.",
   "sci.l3": "<strong>Mechanical Tension at Long Muscle Lengths:</strong> The selected exercises give maximal overload in the stretched position (stretch-mediated hypertrophy), the main trigger for adding sarcomeres in series.",
   "sci.l4": "<strong>FST-7 Finisher:</strong> Seven final sets with a strict 30-second rest to cause extreme cell swelling and push amino acids into the muscle.",
+  "sci.l5": "<strong>Progression:</strong> to grow you have to raise the stimulus little by little (more weight, more reps or better technique). The app uses double progression: first you chase more reps in the range, and when you hit them, you add load.",
+  "sci.figCap": "Chest and arm muscles. Plate from Gray's Anatomy (public domain).",
+  "sci.mmTitle": "Mike Mentzer",
+  "sci.mmRole": "Bodybuilder and creator of Heavy Duty (1951–2001)",
+  "sci.mm1": "Mentzer taught that the stimulus should be brief and intense, taken close to true failure, and that you then need real recovery. He insisted you do not grow in the gym: you grow when you rest.",
+  "sci.mm2": "In this app you will see his pre-exhaust supersets: an isolation move close to failure and, with no rest, the compound lift. That idea of his still works to raise intensity without making the session endless.",
+  "sci.mm3": "Today's science agrees with him that intensity and recovery matter. It does not agree as much with doing very few sets and staying out of the gym for many days: most people progress better with several quality sets per muscle and a twice-a-week frequency.",
+  "sci.arTitle": "Arnold Schwarzenegger",
+  "sci.arRole": "7-time Mr. Olympia",
+  "sci.ar1": "Arnold trained with a lot of volume: several exercises per muscle, many sets and a fierce mind-muscle connection. He visualized the muscle working and enjoyed the process, not only the result.",
+  "sci.ar2": "He insisted on consistency: the person who progresses is the one who comes back, week after week, to beat what they did last time.",
+  "sci.ar3": "Current science supports the mind-muscle connection on isolation exercises and the value of accumulating quality volume. It also warns that not everyone can recover from a pro's volume of that era: more is not always better if you do not sleep and eat enough to support it.",
+  "sci.hrTitle": "Hany Rambod",
+  "sci.hrRole": "Creator of FST-7 and Chris Bumstead's coach",
+  "sci.hr1": "Hany Rambod designed FST-7: seven final sets of an isolation exercise, with about 30 seconds of rest, to chase a huge pump and stretch the fascia around the muscle.",
+  "sci.hr2": "He coached several Mr. Olympia winners and Chris Bumstead (CBum) in Classic Physique. His stamp is detail, weak points, posing and steady nutrition, not only on contest day.",
+  "sci.hr3": "In this app the FST-7 finisher comes from that idea. Science sees the pump as a secondary mechanism: the main driver is still progressive mechanical tension. Use FST-7 as the closer, not as the whole workout.",
+  "sci.close": "Progress is not magic: train with quality, eat enough to support the stimulus, sleep for real and come back to beat last week. That is what ties Mentzer, Arnold, Rambod and today's science together.",
+  "sci.attrib": "Photo of Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, public domain). Anatomy plate: Henry Vandyke Carter, Gray's Anatomy (public domain).",
+  "sci.disc": "This guide is educational and summarizes general evidence and these coaches' public ideas. It does not replace medical advice or an in-person trainer.",
   "adm.title": "Admin panel",
   "adm.refresh": "Refresh",
   "adm.gen": "Generate keys",
@@ -3025,12 +3212,42 @@
   "th.shoulders": "Ombros",
   "th.wrist": "Punho",
   "mh.empty": "Nenhum registro ainda.",
-  "sci.title": "Bases da Hipertrofia (Categoria Open & Evidências)",
-  "sci.intro": "A rotina programada segue as meta-análises de <strong>Schoenfeld, Fisher e Helms</strong>:",
+  "sci.title": "Guia científica e aulas",
+  "sci.intro": "Aqui você aprende a progredir de verdade: por que o descanso é tão importante, o que diz a ciência atual, e o que ensinavam <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> e <strong>Hany Rambod</strong>, o treinador de Chris Bumstead (CBum). Toque o botão para ouvir as aulas com a voz do seu telefone.",
+  "sci.audioOn": "🎧 Ativar áudio das aulas",
+  "sci.audioStop": "⏹ Parar áudio",
+  "sci.listen": "▶️ Ouvir esta aula",
+  "sci.audioHelp": "A voz é a do telefone (a mesma que você pode escolher em Treino). O coach explica as ideias deles: não imita a voz dessas pessoas.",
+  "sci.restTitle": "A importância do descanso",
+  "sci.rest1": "O músculo não cresce enquanto você o treina: cresce quando você recupera. O treino é o estímulo; o descanso é o momento em que o corpo constrói.",
+  "sci.rest2": "A síntese de proteína muscular sobe depois do treino, chega ao pico por volta de 24 horas e cai entre 36 e 48 horas. Por isso este app estimula cada músculo duas vezes por semana e respeita os dias de descanso para recarregar glicogênio e o sistema nervoso.",
+  "sci.rest3": "Durma entre 7 e 9 horas. Entre séries pesadas, descanse 2 a 3 minutos para repetir com qualidade: os descansos curtos de um FST-7 são para o fechamento, não para substituir o trabalho pesado. Se você chegar muito cansado, um dia extra de descanso bem aproveitado rende mais do que um treino medíocre.",
+  "sci.nowTitle": "O que diz a ciência atual",
+  "sci.nowLead": "A rotina programada segue as meta-análises de <strong>Schoenfeld, Fisher e Helms</strong>. Não é preciso copiar o volume extremo de um profissional dos anos 70 nem ficar em uma ou duas séries: o ponto ideal para a maioria é um volume semanal do qual você consiga recuperar.",
   "sci.l1": "<strong>Frequência 2x por semana:</strong> A síntese proteica miofibrilar (MPS) atinge o pico em 24h e cai após 36-48 horas. Uma frequência de 2x reativa o crescimento contínuo e evita semanas de fadiga desperdiçada.",
   "sci.l2": "<strong>Volume semanal efetivo (~18-22 séries):</strong> Para atletas avançados, as adaptações hipertróficas máximas ficam entre 16 e 22 séries de qualidade próximas da falha (RIR 0-1), distribuídas em duas sessões semanais.",
   "sci.l3": "<strong>Tensão mecânica no alongamento:</strong> Os exercícios selecionados oferecem sobrecarga máxima na posição alongada (hipertrofia mediada por alongamento), o principal gatilho para adicionar sarcômeros em série.",
   "sci.l4": "<strong>FST-7 no final:</strong> Sete séries finais com 30 segundos de descanso estrito para induzir inchaço celular extremo e irrigação intramuscular de aminoácidos.",
+  "sci.l5": "<strong>Progressão:</strong> para crescer é preciso aumentar pouco a pouco o estímulo (mais peso, mais repetições ou melhor técnica). O app usa dupla progressão: primeiro você busca mais repetições na faixa e, quando as completa, aumenta a carga.",
+  "sci.figCap": "Músculos do peito e do braço. Prancha de Gray's Anatomy (domínio público).",
+  "sci.mmTitle": "Mike Mentzer",
+  "sci.mmRole": "Fisiculturista e criador do Heavy Duty (1951–2001)",
+  "sci.mm1": "Mentzer ensinava que o estímulo deve ser breve e intenso, levado perto da falha verdadeira, e que depois é preciso se recuperar de verdade. Insistia que você não cresce na academia: cresce quando descansa.",
+  "sci.mm2": "Neste app você vai ver as bisséries de pré-exaustão dele: um isolamento perto da falha e, sem descanso, o exercício composto. Essa ideia dele continua válida para intensificar sem alongar demais o treino.",
+  "sci.mm3": "A ciência de hoje concorda com ele em que a intensidade e o descanso importam. Não concorda tanto em fazer pouquíssimas séries e sumir da academia por muitos dias: a maioria progride melhor com várias séries de qualidade por músculo e uma frequência de duas vezes por semana.",
+  "sci.arTitle": "Arnold Schwarzenegger",
+  "sci.arRole": "7 vezes Mr. Olympia",
+  "sci.ar1": "Arnold treinava com muito volume: vários exercícios por músculo, muitas séries e uma conexão mente-músculo forte. Visualizava o músculo trabalhando e aproveitava o processo, não só o resultado.",
+  "sci.ar2": "Insistia na constância: quem progride é quem volta, semana após semana, a superar o que fez da vez anterior.",
+  "sci.ar3": "A ciência atual apoia a conexão mente-músculo em exercícios de isolamento e o valor de acumular volume de qualidade. Alerta que nem todo mundo recupera o volume de um profissional daquela época: mais nem sempre é melhor se você não dorme nem come o suficiente para sustentá-lo.",
+  "sci.hrTitle": "Hany Rambod",
+  "sci.hrRole": "Criador do FST-7 e treinador de Chris Bumstead",
+  "sci.hr1": "Hany Rambod criou o FST-7: sete séries finais de um exercício de isolamento, com cerca de 30 segundos de descanso, para buscar um bombeamento enorme e alongar a fáscia que envolve o músculo.",
+  "sci.hr2": "Foi treinador de vários Mr. Olympia e de Chris Bumstead (CBum) no Classic Physique. Sua marca é o detalhe, os pontos fracos, a pose e uma nutrição constante, não só no dia da competição.",
+  "sci.hr3": "Neste app o fechamento FST-7 vem dessa ideia. A ciência vê o bombeamento como um mecanismo secundário: o motor principal continua sendo a tensão mecânica progressiva. Use o FST-7 como broche, não como o treino inteiro.",
+  "sci.close": "Progredir não é mágica: treine com qualidade, coma o suficiente para bancar o estímulo, durma de verdade e volte a superar o da semana passada. Isso é o que une Mentzer, Arnold, Rambod e a ciência de hoje.",
+  "sci.attrib": "Foto de Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, domínio público). Prancha anatômica: Henry Vandyke Carter, Gray's Anatomy (domínio público).",
+  "sci.disc": "Este guia é educativo e resume evidências gerais e ideias públicas desses treinadores. Não substitui conselho médico nem um treinador presencial.",
   "adm.title": "Painel do administrador",
   "adm.refresh": "Atualizar",
   "adm.gen": "Gerar chaves",
@@ -7344,8 +7561,9 @@ ${timedSecs ? `
   <script src="anim.js?v=2"></script>
   <script src="pro.js?v=7"></script>
   <script src="cues.js?v=1"></script>
-  <script src="pro2.js?v=13"></script>
+  <script src="pro2.js?v=14"></script>
   <script src="superset.js?v=4"></script>
   <script src="features.js?v=2"></script>
+  <script src="guide.js?v=1"></script>
 </body>
 </html>

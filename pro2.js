@@ -189,6 +189,8 @@
   }
   const prefetch = () => {};
   window.hpSay = say;
+  window.hpUnlock = unlock;
+  window.hpHush = function () { playId++; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} };
   const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest), ...(motOn() ? MOT[VL()].set.slice(0, 4) : [])]; };
   let lastSet = null;
   const origCSW = window.completeSetWorkflow;
