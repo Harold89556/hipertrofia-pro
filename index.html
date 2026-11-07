@@ -960,8 +960,17 @@
     .rk-tabs{display:flex;gap:6px;overflow-x:auto;margin:8px 0}.rk-tabs button{flex:1;white-space:nowrap;padding:8px 10px;min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit}.rk-tabs button.on{background:var(--accent);color:#000;font-weight:700}
     .rk-list{list-style:none;padding:0}.rk-list li{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid rgba(255,255,255,.08)}.rk-list li.me{background:var(--accent-glow);border-radius:8px}.rk-list .pos{width:28px;text-align:center}.rk-list .nm{flex:1}.rk-list small{display:block;opacity:.7}
     .rd-sub{font-size:.75rem;color:var(--text-muted);font-weight:500}
-    .rd-q{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}.rd-q>span{font-size:.9rem}.rd-q div{display:flex;gap:4px}
-    .rd-q button,.ap-rir button{min-width:38px;min-height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit;font-weight:700}
+    .rd-legend{margin:2px 0 8px;font-size:.82rem;color:var(--text-muted);font-weight:500}
+    .rd-q{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:12px 0}
+    .rd-q>span{font-size:.9rem;font-weight:600}
+    .rd-q .rd-pick{font-weight:500;color:var(--accent);font-size:.8rem}
+    .rd-scale{display:flex;align-items:center;gap:8px}
+    .rd-end{flex:0 0 auto;font-size:.7rem;line-height:1.2;color:var(--text-muted);white-space:nowrap}
+    .rd-end.rd-lo{text-align:right}
+    .rd-end.rd-hi{text-align:left}
+    .rd-btns{display:flex;gap:6px;flex:1;min-width:0}
+    .rd-q button,.ap-rir button{min-width:38px;min-height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit;font-weight:700}
+    .rd-q button{flex:1;min-width:0}
     .rd-q button.on,.ap-rir button.on{background:var(--accent);color:#000;border-color:var(--accent)}
     .rd-res{margin-top:8px;font-weight:600}
     .ap-box{background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:.9rem}.ap-box small{display:block;opacity:.8}
@@ -7327,7 +7336,7 @@ ${timedSecs ? `
   <script src="anim.js?v=2"></script>
   <script src="pro.js?v=7"></script>
   <script src="cues.js?v=1"></script>
-  <script src="pro2.js?v=12"></script>
+  <script src="pro2.js?v=13"></script>
   <script src="superset.js?v=4"></script>
   <script src="features.js?v=2"></script>
 </body>

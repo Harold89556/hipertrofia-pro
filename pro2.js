@@ -21,9 +21,11 @@
     let c = $('ready-card'); if (!c) { c = document.createElement('div'); c.className = 'exercise-card'; c.id = 'ready-card'; const ec = $('exercises-container'); ec.parentNode.insertBefore(c, $('warmup-section') || ec); }
     if (!pro()) { c.style.display = 'none'; return; } c.style.display = '';
     const rd = readiness(), all = store.get('hp_ready', {}), cur = all[today()] || {};
+    const RL = { es: { legend: '1 = peor · 5 = excelente', lo: 'peor', hi: 'excelente' }, en: { legend: '1 = worst · 5 = excellent', lo: 'worst', hi: 'excellent' }, pt: { legend: '1 = pior · 5 = excelente', lo: 'pior', hi: 'excelente' } }[VL()];
     c.innerHTML = `<h2 class="pc-title">🔋 ¿Cómo llegás hoy? <small class="rd-sub">10 segundos</small></h2>
-      ${RQ.map(([k, l, o]) => `<div class="rd-q"><span>${l}</span><div>${o.map((x, i) => `<button type="button" class="${cur[k] === i + 1 ? 'on' : ''}" data-k="${k}" data-v="${i + 1}" title="${x}" aria-label="${l}: ${x}">${i + 1}</button>`).join('')}</div></div>`).join('')}
-      ${rd ? `<p class="rd-res">${rd.f.lbl}</p>` : '<p class="pc-note">1 = peor · 5 = mejor. Ajusta el volumen y la carga de hoy.</p>'}`;
+      <p class="rd-legend">${RL.legend}</p>
+      ${RQ.map(([k, l, o]) => { const v = cur[k]; const pick = v ? ` <span class="rd-pick">${o[v - 1]}</span>` : ''; return `<div class="rd-q"><span>${l}${pick}</span><div class="rd-scale"><span class="rd-end rd-lo">${RL.lo}</span><div class="rd-btns">${o.map((x, i) => `<button type="button" class="${v === i + 1 ? 'on' : ''}" data-k="${k}" data-v="${i + 1}" title="${x}" aria-label="${l}: ${i + 1}, ${x}">${i + 1}</button>`).join('')}</div><span class="rd-end rd-hi">${RL.hi}</span></div></div>`; }).join('')}
+      ${rd && rd.f && rd.f.lbl ? `<p class="rd-res">${rd.f.lbl}</p>` : ''}`;
     if (window.hpAfterReady) window.hpAfterReady();
     c.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { const a = store.get('hp_ready', {}); a[today()] = Object.assign(a[today()] || {}, { [b.dataset.k]: +b.dataset.v }); Object.keys(a).sort().slice(0, -60).forEach(k => delete a[k]); store.set('hp_ready', a); renderReadiness(); decorateWorkout(); });
   }
