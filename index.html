@@ -1005,11 +1005,21 @@
     #science-tab { display:flex; flex-direction:column; gap:14px; }
     #science-tab .exercise-card { line-height:1.55; font-size:0.9rem; }
     .sci-hero .pc-title { margin-bottom:8px; }
-    .sci-audio-bar { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 8px; }
-    .sci-audio-bar #sci-play-all { flex:1 1 220px; }
-    .sci-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
-    .sci-head h3 { color:var(--accent); font-size:1.05rem; margin:0; }
+    .sci-audio-bar { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 0; }
+    .sci-audio-bar #sci-open { flex:1 1 220px; }
+    #sci-menu { display:flex; flex-direction:column; gap:14px; }
+    #sci-menu[hidden] { display:none !important; }
+    .sci-menu-bar #sci-play-all { width:100%; }
+    .sci-menu-bar .sci-audio-help { margin:10px 0 0; }
+    .sci-sum { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:48px; padding:2px 0; }
+    .sci-sum::-webkit-details-marker { display:none; }
+    .sci-sum::after { content:""; width:0.55em; height:0.55em; border-right:2px solid var(--accent); border-bottom:2px solid var(--accent); transform:rotate(-45deg); flex:0 0 auto; margin-right:6px; opacity:0.9; }
+    details.sci-lesson[open] > .sci-sum::after { transform:rotate(45deg); margin-top:-4px; }
+    .sci-sum-title { display:block; color:var(--accent); font-size:1.05rem; font-weight:700; }
+    .sci-sum .sci-role { display:block; margin:4px 0 0; }
     .sci-role { color:var(--text-muted); font-size:0.8rem; margin:4px 0 0; }
+    .sci-lesson-body { margin-top:8px; }
+    .sci-lesson-body > .sci-play { margin-bottom:12px; }
     .sci-speak p { margin:0 0 10px; color:#e2e8f0; }
     .sci-speak ul { padding-left:18px; margin:0 0 8px; color:#e2e8f0; }
     .sci-speak li { margin-bottom:8px; }
@@ -1022,6 +1032,11 @@
     .sci-portrait span { font-size:2rem; font-weight:800; letter-spacing:0.04em; }
     .sci-portrait small { color:var(--text-muted); font-size:0.72rem; }
     .sci-lesson.sci-on { box-shadow:0 0 0 1px var(--accent); }
+    .phase-more { margin:0 0 10px; }
+    .phase-more summary, .field-more summary { cursor:pointer; color:var(--text-muted); font-size:0.82rem; font-weight:600; }
+    .phase-more .phase-detail-txt { margin-top:8px; }
+    .field-more { margin-top:10px; }
+    .field-more .field-hint { margin-top:8px; }
     @media (max-width:560px) {
       .sci-person { grid-template-columns:1fr; }
       .sci-photo { max-height:320px; }
@@ -1433,9 +1448,7 @@
         </div>
         <span class="warmup-tag" data-i18n="wu.tag">Protocolo Previo</span>
       </div>
-      <p class="warmup-subtitle" data-i18n="wu.sub">
-        Optimiza la lubricación sinovial y la conducción nerviosa antes de cargar peso para prevenir lesiones y elevar el rendimiento.
-      </p>
+      <p class="warmup-subtitle" data-i18n="wu.sub">Preparate antes de cargar peso.</p>
 
       <div class="warmup-phases-container">
         <!-- FASE 1: CARDIO CON TEMPORIZADOR Y BOTONES SEPARADOS -->
@@ -1444,9 +1457,12 @@
             <span class="phase-badge-num">01</span>
             <span class="phase-name" data-i18n="wu.p1">Cardio de Elevación Térmica (8 min)</span>
           </div>
-          <p class="phase-detail-txt" data-i18n="wu.p1d">
-            Caminadora con ligera inclinación o elíptica a ritmo moderado constante (RPE 4-5) para subir temperatura central.
-          </p>
+          <details class="phase-more">
+            <summary data-i18n="wu.more">Cómo hacerlo</summary>
+            <p class="phase-detail-txt" data-i18n="wu.p1d">
+              Caminadora con ligera inclinación o elíptica a ritmo moderado constante (RPE 4-5) para subir temperatura central.
+            </p>
+          </details>
 
           <div class="warmup-timer-bar">
             <div id="warmup-timer-display" class="warmup-timer-digits">08:00</div>
@@ -1470,9 +1486,12 @@
             <span class="phase-badge-num">02</span>
             <span class="phase-name" data-i18n="wu.p2">Movilidad Articular Específica</span>
           </div>
-          <p class="phase-detail-txt" data-i18n="wu.p2d">
-            Rotadores externos en polea/banda, dislocaciones con pica y aperturas escapulares controladas según el grupo a entrenar hoy.
-          </p>
+          <details class="phase-more">
+            <summary data-i18n="wu.more">Cómo hacerlo</summary>
+            <p class="phase-detail-txt" data-i18n="wu.p2d">
+              Rotadores externos en polea/banda, dislocaciones con pica y aperturas escapulares controladas según el grupo a entrenar hoy.
+            </p>
+          </details>
         </div>
 
         <!-- FASE 3: SERIES DE APROXIMACIÓN -->
@@ -1481,9 +1500,12 @@
             <span class="phase-badge-num">03</span>
             <span class="phase-name" data-i18n="wu.p3">Series de Aproximación Neuromuscular</span>
           </div>
-          <p class="phase-detail-txt" style="margin-bottom: 10px;" data-i18n="wu.p3d">
-            Aclimatación al patrón de movimiento con el 40% y 60% de tu carga efectiva sin generar fatiga metabólica:
-          </p>
+          <details class="phase-more">
+            <summary data-i18n="wu.more">Cómo hacerlo</summary>
+            <p class="phase-detail-txt" data-i18n="wu.p3d">
+              Aclimatación al patrón de movimiento con el 40% y 60% de tu carga efectiva sin generar fatiga metabólica:
+            </p>
+          </details>
 
           <div class="sets-table-wrapper">
             <table>
@@ -1530,8 +1552,7 @@
     </div>
 
     <div id="rest-day-message" class="warmup-box" style="display: none; border-color: #3b82f6;" data-i18n="rest.msg">
-      🏆 <strong>¡Día de descanso metabólico y síntesis proteica!</strong><br>
-      Permite que los depósitos de glucógeno y el sistema nervioso central se recuperen por completo (>36h). Si hoy deseas entrenar, puedes cambiar el día manualmente en el selector.
+      🏆 <strong>Día de descanso.</strong> El músculo crece ahora. Si querés entrenar igual, cambiá el día arriba.
     </div>
 
     <!-- CONTENEDOR DE EJERCICIOS -->
@@ -1604,7 +1625,10 @@
           <div><label for="m-shoulders" class="field-label" data-i18n="m.shoulders">Hombros (contorno, cm)</label><input type="number" step="0.1" id="m-shoulders" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
           <div><label for="m-wrist" class="field-label" data-i18n="m.wrist">Muñeca (cm)</label><input type="number" step="0.1" id="m-wrist" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
         </div>
-        <p class="field-hint" data-i18n="body.hint">Hombros: cinta alrededor de la parte más ancha de los hombros, brazos relajados. Muñeca: justo arriba del hueso. Medite siempre a la mañana, en ayunas.</p>
+        <details class="field-more">
+          <summary data-i18n="body.hintMore">Cómo medir</summary>
+          <p class="field-hint" data-i18n="body.hint">Hombros: cinta alrededor de la parte más ancha de los hombros, brazos relajados. Muñeca: justo arriba del hueso. Medite siempre a la mañana, en ayunas.</p>
+        </details>
         <button type="submit" class="btn-3d" style="width: 100%; margin-top: 14px;" data-i18n="body.save">Guardar Registro de Medidas</button>
       </form>
     </div>
@@ -1650,117 +1674,126 @@
   <!-- PESTAÑA 5: FUNDAMENTOS CIENTÍFICOS -->
   <div id="science-tab" class="tab-content">
     <div class="exercise-card sci-hero">
-      <h2 class="pc-title" data-i18n="sci.title">Guía científica y clases</h2>
-      <div class="sci-speak">
-        <p class="pc-note" data-i18n="sci.intro">Acá aprendés cómo progresar de verdad: por qué el descanso es tan importante, qué dice la ciencia actual, y qué enseñaban <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> y <strong>Hany Rambod</strong>, el entrenador de Chris Bumstead (CBum). Tocá el botón para escuchar las clases con la voz de tu teléfono.</p>
-      </div>
+      <h2 class="pc-title" data-i18n="sci.title">Guía científica</h2>
+      <p class="pc-note" data-i18n="sci.intro">En el descanso el coach te cuenta de a poco. Si querés profundizar, abrí una clase.</p>
       <div class="sci-audio-bar">
-        <button type="button" id="sci-play-all" class="btn-3d" data-i18n="sci.audioOn">🎧 Activar audio de clases</button>
+        <button type="button" id="sci-open" class="btn-3d" data-i18n="sci.openMenu" aria-expanded="false" aria-controls="sci-menu">🎧 Ver clases</button>
         <button type="button" id="sci-stop" class="btn-3d btn-secondary" hidden data-i18n="sci.audioStop">⏹ Detener audio</button>
       </div>
-      <p class="pc-note sci-audio-help" data-i18n="sci.audioHelp">La voz es la del teléfono (la misma que podés elegir en Rutina). El coach te explica sus ideas: no imita la voz de estas personas.</p>
-      <p class="pc-note" data-i18n="sci.restVoiceNote">Si activás el coach de voz en Rutina, en el descanso entre series vas a escuchar de vez en cuando una pista corta, distinta cada vez, a veces sobre el ejercicio que estás haciendo.</p>
     </div>
 
-    <article class="exercise-card sci-lesson" data-lesson="rest">
-      <div class="sci-head">
-        <h3 data-i18n="sci.restTitle">La importancia del descanso</h3>
-        <button type="button" class="btn-3d btn-small sci-play" data-play="rest" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+    <div id="sci-menu" hidden>
+      <div class="exercise-card sci-menu-bar">
+        <button type="button" id="sci-play-all" class="btn-3d" data-i18n="sci.audioOn">🎧 Escuchar todas</button>
+        <p class="pc-note sci-audio-help" data-i18n="sci.audioHelp">Se usa la voz de tu teléfono, la misma de Rutina. No imita a estas personas.</p>
       </div>
-      <div class="sci-speak">
-        <p data-i18n="sci.rest1">El músculo no crece mientras lo entrenás: crece cuando recuperás. El entrenamiento es el estímulo; el descanso es el momento en que el cuerpo construye.</p>
-        <p data-i18n="sci.rest2">La síntesis de proteína muscular sube después de entrenar, llega al pico alrededor de las 24 horas y baja entre las 36 y 48 horas. Por eso esta app vuelve a estimular cada músculo dos veces por semana, y respeta los días de descanso para recargar glucógeno y el sistema nervioso.</p>
-        <p data-i18n="sci.rest3">Dormí entre 7 y 9 horas. Entre series pesadas, descansá 2 a 3 minutos para repetir con calidad: los descansos cortos de un FST-7 son para el cierre, no para reemplazar el trabajo pesado. Si llegás muy cansado, un día extra de descanso bien tomado rinde más que un entreno mediocre.</p>
-      </div>
-    </article>
 
-    <article class="exercise-card sci-lesson" data-lesson="science">
-      <figure class="sci-fig">
-        <img src="img/guide/anatomy.webp" alt="Músculos del pecho y del brazo" width="550" height="533">
-        <figcaption data-i18n="sci.figCap">Músculos del pecho y del brazo. Lámina de Gray's Anatomy (dominio público).</figcaption>
-      </figure>
-      <div class="sci-head">
-        <h3 data-i18n="sci.nowTitle">Lo que dice la ciencia actual</h3>
-        <button type="button" class="btn-3d btn-small sci-play" data-play="science" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
-      </div>
-      <div class="sci-speak">
-        <p data-i18n="sci.nowLead">La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>. No hace falta copiar el volumen extremo de un profesional de los años 70 ni quedarse en una o dos series: el punto dulce para la mayoría es un volumen semanal que puedas recuperar.</p>
-        <ul>
-          <li data-i18n="sci.l1"><strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.</li>
-          <li data-i18n="sci.l2"><strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.</li>
-          <li data-i18n="sci.l3"><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
-          <li data-i18n="sci.l4"><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
-          <li data-i18n="sci.l5"><strong>Progresión:</strong> para crecer hay que subir poco a poco el estímulo (más peso, más repeticiones o mejor técnica). La app usa doble progresión: primero buscás más repeticiones en el rango y, cuando las completás, subís la carga.</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="exercise-card sci-lesson sci-person" data-lesson="mentzer">
-      <div class="sci-photo-col">
-        <div class="sci-portrait" aria-hidden="true"><span>MM</span><small>1951–2001</small></div>
-      </div>
-      <div>
-        <div class="sci-head">
-          <div>
-            <h3 data-i18n="sci.mmTitle">Mike Mentzer</h3>
-            <p class="sci-role" data-i18n="sci.mmRole">Culturista y creador de Heavy Duty (1951–2001)</p>
+      <details class="exercise-card sci-lesson" data-lesson="rest">
+        <summary class="sci-sum"><span class="sci-sum-title" data-i18n="sci.restTitle">La importancia del descanso</span></summary>
+        <div class="sci-lesson-body">
+          <button type="button" class="btn-3d btn-small sci-play" data-play="rest" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+          <div class="sci-speak">
+            <p data-i18n="sci.rest1">El músculo no crece mientras lo entrenás: crece cuando recuperás. El entrenamiento es el estímulo; el descanso es el momento en que el cuerpo construye.</p>
+            <p data-i18n="sci.rest2">La síntesis de proteína muscular sube después de entrenar, llega al pico alrededor de las 24 horas y baja entre las 36 y 48 horas. Por eso esta app vuelve a estimular cada músculo dos veces por semana, y respeta los días de descanso para recargar glucógeno y el sistema nervioso.</p>
+            <p data-i18n="sci.rest3">Dormí entre 7 y 9 horas. Entre series pesadas, descansá 2 a 3 minutos para repetir con calidad: los descansos cortos de un FST-7 son para el cierre, no para reemplazar el trabajo pesado. Si llegás muy cansado, un día extra de descanso bien tomado rinde más que un entreno mediocre.</p>
           </div>
-          <button type="button" class="btn-3d btn-small sci-play" data-play="mentzer" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
         </div>
-        <div class="sci-speak">
-          <p data-i18n="sci.mm1">Mentzer enseñaba que el estímulo debe ser breve e intenso, llevado cerca del fallo verdadero, y que después hace falta recuperarse de verdad. Insistía en que no crecés en el gimnasio: crecés cuando descansás.</p>
-          <p data-i18n="sci.mm2">En esta app vas a ver sus biseries de preagotamiento: un aislamiento cerca del fallo y, sin descanso, el ejercicio compuesto. Esa idea suya sigue vigente para intensificar sin alargar eterno el entreno.</p>
-          <p data-i18n="sci.mm3">La ciencia de hoy coincide con él en que la intensidad y el descanso importan. No coincide tanto con hacer muy pocas series y desaparecer del gym por muchos días: la mayoría progresa mejor con varias series de calidad por músculo y una frecuencia de dos veces por semana.</p>
-        </div>
-      </div>
-    </article>
+      </details>
 
-    <article class="exercise-card sci-lesson sci-person" data-lesson="arnold">
-      <div class="sci-photo-col">
-        <img class="sci-photo" src="img/guide/arnold.webp" alt="Arnold Schwarzenegger, 1985" width="884" height="900">
-      </div>
-      <div>
-        <div class="sci-head">
-          <div>
-            <h3 data-i18n="sci.arTitle">Arnold Schwarzenegger</h3>
-            <p class="sci-role" data-i18n="sci.arRole">7 veces Mr. Olympia</p>
+      <details class="exercise-card sci-lesson" data-lesson="science">
+        <summary class="sci-sum"><span class="sci-sum-title" data-i18n="sci.nowTitle">Lo que dice la ciencia actual</span></summary>
+        <div class="sci-lesson-body">
+          <figure class="sci-fig">
+            <img src="img/guide/anatomy.webp" alt="Músculos del pecho y del brazo" width="550" height="533">
+            <figcaption data-i18n="sci.figCap">Músculos del pecho y del brazo. Lámina de Gray's Anatomy (dominio público).</figcaption>
+          </figure>
+          <button type="button" class="btn-3d btn-small sci-play" data-play="science" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+          <div class="sci-speak">
+            <p data-i18n="sci.nowLead">La rutina programada sigue los meta-análisis de <strong>Schoenfeld, Fisher y Helms</strong>. No hace falta copiar el volumen extremo de un profesional de los años 70 ni quedarse en una o dos series: el punto dulce para la mayoría es un volumen semanal que puedas recuperar.</p>
+            <ul>
+              <li data-i18n="sci.l1"><strong>Frecuencia 2x Semanal:</strong> La síntesis proteica miofibrilar (MPS) alcanza su punto máximo a las 24h y decae después de 36-48 horas. Una frecuencia 2x reactiva el crecimiento continuo evitando semanas de fatiga desperdiciada.</li>
+              <li data-i18n="sci.l2"><strong>Volumen Semanal Efectivo (~18-22 series):</strong> Para atletas avanzados, las adaptaciones hipertróficas máximas se sitúan entre 16 y 22 series de calidad cerca del fallo (RIR 0-1) distribuidas en dos sesiones semanales.</li>
+              <li data-i18n="sci.l3"><strong>Tensión Mecánica en Estiramiento:</strong> Los ejercicios seleccionados ofrecen sobrecarga máxima en la posición alargada (stretch-mediated hypertrophy), que es el principal disparador de sarcómeros en serie.</li>
+              <li data-i18n="sci.l4"><strong>FST-7 al Cierre:</strong> Siete series finales con 30 segundos de descanso estricto para inducir hinchazón celular extrema e irrigación intramuscular de aminoácidos.</li>
+              <li data-i18n="sci.l5"><strong>Progresión:</strong> para crecer hay que subir poco a poco el estímulo (más peso, más repeticiones o mejor técnica). La app usa doble progresión: primero buscás más repeticiones en el rango y, cuando las completás, subís la carga.</li>
+            </ul>
           </div>
-          <button type="button" class="btn-3d btn-small sci-play" data-play="arnold" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
         </div>
-        <div class="sci-speak">
-          <p data-i18n="sci.ar1">Arnold entrenaba con mucho volumen: varios ejercicios por músculo, muchas series y una conexión mente-músculo feroz. Visualizaba el músculo trabajando y disfrutaba el proceso, no solo el resultado.</p>
-          <p data-i18n="sci.ar2">Insistía en la constancia: el que progresa es el que vuelve, semana tras semana, a superar lo que hizo la vez anterior.</p>
-          <p data-i18n="sci.ar3">La ciencia actual apoya la conexión mente-músculo en ejercicios de aislamiento y el valor de acumular volumen de calidad. Advierte que no todos recuperan el volumen de un profesional de esa época: más no siempre es mejor si no dormís ni comés para bancarlo.</p>
-        </div>
-      </div>
-    </article>
+      </details>
 
-    <article class="exercise-card sci-lesson sci-person" data-lesson="rambod">
-      <div class="sci-photo-col">
-        <div class="sci-portrait" aria-hidden="true"><span>HR</span><small>FST-7</small></div>
-      </div>
-      <div>
-        <div class="sci-head">
-          <div>
-            <h3 data-i18n="sci.hrTitle">Hany Rambod</h3>
-            <p class="sci-role" data-i18n="sci.hrRole">Creador del FST-7 y entrenador de Chris Bumstead</p>
+      <details class="exercise-card sci-lesson" data-lesson="mentzer">
+        <summary class="sci-sum">
+          <span>
+            <span class="sci-sum-title" data-i18n="sci.mmTitle">Mike Mentzer</span>
+            <span class="sci-role" data-i18n="sci.mmRole">Culturista y creador de Heavy Duty (1951–2001)</span>
+          </span>
+        </summary>
+        <div class="sci-lesson-body sci-person">
+          <div class="sci-photo-col">
+            <div class="sci-portrait" aria-hidden="true"><span>MM</span><small>1951–2001</small></div>
           </div>
-          <button type="button" class="btn-3d btn-small sci-play" data-play="rambod" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+          <div>
+            <button type="button" class="btn-3d btn-small sci-play" data-play="mentzer" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+            <div class="sci-speak">
+              <p data-i18n="sci.mm1">Mentzer enseñaba que el estímulo debe ser breve e intenso, llevado cerca del fallo verdadero, y que después hace falta recuperarse de verdad. Insistía en que no crecés en el gimnasio: crecés cuando descansás.</p>
+              <p data-i18n="sci.mm2">En esta app vas a ver sus biseries de preagotamiento: un aislamiento cerca del fallo y, sin descanso, el ejercicio compuesto. Esa idea suya sigue vigente para intensificar sin alargar eterno el entreno.</p>
+              <p data-i18n="sci.mm3">La ciencia de hoy coincide con él en que la intensidad y el descanso importan. No coincide tanto con hacer muy pocas series y desaparecer del gym por muchos días: la mayoría progresa mejor con varias series de calidad por músculo y una frecuencia de dos veces por semana.</p>
+            </div>
+          </div>
         </div>
-        <div class="sci-speak">
-          <p data-i18n="sci.hr1">Hany Rambod diseñó el FST-7: siete series finales de un ejercicio de aislamiento, con unos 30 segundos de descanso, para buscar un bombeo enorme y estirar la fascia que rodea el músculo.</p>
-          <p data-i18n="sci.hr2">Fue entrenador de varios Mr. Olympia y de Chris Bumstead (CBum) en Classic Physique. Su sello es el detalle, los puntos débiles, la pose y una nutrición constante, no solo el día de la competencia.</p>
-          <p data-i18n="sci.hr3">En esta app el cierre FST-7 viene de esa idea. La ciencia ve el bombeo como un mecanismo secundario: el motor principal sigue siendo la tensión mecánica progresiva. Usá el FST-7 como broche, no como todo el entreno.</p>
-        </div>
-      </div>
-    </article>
+      </details>
 
-    <div class="exercise-card">
-      <div class="sci-speak">
-        <p data-i18n="sci.close">Progresar no es magia: entrená con calidad, comé para bancar el estímulo, dormí de verdad y volvé a superar lo de la semana pasada. Eso es lo que une a Mentzer, Arnold, Rambod y la ciencia de hoy.</p>
+      <details class="exercise-card sci-lesson" data-lesson="arnold">
+        <summary class="sci-sum">
+          <span>
+            <span class="sci-sum-title" data-i18n="sci.arTitle">Arnold Schwarzenegger</span>
+            <span class="sci-role" data-i18n="sci.arRole">7 veces Mr. Olympia</span>
+          </span>
+        </summary>
+        <div class="sci-lesson-body sci-person">
+          <div class="sci-photo-col">
+            <img class="sci-photo" src="img/guide/arnold.webp" alt="Arnold Schwarzenegger, 1985" width="884" height="900">
+          </div>
+          <div>
+            <button type="button" class="btn-3d btn-small sci-play" data-play="arnold" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+            <div class="sci-speak">
+              <p data-i18n="sci.ar1">Arnold entrenaba con mucho volumen: varios ejercicios por músculo, muchas series y una conexión mente-músculo feroz. Visualizaba el músculo trabajando y disfrutaba el proceso, no solo el resultado.</p>
+              <p data-i18n="sci.ar2">Insistía en la constancia: el que progresa es el que vuelve, semana tras semana, a superar lo que hizo la vez anterior.</p>
+              <p data-i18n="sci.ar3">La ciencia actual apoya la conexión mente-músculo en ejercicios de aislamiento y el valor de acumular volumen de calidad. Advierte que no todos recuperan el volumen de un profesional de esa época: más no siempre es mejor si no dormís ni comés para bancarlo.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="exercise-card sci-lesson" data-lesson="rambod">
+        <summary class="sci-sum">
+          <span>
+            <span class="sci-sum-title" data-i18n="sci.hrTitle">Hany Rambod</span>
+            <span class="sci-role" data-i18n="sci.hrRole">Creador del FST-7 y entrenador de Chris Bumstead</span>
+          </span>
+        </summary>
+        <div class="sci-lesson-body sci-person">
+          <div class="sci-photo-col">
+            <div class="sci-portrait" aria-hidden="true"><span>HR</span><small>FST-7</small></div>
+          </div>
+          <div>
+            <button type="button" class="btn-3d btn-small sci-play" data-play="rambod" data-i18n="sci.listen">▶️ Escuchar esta clase</button>
+            <div class="sci-speak">
+              <p data-i18n="sci.hr1">Hany Rambod diseñó el FST-7: siete series finales de un ejercicio de aislamiento, con unos 30 segundos de descanso, para buscar un bombeo enorme y estirar la fascia que rodea el músculo.</p>
+              <p data-i18n="sci.hr2">Fue entrenador de varios Mr. Olympia y de Chris Bumstead (CBum) en Classic Physique. Su sello es el detalle, los puntos débiles, la pose y una nutrición constante, no solo el día de la competencia.</p>
+              <p data-i18n="sci.hr3">En esta app el cierre FST-7 viene de esa idea. La ciencia ve el bombeo como un mecanismo secundario: el motor principal sigue siendo la tensión mecánica progresiva. Usá el FST-7 como broche, no como todo el entreno.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="exercise-card">
+        <div class="sci-speak">
+          <p data-i18n="sci.close">Progresar no es magia: entrená con calidad, comé para bancar el estímulo, dormí de verdad y volvé a superar lo de la semana pasada. Eso es lo que une a Mentzer, Arnold, Rambod y la ciencia de hoy.</p>
+        </div>
+        <p class="pc-note" data-i18n="sci.attrib">Foto de Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, dominio público). Lámina anatómica: Henry Vandyke Carter, Gray's Anatomy (dominio público).</p>
+        <p class="pc-note pro-disc" data-i18n="sci.disc">Esta guía es educativa y resume evidencia general e ideas públicas de estos entrenadores. No reemplaza consejo médico ni un entrenador presencial.</p>
       </div>
-      <p class="pc-note" data-i18n="sci.attrib">Foto de Arnold Schwarzenegger: Harry Langdon, 1985 (CC0, dominio público). Lámina anatómica: Henry Vandyke Carter, Gray's Anatomy (dominio público).</p>
-      <p class="pc-note pro-disc" data-i18n="sci.disc">Esta guía es educativa y resume evidencia general e ideas públicas de estos entrenadores. No reemplaza consejo médico ni un entrenador presencial.</p>
     </div>
   </div>
 
@@ -1984,7 +2017,7 @@
   "day.aria": "Día de la rutina",
   "wu.title": "Activación Miofascial &amp; Puesta a Punto",
   "wu.tag": "Protocolo Previo",
-  "wu.sub": "Optimiza la lubricación sinovial y la conducción nerviosa antes de cargar peso para prevenir lesiones y elevar el rendimiento.",
+  "wu.sub": "Preparate antes de cargar peso.",
   "wu.p1": "Cardio de Elevación Térmica (8 min)",
   "wu.p1d": "Caminadora con ligera inclinación o elíptica a ritmo moderado constante (RPE 4-5) para subir temperatura central.",
   "wu.start": "▶ Iniciar",
@@ -1995,11 +2028,12 @@
   "wu.p2d": "Rotadores externos en polea/banda, dislocaciones con pica y aperturas escapulares controladas según el grupo a entrenar hoy.",
   "wu.p3": "Series de Aproximación Neuromuscular",
   "wu.p3d": "Aclimatación al patrón de movimiento con el 40% y 60% de tu carga efectiva sin generar fatiga metabólica:",
+  "wu.more": "Cómo hacerlo",
   "th.set": "Serie",
   "th.load": "Carga (kg)",
   "th.action": "Acción",
   "btn.complete": "Completar",
-  "rest.msg": "🏆 <strong>¡Día de descanso metabólico y síntesis proteica!</strong><br/>\n      Permite que los depósitos de glucógeno y el sistema nervioso central se recuperen por completo (&gt;36h). Si hoy deseas entrenar, puedes cambiar el día manualmente en el selector.",
+  "rest.msg": "🏆 <strong>Día de descanso.</strong> El músculo crece ahora. Si querés entrenar igual, cambiá el día arriba.",
   "wh.title": "Historial de Cargas y Repeticiones",
   "wh.sub": "Registro progresivo de tus marcas en cada ejercicio.",
   "wh.search": "Buscar ejercicio",
@@ -2025,6 +2059,7 @@
   "m.wrist": "Muñeca (cm)",
   "ph.m": "Ej: 0.0",
   "body.hint": "Hombros: cinta alrededor de la parte más ancha de los hombros, brazos relajados. Muñeca: justo arriba del hueso. Medite siempre a la mañana, en ayunas.",
+  "body.hintMore": "Cómo medir",
   "body.save": "Guardar Registro de Medidas",
   "ch.title": "Gráficos de progreso",
   "ch.empty": "Registrá al menos 2 mediciones para ver tus gráficos.",
@@ -2040,12 +2075,14 @@
   "th.shoulders": "Hombros",
   "th.wrist": "Muñeca",
   "mh.empty": "Sin registros aún.",
-  "sci.title": "Guía científica y clases",
-  "sci.intro": "Acá aprendés cómo progresar de verdad: por qué el descanso es tan importante, qué dice la ciencia actual, y qué enseñaban <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> y <strong>Hany Rambod</strong>, el entrenador de Chris Bumstead (CBum). Tocá el botón para escuchar las clases con la voz de tu teléfono.",
-  "sci.audioOn": "🎧 Activar audio de clases",
+  "sci.title": "Guía científica",
+  "sci.intro": "En el descanso el coach te cuenta de a poco. Si querés profundizar, abrí una clase.",
+  "sci.audioOn": "🎧 Escuchar todas",
   "sci.audioStop": "⏹ Detener audio",
   "sci.listen": "▶️ Escuchar esta clase",
-  "sci.audioHelp": "La voz es la del teléfono (la misma que podés elegir en Rutina). El coach te explica sus ideas: no imita la voz de estas personas.",
+  "sci.openMenu": "🎧 Ver clases",
+  "sci.hideMenu": "Cerrar clases",
+  "sci.audioHelp": "Se usa la voz de tu teléfono, la misma de Rutina. No imita a estas personas.",
   "sci.restVoiceNote": "Si activás el coach de voz en Rutina, en el descanso entre series vas a escuchar de vez en cuando una pista corta, distinta cada vez, a veces sobre el ejercicio que estás haciendo.",
   "sci.restTitle": "La importancia del descanso",
   "sci.rest1": "El músculo no crece mientras lo entrenás: crece cuando recuperás. El entrenamiento es el estímulo; el descanso es el momento en que el cuerpo construye.",
@@ -2451,7 +2488,7 @@
   "day.aria": "Workout day",
   "wu.title": "Myofascial Activation & Prep",
   "wu.tag": "Pre-workout protocol",
-  "wu.sub": "Improves joint lubrication and nerve conduction before you lift, to prevent injuries and boost performance.",
+  "wu.sub": "Get ready before you lift.",
   "wu.p1": "Warm-up cardio (8 min)",
   "wu.p1d": "Treadmill at a slight incline or elliptical at a steady, moderate pace (RPE 4-5) to raise your core temperature.",
   "wu.start": "▶ Start",
@@ -2462,11 +2499,12 @@
   "wu.p2d": "External rotations with a cable or band, stick pass-throughs and controlled scapular openers for the muscles you train today.",
   "wu.p3": "Neuromuscular ramp-up sets",
   "wu.p3d": "Get used to the movement pattern with 40% and 60% of your working load, without building metabolic fatigue:",
+  "wu.more": "How to do it",
   "th.set": "Set",
   "th.load": "Load (kg)",
   "th.action": "Action",
   "btn.complete": "Complete",
-  "rest.msg": "🏆 <strong>Rest day: metabolic recovery and protein synthesis!</strong><br>\n      Let your glycogen stores and central nervous system fully recover (&gt;36h). If you want to train today, you can change the day manually in the selector.",
+  "rest.msg": "🏆 <strong>Rest day.</strong> Muscle grows now. If you still want to train, change the day above.",
   "wh.title": "Load & Rep History",
   "wh.sub": "A progressive log of your numbers on every exercise.",
   "wh.search": "Search exercise",
@@ -2492,6 +2530,7 @@
   "m.wrist": "Wrist (cm)",
   "ph.m": "e.g. 0.0",
   "body.hint": "Shoulders: tape around the widest part of the shoulders, arms relaxed. Wrist: just above the bone. Always measure in the morning, on an empty stomach.",
+  "body.hintMore": "How to measure",
   "body.save": "Save measurements",
   "ch.title": "Progress charts",
   "ch.empty": "Log at least 2 measurements to see your charts.",
@@ -2507,12 +2546,14 @@
   "th.shoulders": "Shoulders",
   "th.wrist": "Wrist",
   "mh.empty": "No records yet.",
-  "sci.title": "Science guide and classes",
-  "sci.intro": "Here you learn how to progress for real: why rest matters so much, what current science says, and what <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> and <strong>Hany Rambod</strong> (coach of Chris Bumstead, CBum) taught. Tap the button to hear the classes with your phone voice.",
-  "sci.audioOn": "🎧 Play the class audio",
+  "sci.title": "Science guide",
+  "sci.intro": "During rest the coach shares short tips. Open a class when you want to go deeper.",
+  "sci.audioOn": "🎧 Play all",
   "sci.audioStop": "⏹ Stop audio",
   "sci.listen": "▶️ Listen to this class",
-  "sci.audioHelp": "The voice is your phone (the same one you can pick in Workout). The coach explains their ideas — it does not imitate these people's voices.",
+  "sci.openMenu": "🎧 View classes",
+  "sci.hideMenu": "Close classes",
+  "sci.audioHelp": "This uses your phone voice, the same one as in Workout. It does not imitate these people.",
   "sci.restVoiceNote": "If you turn on the voice coach in Workout, during rest between sets you will sometimes hear a short tip, a different one each time, sometimes about the exercise you are doing.",
   "sci.restTitle": "Why rest matters",
   "sci.rest1": "Muscle does not grow while you train it: it grows while you recover. Training is the stimulus; rest is when the body builds.",
@@ -3159,7 +3200,7 @@
   "day.aria": "Dia do treino",
   "wu.title": "Ativação Miofascial & Preparação",
   "wu.tag": "Protocolo prévio",
-  "wu.sub": "Otimiza a lubrificação articular e a condução nervosa antes de levantar peso, para prevenir lesões e melhorar o desempenho.",
+  "wu.sub": "Prepare-se antes de carregar peso.",
   "wu.p1": "Cardio de aquecimento (8 min)",
   "wu.p1d": "Esteira com leve inclinação ou elíptico em ritmo moderado e constante (RPE 4-5) para elevar a temperatura corporal.",
   "wu.start": "▶ Iniciar",
@@ -3170,11 +3211,12 @@
   "wu.p2d": "Rotações externas na polia ou elástico, passagens com bastão e aberturas escapulares controladas de acordo com o grupo muscular de hoje.",
   "wu.p3": "Séries de aproximação neuromuscular",
   "wu.p3d": "Adaptação ao padrão de movimento com 40% e 60% da sua carga de trabalho, sem gerar fadiga metabólica:",
+  "wu.more": "Como fazer",
   "th.set": "Série",
   "th.load": "Carga (kg)",
   "th.action": "Ação",
   "btn.complete": "Concluir",
-  "rest.msg": "🏆 <strong>Dia de descanso metabólico e síntese proteica!</strong><br>\n      Deixe seus estoques de glicogênio e o sistema nervoso central se recuperarem por completo (&gt;36h). Se quiser treinar hoje, mude o dia manualmente no seletor.",
+  "rest.msg": "🏆 <strong>Dia de descanso.</strong> O músculo cresce agora. Se quiser treinar mesmo assim, mude o dia acima.",
   "wh.title": "Histórico de Cargas e Repetições",
   "wh.sub": "Registro progressivo das suas marcas em cada exercício.",
   "wh.search": "Buscar exercício",
@@ -3200,6 +3242,7 @@
   "m.wrist": "Punho (cm)",
   "ph.m": "Ex.: 0.0",
   "body.hint": "Ombros: fita ao redor da parte mais larga dos ombros, braços relaxados. Punho: logo acima do osso. Meça sempre de manhã, em jejum.",
+  "body.hintMore": "Como medir",
   "body.save": "Salvar medidas",
   "ch.title": "Gráficos de progresso",
   "ch.empty": "Registre pelo menos 2 medições para ver seus gráficos.",
@@ -3215,12 +3258,14 @@
   "th.shoulders": "Ombros",
   "th.wrist": "Punho",
   "mh.empty": "Nenhum registro ainda.",
-  "sci.title": "Guia científica e aulas",
-  "sci.intro": "Aqui você aprende a progredir de verdade: por que o descanso é tão importante, o que diz a ciência atual, e o que ensinavam <strong>Mike Mentzer</strong>, <strong>Arnold Schwarzenegger</strong> e <strong>Hany Rambod</strong>, o treinador de Chris Bumstead (CBum). Toque o botão para ouvir as aulas com a voz do seu telefone.",
-  "sci.audioOn": "🎧 Ativar áudio das aulas",
+  "sci.title": "Guia científica",
+  "sci.intro": "No descanso o coach conta um pouco de cada vez. Se quiser aprofundar, abra uma aula.",
+  "sci.audioOn": "🎧 Ouvir todas",
   "sci.audioStop": "⏹ Parar áudio",
   "sci.listen": "▶️ Ouvir esta aula",
-  "sci.audioHelp": "A voz é a do telefone (a mesma que você pode escolher em Treino). O coach explica as ideias deles: não imita a voz dessas pessoas.",
+  "sci.openMenu": "🎧 Ver aulas",
+  "sci.hideMenu": "Fechar aulas",
+  "sci.audioHelp": "Usa a voz do seu telefone, a mesma de Treino. Não imita essas pessoas.",
   "sci.restVoiceNote": "Se você ativar o coach de voz em Treino, no descanso entre séries vai ouvir de vez em quando uma dica curta, diferente a cada vez, às vezes sobre o exercício que está fazendo.",
   "sci.restTitle": "A importância do descanso",
   "sci.rest1": "O músculo não cresce enquanto você o treina: cresce quando você recupera. O treino é o estímulo; o descanso é o momento em que o corpo constrói.",
@@ -7568,6 +7613,6 @@ ${timedSecs ? `
   <script src="pro2.js?v=15"></script>
   <script src="superset.js?v=4"></script>
   <script src="features.js?v=2"></script>
-  <script src="guide.js?v=2"></script>
+  <script src="guide.js?v=3"></script>
 </body>
 </html>

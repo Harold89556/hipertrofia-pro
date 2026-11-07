@@ -27,18 +27,40 @@
       } catch (e) { clearInterval(window._sciWatch); setPlaying(false); }
     }, 400);
   }
+  function showMenu(on) {
+    var menu = document.getElementById('sci-menu');
+    var btn = document.getElementById('sci-open');
+    if (!menu || !btn) return;
+    menu.hidden = !on;
+    btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    var key = on ? 'sci.hideMenu' : 'sci.openMenu';
+    if (typeof setI18n === 'function') setI18n(btn, key);
+    else {
+      btn.setAttribute('data-i18n', key);
+      btn.textContent = on ? 'Cerrar clases' : '🎧 Ver clases';
+    }
+  }
+  function spoken(el) {
+    return el ? (el.textContent || '') : '';
+  }
   function play(which) {
     var root = document.getElementById('science-tab');
     if (!root || !window.hpSay) return;
     var text = '';
     if (which === 'all') {
-      text = Array.prototype.map.call(root.querySelectorAll('.sci-speak'), function (el) { return el.innerText; }).join(' ');
+      text = Array.prototype.map.call(root.querySelectorAll('.sci-speak'), function (el) { return spoken(el); }).join(' ');
     } else {
       var card = root.querySelector('[data-lesson="' + which + '"] .sci-speak');
-      text = card ? card.innerText : '';
+      text = spoken(card);
     }
     var list = sentences(text);
     if (!list.length) return;
+    showMenu(true);
+    if (which !== 'all') {
+      var lesson = root.querySelector('[data-lesson="' + which + '"]');
+      if (lesson && 'open' in lesson) lesson.open = true;
+      try { if (lesson) lesson.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+    }
     try { if (window.hpUnlock) window.hpUnlock(); } catch (e) {}
     setPlaying(true, which === 'all' ? '' : which);
     window.hpSay(list, true);
@@ -48,6 +70,14 @@
     setPlaying(false);
   }
   function bind() {
+    var openBtn = document.getElementById('sci-open');
+    if (openBtn && !openBtn.dataset.bound) {
+      openBtn.dataset.bound = '1';
+      openBtn.addEventListener('click', function () {
+        var menu = document.getElementById('sci-menu');
+        showMenu(menu && menu.hidden);
+      });
+    }
     var all = document.getElementById('sci-play-all');
     var stopBtn = document.getElementById('sci-stop');
     if (all && !all.dataset.bound) {
