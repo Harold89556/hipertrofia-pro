@@ -42,11 +42,17 @@
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --radius: 14px;
+      --radius: 16px;
       --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
       --orange-main: #ff6b1a;
       --orange-light: #ffaa66;
       --green-success: #10b981;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
     }
 
     * {
@@ -708,7 +714,7 @@
     }
 
     @media (max-width: 540px) {
-      body { padding: 10px 10px 90px; }
+      body { padding: calc(16px + env(safe-area-inset-top)) 16px 100px; }
       h1 { font-size: 1.5rem; }
       .grid-2 { grid-template-columns: 1fr; gap: 12px; }
       .nutrition-banner { grid-template-columns: repeat(2, 1fr); }
@@ -985,6 +991,171 @@
     .more-card h3 { margin:2px 6px 10px; font-size:1rem; }
     .more-card button { width:100%; min-height:50px; display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:12px; padding:0 14px; margin-bottom:8px; font:inherit; font-size:1rem; font-weight:600; cursor:pointer; text-align:left; }
     .more-card button.danger { color:#fca5a5; border-color:#7f1d1d; }
+
+    /* ===== UX v6: diseño más aireado y controles bien colocados ===== */
+    .dl-progress {
+      padding: 16px 16px 18px;
+      border-radius: var(--radius);
+      margin: 14px 0;
+      background: var(--surface);
+    }
+    .dl-progress h3 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .dl-sum { margin: 12px 0 8px; font-size: .95rem; line-height: 1.45; }
+    .dl-progress > .dlr-ch { gap: 8px; margin: 8px 0 6px; }
+    .dlc { padding: 5px 10px; font-size: .75rem; }
+    .dl-bar { margin: 10px 0; }
+    .dl-bar-l { margin-bottom: 4px; }
+    .dl-ai textarea {
+      width: 100%;
+      min-height: 88px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      line-height: 1.45;
+      margin: 0;
+      resize: vertical;
+    }
+    .dl-ai-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+      align-items: end;
+    }
+    .dl-ai-fields > select,
+    .dl-ai-fields .dl-time {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+    .dl-time {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      margin: 12px 0 8px;
+      font-size: .8rem;
+    }
+    .dl-time input[type=time] {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+    .dl-actions, .dl-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .dl-actions:has(> :only-child),
+    .dl-tools:has(> :only-child) {
+      grid-template-columns: 1fr;
+    }
+    .dl-ai-btns { margin-top: 10px; }
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 10px;
+      border-radius: 12px;
+      line-height: 1.25;
+      white-space: normal;
+      box-sizing: border-box;
+    }
+    .dl-ok { color: #bbf7d0; }
+    .meal {
+      padding: 16px;
+      border-radius: var(--radius);
+      margin: 16px 0;
+      background: var(--surface);
+    }
+    .meal-head {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .meal-head strong { font-size: 1.05rem; line-height: 1.3; }
+    .meal-head small { font-size: .85rem; line-height: 1.4; }
+    .meal ul { margin-top: 8px; }
+    .meal li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px dashed rgba(255,255,255,.08);
+    }
+    .meal-item-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meal li .meal-item-main span { flex: none; line-height: 1.35; }
+    .meal li .meal-item-main b { text-align: left; white-space: normal; font-weight: 700; }
+    .meal-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .swap {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 12px;
+    }
+    .dl-drow {
+      display: grid;
+      grid-template-columns: 1fr 88px auto auto;
+      gap: 8px 10px;
+      align-items: center;
+      padding: 10px 0;
+      margin: 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .dlr {
+      padding: 14px;
+      gap: 12px;
+      border-radius: 14px;
+    }
+    .dlr-t { gap: 8px; }
+    input.dl-time-i { max-width: 140px; min-height: 44px; }
+    .user-profile-bar { padding: 14px 16px; gap: 12px; }
+    .macro-grid { gap: 10px; margin-bottom: 12px; }
+    .macro-grid div { padding: 12px 8px; border-radius: 12px; }
+    .more-card { padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+    .more-card h3 { margin: 4px 8px 14px; }
+    .more-card button { min-height: 52px; margin-bottom: 10px; border-radius: 14px; }
+    .more-sec { padding: 14px 4px 6px; }
+    .exercise-card { padding: 18px 16px; margin-bottom: 18px; }
+    th, td { padding: 12px 10px; }
+    .pro-box, .plan-card { padding: 16px; }
+    input, select, textarea {
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+    .bnav { padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); }
+    .bnav button { min-height: 56px; gap: 4px; }
+    @media (max-width: 540px) {
+      .dl-drow { grid-template-columns: 88px auto auto; }
+      .dl-drow input[type="text"] { grid-column: 1 / -1; }
+      .dl-drow .dlr-ch { grid-column: 1 / -1; }
+    }
+    @media (max-width: 360px) {
+      .dl-ai-fields, .dl-ai-btns { grid-template-columns: 1fr; }
+    }
 </style>
   <script>
     // PWA: registrar service worker (necesario para instalar y para la app de Android)
@@ -5918,7 +6089,7 @@ ${timedSecs ? `
         const tot = dlDraft.items.reduce((a, it) => { const x = dlDraftScale(it); a.k += x.kcal; a.p += x.p; a.c += x.c; a.f += x.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
         draft = thumb + `<div class="dl-draft"><h4 style="margin:8px 0 4px">${dlT('review')}</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="dlr-x" aria-label="${dlT('del')}" onclick="dlDraftDel(${i})">✕</button><div class="dlr-ch" id="dl-dr-${i}"><b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}</div></div>`; }).join('') + `<div class="dlr dlr-tot"><div class="dlr-m"><b>Total</b> <small>(${dlT('est')})</small><div class="dlr-ch">${dlChips(tot.p, tot.c, tot.f)}</div></div><div class="dlr-k">${fmtN(tot.k)}<small> kcal</small></div></div>` : `<p class="pc-note">No encontré alimentos ${dlDraft.img ? 'en la foto' : 'en el texto'}.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
       }
-      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="2" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-actions"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><label class="dl-time"><span>${t('diet.time')}</span><input type="time" id="dl-ai-time" value="${(dlDraft && dlDraft.at) || dlNow()}" onchange="if(dlDraft)dlDraft.at=this.value"></label><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
+      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="3" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-ai-fields"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><label class="dl-time"><span>${t('diet.time')}</span><input type="time" id="dl-ai-time" value="${(dlDraft && dlDraft.at) || dlNow()}" onchange="if(dlDraft)dlDraft.at=this.value"></label></div><div class="dl-actions dl-ai-btns"><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:10px 0 0;font-size:.8rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
     }
     // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
     function applyDietLog(d, tg, log) {
@@ -6148,7 +6319,7 @@ ${timedSecs ? `
           <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(getDietLog().times || {})[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)"></label>
           ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
           ${m.state === 'ate' ? `<div class="dl-adj">🍽️ Comiste otra cosa: cuenta lo registrado</div><ul class="dl-extra">${lg.extra.filter(e => e.mk === m.mk).map(dlExtraLi).join('')}</ul>` : ''}
-          <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b>${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</li>`).join('')}</ul>
+          <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><div class="meal-item-main"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b></div><div class="meal-actions">${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</div></li>`).join('')}</ul>
           <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
