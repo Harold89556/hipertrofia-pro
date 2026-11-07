@@ -7187,8 +7187,16 @@ ${timedSecs ? `
         const st = cur(), ov = (st.ov || []).slice();
         let pops = 0;
         while (ov.length && !OV[ov[ov.length - 1]].open()) { ov.pop(); pops++; }
-        if (pops) { pendingBack++; history.go(-pops); return; }   // se cerró con ✕ / Cancelar: consumir su entrada
         const add = OV_IDS.filter(id => OV[id].open() && !ov.includes(id));
+        // Más → Editar perfil / Mi plan: se cierra el menú y se abre otra ventana en el mismo toque.
+        // Si hacemos history.go, popstate cierra la pantalla nueva y parece que el botón no hace nada.
+        if (pops && add.length) {
+          let d = st.d - pops;
+          add.forEach(id => { ov.push(id); d++; });
+          history.replaceState({ hp: 1, d: Math.max(1, d), tab: st.tab, ov: ov.slice() }, '', location.href);
+          return;
+        }
+        if (pops) { pendingBack++; history.go(-pops); return; }   // se cerró con ✕ / Cancelar: consumir su entrada
         let d = st.d;
         add.forEach(id => { ov.push(id); d++; history.pushState({ hp: 1, d, tab: st.tab, ov: ov.slice() }, '', location.href); });
       }
