@@ -948,6 +948,9 @@
     .ch-m{max-width:85%;padding:8px 12px;border-radius:14px}.ch-m.u{align-self:flex-end;background:var(--accent);color:#000}.ch-m.c{align-self:flex-start;background:rgba(255,255,255,.08)}.ch-m small{display:block;opacity:.7;font-size:.7rem}
     .ch-conv{display:block;width:100%;text-align:left;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;margin:6px 0;background:none;color:inherit}.ch-conv.new{border-color:var(--accent)}.ch-conv span{display:block;opacity:.8;font-size:.85rem}
     .badge{background:var(--accent);color:#000;border-radius:999px;padding:0 8px;font-size:.8rem}
+    .hp-nbadge[hidden]{display:none!important}
+    #bnav-more{position:relative}
+    #bnav-more .hp-nbadge{position:absolute;top:4px;right:12%;min-width:16px;padding:0 5px;font-size:.68rem;line-height:1.2}
     .rk-tabs{display:flex;gap:6px;overflow-x:auto;margin:8px 0}.rk-tabs button{flex:1;white-space:nowrap;padding:8px 10px;min-height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:none;color:inherit}.rk-tabs button.on{background:var(--accent);color:#000;font-weight:700}
     .rk-list{list-style:none;padding:0}.rk-list li{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid rgba(255,255,255,.08)}.rk-list li.me{background:var(--accent-glow);border-radius:8px}.rk-list .pos{width:28px;text-align:center}.rk-list .nm{flex:1}.rk-list small{display:block;opacity:.7}
     .rd-sub{font-size:.75rem;color:var(--text-muted);font-weight:500}
@@ -5075,11 +5078,11 @@ ${timedSecs ? `
       `).join('');
     }
 
-    // Accesos rápidos / widget: ?go=train|food|diet|progress
+    // Accesos rápidos / widget: ?go=train|food|diet|progress|coachh|admin
     function hpGoRoute() {
       const u = new URL(location.href); const go = u.searchParams.get('go'); if (!go) return;
       u.searchParams.delete('go'); history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash);
-      const map = { train: 'workout-tab', food: 'diet-tab', diet: 'diet-tab', progress: 'history-tab' };
+      const map = { train: 'workout-tab', food: 'diet-tab', diet: 'diet-tab', progress: 'history-tab', coachh: 'coachh-tab', admin: 'admin-tab' };
       const tab = map[go]; if (!tab) return;
       const btn = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`); if (btn) switchTab(tab, btn);
       setTimeout(() => {
@@ -7070,7 +7073,7 @@ ${timedSecs ? `
     <button type="button" data-t="diet-tab"><svg viewBox="0 0 24 24"><path d="M12 3c4 0 7 3 7 7 0 6-7 11-7 11S5 16 5 10c0-4 3-7 7-7z"/><path d="M12 7v6"/></svg><span data-bl="diet"></span></button>
     <button type="button" data-t="workout-history-tab"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 16l4-5 3 3 5-7"/></svg><span data-bl="loads"></span></button>
     <button type="button" data-t="body-tab"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 8v3M11 8v4M15 8v3M19 8v2"/></svg><span data-bl="measure"></span></button>
-    <button type="button" data-t="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span data-bl="more"></span></button>
+    <button type="button" data-t="more" id="bnav-more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span data-bl="more"></span></button>
   </div></nav>
   <div class="more-sheet" id="more-sheet" onclick="if(event.target===this)hpMore(false)"><div class="more-card" role="dialog" aria-modal="true">
     <h3 data-bl="more"></h3>
@@ -7151,7 +7154,7 @@ ${timedSecs ? `
   })();
   </script>
   <script src="anim.js?v=2"></script>
-  <script src="pro.js?v=6"></script>
+  <script src="pro.js?v=7"></script>
   <script src="cues.js?v=1"></script>
   <script src="pro2.js?v=12"></script>
   <script src="superset.js?v=4"></script>

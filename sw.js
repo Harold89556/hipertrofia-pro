@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v31';
+const CACHE = 'hp-shell-v32';
 const SHELL = ['./', './index.html', './manifest.json', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
@@ -38,4 +38,37 @@ self.addEventListener('fetch', (e) => {
           .then((hit) => hit || new Response('', { status: 504, statusText: 'Offline' }))
       )
   );
+});
+
+self.addEventListener('push', (e) => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch (err) {}
+  const title = data.title || 'Hipertrofia Pro';
+  const body = data.body || '';
+  const url = data.url || './?go=coachh';
+  e.waitUntil(self.registration.showNotification(title, {
+    body,
+    icon: './icons/icon-192.png',
+    badge: './icons/icon-192.png',
+    lang: data.lang || 'es',
+    tag: data.tag || 'coach-msg',
+    renotify: true,
+    data: { url, go: data.go || 'coachh' }
+  }));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './';
+  const go = e.notification.data && e.notification.data.go;
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) {
+      if (c.url.includes('/hipertrofia-pro') && 'focus' in c) {
+        c.postMessage({ type: 'hp-notif-click', go, url });
+        return c.focus();
+      }
+    }
+    return self.clients.openWindow(url);
+  })());
 });

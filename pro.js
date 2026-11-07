@@ -4,9 +4,9 @@
   const E = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const L = () => (typeof LANG !== 'undefined' ? LANG : 'es');
   const TX = {
-    es: { physique: 'Análisis de físico IA', technique: 'Técnica por video IA', comp: 'Preparación para competir', coachh: 'Coach humano', rank: 'Rankings y retos', locked: 'Esta función es parte del plan Pro.', seePlans: 'Ver planes', soon: 'Próximamente: la IA todavía no está activada.' },
-    en: { physique: 'AI physique analysis', technique: 'AI technique check', comp: 'Contest prep', coachh: 'Human coach', rank: 'Rankings & challenges', locked: 'This feature is part of the Pro plan.', seePlans: 'See plans', soon: 'Coming soon: AI is not enabled yet.' },
-    pt: { physique: 'Análise de físico IA', technique: 'Técnica por vídeo IA', comp: 'Preparação para competir', coachh: 'Coach humano', rank: 'Rankings e desafios', locked: 'Este recurso faz parte do plano Pro.', seePlans: 'Ver planos', soon: 'Em breve: a IA ainda não está ativada.' }
+    es: { physique: 'Análisis de físico IA', technique: 'Técnica por video IA', comp: 'Preparación para competir', coachh: 'Coach humano', rank: 'Rankings y retos', locked: 'Esta función es parte del plan Pro.', seePlans: 'Ver planes', soon: 'Próximamente: la IA todavía no está activada.', notifyBtn: 'Activar notificaciones', notifyHint: 'Así te avisamos cuando el coach responda, aunque la app esté cerrada.', notifyHintAdmin: 'Así te avisamos cuando un usuario te escriba, aunque la app esté cerrada.', notifyOn: 'Notificaciones activadas', notifyDenied: 'Las notificaciones están bloqueadas. Activalas desde los ajustes del teléfono o del navegador.' },
+    en: { physique: 'AI physique analysis', technique: 'AI technique check', comp: 'Contest prep', coachh: 'Human coach', rank: 'Rankings & challenges', locked: 'This feature is part of the Pro plan.', seePlans: 'See plans', soon: 'Coming soon: AI is not enabled yet.', notifyBtn: 'Enable notifications', notifyHint: 'We will notify you when the coach replies, even if the app is closed.', notifyHintAdmin: 'We will notify you when a user writes to you, even if the app is closed.', notifyOn: 'Notifications enabled', notifyDenied: 'Notifications are blocked. Enable them in your phone or browser settings.' },
+    pt: { physique: 'Análise de físico IA', technique: 'Técnica por vídeo IA', comp: 'Preparação para competir', coachh: 'Coach humano', rank: 'Rankings e desafios', locked: 'Este recurso faz parte do plano Pro.', seePlans: 'Ver planos', soon: 'Em breve: a IA ainda não está ativada.', notifyBtn: 'Ativar notificações', notifyHint: 'Assim avisamos quando o coach responder, mesmo com o app fechado.', notifyHintAdmin: 'Assim avisamos quando um usuário te escrever, mesmo com o app fechado.', notifyOn: 'Notificações ativadas', notifyDenied: 'As notificações estão bloqueadas. Ative-as nos ajustes do telefone ou do navegador.' }
   };
   const tx = k => (TX[L()] || TX.es)[k] || TX.es[k];
   const pro = () => !!(window._access && window._access.has_access);
@@ -29,7 +29,7 @@
   });
   const sheet = document.querySelector('#more-sheet .more-card'), before = sheet.querySelector('[data-m="history-tab"]');
   const hdr = document.createElement('div'); hdr.className = 'more-sec'; hdr.textContent = '⭐ Pro'; sheet.insertBefore(hdr, before);
-  TABS.forEach(([id, ic, k]) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `${ic} <span data-px="${k}"></span>`; b.addEventListener('click', () => { hpMore(false); switchTab(id); scrollTo({ top: 0 }); }); sheet.insertBefore(b, before); });
+  TABS.forEach(([id, ic, k]) => { const b = document.createElement('button'); b.type = 'button'; if (k === 'coachh') b.id = 'more-coachh'; b.innerHTML = `${ic} <span data-px="${k}"></span>${k === 'coachh' ? ' <span class="badge hp-nbadge" id="ch-more-badge" hidden></span>' : ''}`; b.addEventListener('click', () => { hpMore(false); switchTab(id); scrollTo({ top: 0 }); }); sheet.insertBefore(b, before); });
   const hr = document.createElement('div'); hr.className = 'more-sec'; hr.innerHTML = '&nbsp;'; sheet.insertBefore(hr, before);
   function labels() { document.querySelectorAll('[data-px]').forEach(e => e.textContent = tx(e.dataset.px)); }
   let ll = null; setInterval(() => { if (L() !== ll) { ll = L(); labels(); } }, 800); labels();
@@ -315,21 +315,130 @@
   const origRD = window.renderDiet;
   if (typeof origRD === 'function') window.renderDiet = function () { applyDietCfg(); const r = origRD.apply(this, arguments); try { renderLocalCard(); } catch (e) { console.warn(e); } return r; };
 
+  // ---------- notificaciones del coach humano ----------
+  const VAPID_PUBLIC = 'BMzWpcXbZWP6aLcqiUZzGjgYn_Tp-1tklvUHBTg7ApmR4jI3cuQGQnsZVLGyqChLQmtFrjrZl2jZuRJguZUKx0I';
+  function b64ToU8(b64) {
+    const pad = '='.repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function paintBadge(el, n) {
+    if (!el) return;
+    let b = el.classList && el.classList.contains('hp-nbadge') ? el : el.querySelector(':scope > .hp-nbadge');
+    if (!b) { b = document.createElement('span'); b.className = 'badge hp-nbadge'; el.appendChild(b); }
+    const v = Number(n) || 0;
+    if (v > 0) { b.hidden = false; b.textContent = v > 99 ? '99+' : String(v); }
+    else { b.hidden = true; b.textContent = ''; }
+  }
+  function pushHintHTML(admin) {
+    if (typeof Notification === 'undefined') return '';
+    if (Notification.permission === 'granted') return '';
+    return `<p class="pc-note" id="ch-push-box"><button type="button" class="btn-3d btn-secondary" id="ch-push-btn">${tx('notifyBtn')}</button> ${tx(admin ? 'notifyHintAdmin' : 'notifyHint')}</p>`;
+  }
+  function bindPushBtn() {
+    const btn = $('ch-push-btn'); if (!btn) return;
+    btn.onclick = async () => {
+      const ok = await ensurePush(true);
+      toast(ok ? tx('notifyOn') : tx('notifyDenied'));
+      if (ok) { const n = $('ch-push-box'); if (n) n.remove(); }
+    };
+  }
+  async function notifyNewMessage(id) {
+    if (!id) return;
+    try { await sb.functions.invoke('notify-coach-message', { body: { id } }); } catch (e) { console.warn('notify', e); }
+  }
+  async function ensurePush(ask) {
+    try {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !uid()) return false;
+      if (Notification.permission === 'default' && ask) await Notification.requestPermission();
+      if (Notification.permission !== 'granted') return false;
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(VAPID_PUBLIC) });
+      }
+      const json = sub.toJSON();
+      if (!json || !json.endpoint || !json.keys) return false;
+      const { error } = await sb.from('push_subscriptions').upsert({
+        user_id: uid(),
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+        lang: L(),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'endpoint' });
+      if (error) { console.warn('push sub', error); return false; }
+      return true;
+    } catch (e) { console.warn('ensurePush', e); return false; }
+  }
+  async function refreshBadges() {
+    try {
+      if (!uid()) return;
+      let userN = 0;
+      const { count } = await sb.from('coach_messages').select('id', { count: 'exact', head: true }).eq('user_id', uid()).eq('from_admin', true).is('read_at', null);
+      userN = count || 0;
+      paintBadge($('ch-more-badge'), userN);
+      let adminN = 0;
+      if (window._isAdmin) {
+        const { data } = await sb.rpc('coach_inbox');
+        adminN = (data || []).reduce((a, r) => a + (Number(r.unread) || 0), 0);
+        paintBadge($('admin-tab-btn'), adminN);
+        paintBadge($('more-admin'), adminN);
+      }
+      paintBadge($('bnav-more'), userN + adminN);
+    } catch (e) {}
+  }
+  let coachChan = null, pushBooted = false;
+  function bindCoachRealtime() {
+    if (coachChan || !sb) return;
+    coachChan = sb.channel('hp-coach-push')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages' }, (payload) => {
+        const m = payload.new || {};
+        refreshBadges();
+        if (m.from_admin && m.user_id === uid() && $('coachh-tab') && $('coachh-tab').classList.contains('active')) loadMsgs();
+        if (!m.from_admin && window._isAdmin && $('admin-tab') && $('admin-tab').classList.contains('active')) renderInbox();
+      })
+      .subscribe();
+  }
+  function bootCoachPush() {
+    if (!uid()) { pushBooted = false; return; }
+    if (pushBooted) return;
+    pushBooted = true;
+    bindCoachRealtime();
+    refreshBadges();
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') ensurePush(false);
+  }
+  setInterval(() => { if (uid()) bootCoachPush(); else pushBooted = false; }, 1500);
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.addEventListener('message', (ev) => {
+      const go = ev.data && ev.data.go;
+      if (!ev.data || ev.data.type !== 'hp-notif-click' || !go) return;
+      const map = { coachh: 'coachh-tab', admin: 'admin-tab' };
+      if (map[go] && typeof switchTab === 'function') switchTab(map[go]);
+    });
+  }
+
   // ---------- 5. COACH HUMANO ----------
   async function renderCoachH() {
     const box = $('coachh-tab-body'); if (!pro()) { box.innerHTML = lockHTML(); return; }
+    const permHint = pushHintHTML(false);
     box.innerHTML = `<p class="pc-note">Una vez por mes mandá tu check-in y un coach profesional certificado revisa tu progreso y te responde por acá (normalmente en 24–48 h).</p>
+      ${permHint}
       <div id="ch-msgs" class="ch-msgs">Cargando…</div>
       <textarea id="ch-in" rows="4" maxlength="2000" placeholder="Escribí tu mensaje…"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d" id="ch-send">Enviar</button><button class="btn-3d btn-secondary" id="ch-tpl">📝 Usar plantilla de check-in</button></div>`;
+    bindPushBtn();
+    ensurePush(false);
     $('ch-tpl').onclick = () => {
       const u = getUsersDB()[currentUser] || {}; const m = new Date().toLocaleDateString('es-PY', { month: 'long', year: 'numeric' });
       $('ch-in').value = `Check-in de ${m}\n• Peso actual: ${u.weight || '__'} kg\n• Adherencia a la dieta (1-10): \n• Entrenamientos por semana: \n• Energía y descanso: \n• Dudas o molestias: `;
     };
     $('ch-send').onclick = async () => {
       const v = $('ch-in').value.trim(); if (!v) return; $('ch-send').disabled = true;
-      const { error } = await sb.from('coach_messages').insert({ user_id: uid(), body: v });
-      $('ch-send').disabled = false; if (error) { toast('No se pudo enviar'); return; } $('ch-in').value = ''; toast('Mensaje enviado ✅'); loadMsgs();
+      const { data, error } = await sb.from('coach_messages').insert({ user_id: uid(), body: v }).select('id').single();
+      $('ch-send').disabled = false; if (error) { toast('No se pudo enviar'); return; } $('ch-in').value = ''; toast('Mensaje enviado ✅'); notifyNewMessage(data && data.id); ensurePush(true); loadMsgs();
     };
     loadMsgs();
   }
@@ -339,7 +448,8 @@
     el.innerHTML = data.length ? data.map(m => `<div class="ch-m ${m.from_admin ? 'c' : 'u'}"><p>${E(m.body).replace(/\n/g, '<br>')}</p><small>${m.from_admin ? '🧑‍🏫 Coach · ' : ''}${dt(m.created_at)}</small></div>`).join('') : '<p class="pc-note">Todavía no hay mensajes. ¡Mandá tu primer check-in!</p>';
     el.scrollTop = el.scrollHeight;
     const unread = data.filter(m => m.from_admin && !m.read_at).map(m => m.id);
-    if (unread.length) sb.from('coach_messages').update({ read_at: new Date().toISOString() }).in('id', unread).then(() => {});
+    if (unread.length) sb.from('coach_messages').update({ read_at: new Date().toISOString() }).in('id', unread).then(() => refreshBadges());
+    else refreshBadges();
   }
   // bandeja del admin
   let inboxSel = null;
@@ -350,8 +460,11 @@
     if (error) { card.innerHTML = '<h3 class="adm-h">🧑‍🏫 Coach: mensajes</h3><p class="pc-note">No se pudo cargar.</p>'; return; }
     const unread = data.reduce((a, r) => a + r.unread, 0);
     card.innerHTML = `<h3 class="adm-h">🧑‍🏫 Coach: mensajes ${unread ? `<span class="badge">${unread}</span>` : ''}</h3>
+      ${pushHintHTML(true)}
       ${data.length ? data.map(r => `<button type="button" class="ch-conv ${r.unread ? 'new' : ''}" data-u="${r.user_id}"><b>${E(r.name || r.email)}</b> <small>${E(r.email)} · ${dt(r.last_at)}</small><span>${E(String(r.last_body).slice(0, 80))}</span></button>`).join('') : '<p class="pc-note">Sin mensajes todavía.</p>'}
       <div id="adm-thread"></div>`;
+    bindPushBtn();
+    ensurePush(false);
     card.querySelectorAll('.ch-conv').forEach(b => b.onclick = () => { inboxSel = b.dataset.u; openThread(); });
     if (inboxSel) openThread();
   }
@@ -361,7 +474,8 @@
       <textarea id="adm-rep" rows="3" maxlength="2000" placeholder="Responder…"></textarea><button class="btn-3d btn-small" id="adm-send">Responder</button>`;
     const ids = (data || []).filter(m => !m.from_admin && !m.read_at).map(m => m.id);
     if (ids.length) await sb.from('coach_messages').update({ read_at: new Date().toISOString() }).in('id', ids);
-    $('adm-send').onclick = async () => { const v = $('adm-rep').value.trim(); if (!v) return; const { error } = await sb.from('coach_messages').insert({ user_id: inboxSel, from_admin: true, body: v }); if (error) toast('Error al enviar'); else { toast('Respuesta enviada'); renderInbox(); } };
+    refreshBadges();
+    $('adm-send').onclick = async () => { const v = $('adm-rep').value.trim(); if (!v) return; const { data, error } = await sb.from('coach_messages').insert({ user_id: inboxSel, from_admin: true, body: v }).select('id').single(); if (error) toast('Error al enviar'); else { toast('Respuesta enviada'); notifyNewMessage(data && data.id); ensurePush(true); renderInbox(); } };
   }
 
   // ---------- 6. RANKINGS Y RETOS ----------
