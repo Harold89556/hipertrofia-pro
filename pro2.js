@@ -206,14 +206,14 @@
     if (sets && ls.s >= sets) {
       const msg = [nextName ? P().nextEx(nm(nextName)) : P().go];
       if (nextName && techOn()) msg.push(...fullCues(nextName));
-      return { last: true, lastEx, msg };
+      return { last: true, lastEx, msg, curName, nextName };
     }
     const msg = [];
     if (motOn() && tg && tg.w && tg.prevW && tg.w > tg.prevW && !prSaid[ls.dk + ls.i]) { prSaid[ls.dk + ls.i] = 1; msg.push(pick('pr')); }
     if (motOn() && sets && ls.s === sets - 1) msg.push(pick('lastSet'));
     msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, tg.w) : P().go);
     if (techOn() && curName) msg.push(oneCue(curName));
-    return { last: false, msg };
+    return { last: false, lastEx: false, msg, curName, nextName };
   }
   const origST = window.startTimer;
   if (typeof origST === 'function') window.startTimer = function (sec) {
@@ -224,12 +224,26 @@
       const first = ni && ni.first ? ni.first : !ls ? '' : ni && ni.last ? (ni.lastEx ? (motOn() ? pick('sess') : P().exDone) : (motOn() ? pick('exLast') : P().exDone)) : (motOn() ? pick('set') : P().done);
       say([first, P().rest(sec), ...(window.hpCycleVoice ? window.hpCycleVoice() : []), ...(window.hpFuelVoice ? window.hpFuelVoice() : [])]);
       if (ni) prefetch(ni.msg);
-      const mid = sec >= 60 && motOn() ? Math.round(sec / 2) : 0; let saidMid = false;
+      let curName = (ni && ni.curName) || '', nextName = (ni && ni.nextName) || '';
+      if (ls && (!curName || !nextName)) {
+        try {
+          const pr = getProgramForUser(getUsersDB()[currentUser] || {});
+          const exs = pr[ls.dk].exercises;
+          if (!curName) curName = exs[ls.i].origName || exs[ls.i].name;
+          if (!nextName && exs[ls.i + 1]) nextName = exs[ls.i + 1].origName || exs[ls.i + 1].name;
+        } catch (e) {}
+      }
+      const mid = sec >= 60 ? Math.round(sec / 2) : 0; let saidMid = false;
       clearInterval(window._hpVoiceInt); let said10 = false, said3 = false;
       window._hpVoiceInt = setInterval(() => {
         const left = typeof timerSeconds !== 'undefined' ? timerSeconds : 0;
         if (!voiceOn()) return clearInterval(window._hpVoiceInt);
-        if (mid && !saidMid && left <= mid && left > 12) { saidMid = true; say(pick('mid')); }
+        if (mid && !saidMid && left <= mid && left > 12) {
+          saidMid = true;
+          const tip = window.hpRestLesson && window.hpRestLesson({ ex: curName, next: nextName, last: !!(ni && ni.last), lastEx: !!(ni && ni.lastEx) });
+          if (tip) say(tip);
+          else if (motOn()) say(pick('mid'));
+        }
         if (left <= 10 && left > 5 && !said10 && sec > 15) { said10 = true; say(P().ten); }
         else if (left <= 3 && left > 0 && !said3) { said3 = true; say(P().cd); }
         else if (left <= 0) { clearInterval(window._hpVoiceInt); say(ni ? ni.msg : P().go); }
