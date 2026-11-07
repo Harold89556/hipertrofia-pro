@@ -1474,7 +1474,30 @@
     <div class="exercise-card">
       <h3 class="adm-h" data-i18n="adm.users">Usuarios</h3>
       <input type="search" id="adm-usearch" class="adm-search" data-i18n-ph="ph.usearch" placeholder="Buscar por nombre, correo o clave…" oninput="adminRenderUsers()">
-      <div class="adm-scroll"><table class="adm-table"><thead><tr><th data-i18n="th.name">Nombre</th><th data-i18n="th.email">Correo</th><th data-i18n="th.sex">Sexo</th><th data-i18n="nut.cat">Categoría</th><th data-i18n="th.key">Clave</th><th data-i18n="th.created">Alta</th><th data-i18n="th.lastAct">Última actividad</th><th data-i18n="th.coachToday">Coach hoy</th></tr></thead><tbody id="adm-users"></tbody></table></div>
+      <div class="adm-scroll"><table class="adm-table"><thead><tr><th data-i18n="th.name">Nombre</th><th data-i18n="th.email">Correo</th><th data-i18n="th.sex">Sexo</th><th data-i18n="th.birth">Nacimiento</th><th data-i18n="nut.cat">Categoría</th><th data-i18n="th.key">Clave</th><th data-i18n="th.created">Alta</th><th data-i18n="th.lastAct">Última actividad</th><th data-i18n="th.coachToday">Coach hoy</th><th></th></tr></thead><tbody id="adm-users"></tbody></table></div>
+    </div>
+    <div id="admin-edit-modal" class="auth-overlay" style="display:none;">
+      <div class="auth-card">
+        <h2 style="color:var(--accent); text-align:center; margin-bottom:14px; font-size:1.3rem;" data-i18n="adm.editProfile">Editar perfil</h2>
+        <p id="adm-edit-who" style="text-align:center;color:var(--text-muted);margin-bottom:12px;font-size:0.9rem;"></p>
+        <form class="auth-form" onsubmit="adminSaveProfile(event)">
+          <input type="hidden" id="adm-edit-id">
+          <div>
+            <label data-i18n="f.gender">Género</label>
+            <select id="adm-edit-gender" required>
+              <option value="hombre" data-i18n="g.hombre">Hombre</option>
+              <option value="mujer" data-i18n="g.mujer">Mujer</option>
+            </select>
+          </div>
+          <div>
+            <label data-i18n="ed.birth">Fecha de Nacimiento</label>
+            <input type="date" id="adm-edit-birth" required onclick="this.showPicker && this.showPicker()">
+          </div>
+          <p style="font-size:0.875rem;color:var(--text-muted);" data-i18n="adm.editNote">El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.</p>
+          <button type="submit" class="btn-3d" style="width:100%;margin-top:10px;" data-i18n="ed.save">Guardar Cambios</button>
+          <button type="button" class="btn-3d btn-secondary" style="width:100%;" onclick="adminCloseEdit()" data-i18n="btn.cancel">Cancelar</button>
+        </form>
+      </div>
     </div>
     <div class="exercise-card">
       <h3 data-i18n="adm.keys" class="adm-h">Claves</h3>
@@ -1869,6 +1892,13 @@
   "adm.delete": "Eliminar",
   "adm.confirmDelete": "¿Eliminar la clave revocada {k}? Desaparece de la lista.",
   "adm.deleted": "Clave eliminada",
+  "th.birth": "Nacimiento",
+  "adm.edit": "Editar",
+  "adm.editProfile": "Editar perfil",
+  "adm.confirmEdit": "¿Guardar el género y la fecha de nacimiento de {n}?",
+  "adm.profileSaved": "Perfil actualizado",
+  "adm.goalAdjusted": "Perfil actualizado. La categoría se ajustó al nuevo género.",
+  "adm.editNote": "El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.",
   "diet.time": "Hora",
   "prof.photoPick": "Elegir foto",
   "prof.photoRemove": "Quitar foto",
@@ -2298,6 +2328,13 @@
   "adm.delete": "Delete",
   "adm.confirmDelete": "Delete revoked key {k}? It will disappear from the list.",
   "adm.deleted": "Key deleted",
+  "th.birth": "Born",
+  "adm.edit": "Edit",
+  "adm.editProfile": "Edit profile",
+  "adm.confirmEdit": "Save the gender and date of birth for {n}?",
+  "adm.profileSaved": "Profile updated",
+  "adm.goalAdjusted": "Profile updated. The category was adjusted to match the new gender.",
+  "adm.editNote": "The user cannot change these fields. If you change the gender and the category no longer fits, it is adjusted automatically.",
   "diet.time": "Time",
   "prof.photoPick": "Choose photo",
   "prof.photoRemove": "Remove photo",
@@ -2968,6 +3005,13 @@
   "adm.delete": "Excluir",
   "adm.confirmDelete": "Excluir a chave revogada {k}? Ela some da lista.",
   "adm.deleted": "Chave excluída",
+  "th.birth": "Nascimento",
+  "adm.edit": "Editar",
+  "adm.editProfile": "Editar perfil",
+  "adm.confirmEdit": "Salvar o gênero e a data de nascimento de {n}?",
+  "adm.profileSaved": "Perfil atualizado",
+  "adm.goalAdjusted": "Perfil atualizado. A categoria foi ajustada ao novo gênero.",
+  "adm.editNote": "O usuário não pode alterar esses dados. Se o gênero mudar e a categoria não corresponder, ela é ajustada automaticamente.",
   "diet.time": "Hora",
   "prof.photoPick": "Escolher foto",
   "prof.photoRemove": "Remover foto",
@@ -5085,10 +5129,12 @@ ${timedSecs ? `
       const rows = admUsers.filter(u => !q || [u.first_name, u.last_name, u.email, u.activation_key].join(' ').toLowerCase().includes(q));
       document.getElementById('adm-users').innerHTML = rows.map(u => `<tr>
         <td>${esc(u.first_name)} ${esc(u.last_name)}${u.is_admin ? ' 🛡️' : ''}</td><td>${esc(u.email)}</td><td>${esc(u.gender ? t('g.' + u.gender) : '')}</td>
+        <td>${esc(u.birth_date ? formatDateES(String(u.birth_date).slice(0, 10)) : '')}</td>
         <td>${esc(typeof goalLabel === 'function' ? goalLabel(u.goal) : u.goal)}</td>
         <td>${esc(u.activation_key)}${u.key_revoked ? ` <span class="adm-badge adm-revocada">${t('adm.st.revocada')}</span>` : ''}</td>
-        <td>${admDate(u.created_at)}</td><td>${admDate(u.last_activity || u.last_sign_in)}</td><td>${esc(u.coach_today)}</td></tr>`).join('')
-        || `<tr><td colspan="8">${t('adm.none')}</td></tr>`;
+        <td>${admDate(u.created_at)}</td><td>${admDate(u.last_activity || u.last_sign_in)}</td><td>${esc(u.coach_today)}</td>
+        <td><button type="button" class="adm-mini" onclick="adminEditProfile('${esc(u.id)}')">${t('adm.edit')}</button></td></tr>`).join('')
+        || `<tr><td colspan="10">${t('adm.none')}</td></tr>`;
     }
     function adminRenderKeys() {
       const q = document.getElementById('adm-ksearch').value.toLowerCase().trim();
@@ -5135,6 +5181,50 @@ ${timedSecs ? `
       const { error } = await sb.rpc('admin_delete_key', { p_key: k });
       if (error) { showToast(t('err.generic', { m: error.message })); return; }
       showToast(t('adm.deleted')); adminLoad();
+    }
+    function adminCloseEdit() {
+      const m = document.getElementById('admin-edit-modal');
+      if (m) m.style.display = 'none';
+    }
+    function adminEditProfile(id) {
+      const u = admUsers.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('adm-edit-id').value = u.id;
+      document.getElementById('adm-edit-gender').value = u.gender || 'hombre';
+      document.getElementById('adm-edit-birth').value = u.birth_date ? String(u.birth_date).slice(0, 10) : '';
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
+      document.getElementById('adm-edit-who').textContent = name + (u.email && name !== u.email ? ' · ' + u.email : '');
+      document.getElementById('admin-edit-modal').style.display = 'flex';
+    }
+    async function adminSaveProfile(e) {
+      e.preventDefault();
+      const id = document.getElementById('adm-edit-id').value;
+      const gender = document.getElementById('adm-edit-gender').value;
+      const birth = document.getElementById('adm-edit-birth').value;
+      const u = admUsers.find(x => x.id === id);
+      if (!u || !gender || !birth) return;
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
+      if (!confirm(t('adm.confirmEdit', { n: name }))) return;
+      const { data, error } = await sb.rpc('admin_update_profile', {
+        p_user_id: id, p_gender: gender, p_birth_date: birth
+      });
+      if (error) { showToast(t('err.generic', { m: error.message })); return; }
+      const res = (data && typeof data === 'string') ? JSON.parse(data) : (data || {});
+      showToast(res.goal_adjusted ? t('adm.goalAdjusted') : t('adm.profileSaved'));
+      adminCloseEdit();
+      if (cloudUserId && String(cloudUserId) === String(id)) {
+        const db = getUsersDB();
+        const me = db[currentUser];
+        if (me) {
+          me.gender = gender;
+          me.birthdate = birth;
+          me.age = calculateAge(birth);
+          if (res.goal) me.goal = res.goal;
+          saveUsersDB(db);
+          try { checkActiveUserSession(); } catch (err) {}
+        }
+      }
+      adminLoad();
     }
 
     // EXPORTACIÓN A EXCEL Y RESPALDO
@@ -6862,6 +6952,7 @@ ${timedSecs ? `
         forgot:   { open: () => authOpen() && shown($('forgot-form')),   close: () => showAuthTab('login') },
         reset:    { open: () => authOpen() && shown($('reset-form')) && !window._inRecovery, close: () => showAuthTab('login') },
         edit:     { open: () => shown($('edit-profile-modal')), close: () => { $('edit-profile-modal').style.display = 'none'; } },
+        admEdit:  { open: () => shown($('admin-edit-modal')), close: () => { if ($('admin-edit-modal')) $('admin-edit-modal').style.display = 'none'; } },
         plans:    { open: () => shown($('plans-modal')) && !window._plansForced, close: () => closePlans() },
         del:      { open: () => shown($('delete-modal')), close: () => closeDeleteAccount() },
         coach:    { open: () => !!$('coach-panel') && $('coach-panel').classList.contains('open'), close: () => coachToggle(false) },
@@ -6964,7 +7055,7 @@ ${timedSecs ? `
 
       const mo = new MutationObserver(schedule);
       const watch = () => {
-        ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom', 'swap-sheet', 'more-sheet']
+        ['auth-modal', 'login-form', 'register-form', 'forgot-form', 'reset-form', 'edit-profile-modal', 'admin-edit-modal', 'plans-modal', 'delete-modal', 'coach-panel', 'coach-zoom', 'swap-sheet', 'more-sheet']
           .forEach(id => { const el = $(id); if (el && !el._hpw) { el._hpw = 1; mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] }); } });
       };
       watch(); document.addEventListener('DOMContentLoaded', () => { watch(); schedule(); });
