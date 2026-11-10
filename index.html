@@ -131,6 +131,7 @@
     }
     .prof-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .prof-ava-lg { width: 84px; height: 84px; font-size: 1.6rem; }
+    .dl-sug { font-style: normal; font-size: .72rem; color: var(--text-muted); opacity: .8; }
     .dl-time { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--text-muted); margin: 6px 0 2px; font-weight: 600; }
     .dl-time input[type=time], input.dl-time-i, .fuel-time-lbl input[type=time], #edit-train-time {
       background: #141417; color: #fff; border: 1px solid rgba(255,255,255,.12);
@@ -2279,6 +2280,7 @@
   "adm.goalAdjusted": "Perfil actualizado. La categoría se ajustó al nuevo género.",
   "adm.editNote": "El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.",
   "diet.time": "Hora",
+  "diet.sug": "sugerida",
   "prof.photoPick": "Elegir foto",
   "prof.photoRemove": "Quitar foto",
   "prof.photoRemoveQ": "¿Quitar tu foto de perfil?",
@@ -2750,6 +2752,7 @@
   "adm.goalAdjusted": "Profile updated. The category was adjusted to match the new gender.",
   "adm.editNote": "The user cannot change these fields. If you change the gender and the category no longer fits, it is adjusted automatically.",
   "diet.time": "Time",
+  "diet.sug": "suggested",
   "prof.photoPick": "Choose photo",
   "prof.photoRemove": "Remove photo",
   "prof.photoRemoveQ": "Remove your profile photo?",
@@ -3462,6 +3465,7 @@
   "adm.goalAdjusted": "Perfil atualizado. A categoria foi ajustada ao novo gênero.",
   "adm.editNote": "O usuário não pode alterar esses dados. Se o gênero mudar e a categoria não corresponder, ela é ajustada automaticamente.",
   "diet.time": "Hora",
+  "diet.sug": "sugerida",
   "prof.photoPick": "Escolher foto",
   "prof.photoRemove": "Remover foto",
   "prof.photoRemoveQ": "Remover sua foto de perfil?",
@@ -6305,7 +6309,23 @@ ${timedSecs ? `
       if (kind === 'meal' && o.meals[mk]) showToast(o.meals[mk] === 'done' ? '✅ Comida cumplida' : '⏭️ Marcada como no comida: se reparte en las siguientes');
     }
     function dlNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
-    function dlSetMealTime(mk, v) { const o = getDietLog(); o.times = o.times || {}; if (v) o.times[mk] = v; else delete o.times[mk]; saveDietLog(o); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    function dlSetMealTime(mk, v) { const o = getDietLog(); o.times = o.times || {}; if (v) o.times[mk] = v; else delete o.times[mk]; saveDietLog(o); renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    // Horas sugeridas: desde la primera comida realmente hecha (desayuno o la que sea), el resto cada ~3 h y sin pasar de las 23:00
+    function dlSuggestTimes(meals, o) {
+      const toM = x => { const m = /^(\d{1,2}):(\d{2})/.exec(x || ''); return m ? +m[1] * 60 + +m[2] : null; };
+      const toS = n => String(Math.floor(n / 60) % 24).padStart(2, '0') + ':' + String(Math.round(n % 60)).padStart(2, '0');
+      const real = meals.map(m => { if (m.state === 'skip') return null; let t = toM((o.times || {})[m.mk]); if (t == null && m.state === 'ate') { const e = (o.extra || []).find(x => x.mk === m.mk && x.at); t = e ? toM(e.at) : null; } return t; });
+      const out = {}; let last = -1;
+      meals.forEach((m, j) => {
+        if (real[j] != null) { last = j; return; }
+        if (last < 0 || m.state !== 'pend') return;
+        const left = meals.slice(last + 1).filter((x, k) => x.state === 'pend' && real[last + 1 + k] == null).length;
+        const step = Math.max(150, Math.min(180, (23 * 60 - real[last]) / Math.max(1, left)));
+        const n = meals.slice(last + 1, j + 1).filter((x, k) => x.state === 'pend' && real[last + 1 + k] == null).length;
+        out[m.mk] = toS(Math.round((real[last] + step * n) / 5) * 5);
+      });
+      return out;
+    }
     function dlSetExtraTime(id, v) { const o = getDietLog(); const e = (o.extra || []).find(x => x.id === id); if (!e) return; if (v) e.at = v; else delete e.at; saveDietLog(o); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
     function dlSnap(o) { o.undo.push(JSON.stringify({ meals: o.meals, items: o.items, extra: o.extra, times: o.times || {} })); if (o.undo.length > 15) o.undo.shift(); }
     function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; o.extra = x.extra || []; o.times = x.times || {}; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
@@ -6578,7 +6598,7 @@ ${timedSecs ? `
       if (!tg) { box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
       const d = buildDiet(tg, getDietPrefs()); const ph = PHASES[tg.phase];
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
-      const P = t('m.p'), C = t('m.c'), F = t('m.f');
+      const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo);
       box.innerHTML = `
         <div class="macro-grid">
           <div><strong>${fmtN(tg.kcal)}</strong><span>${t('diet.kcalDay')}</span></div>
@@ -6596,7 +6616,7 @@ ${timedSecs ? `
         ${dlAiBox(d)}
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
-          <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(getDietLog().times || {})[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)"></label>
+          <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(dlo.times || {})[m.mk] || sug[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)">${!(dlo.times || {})[m.mk] && sug[m.mk] ? `<em class="dl-sug">${t('diet.sug')}</em>` : ''}</label>
           ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
           ${m.state === 'ate' ? `<div class="dl-adj">🍽️ Comiste otra cosa: cuenta lo registrado</div><ul class="dl-extra">${lg.extra.filter(e => e.mk === m.mk).map(dlExtraLi).join('')}</ul>` : ''}
           <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><div class="meal-item-main"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b></div><div class="meal-actions">${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</div></li>`).join('')}</ul>
