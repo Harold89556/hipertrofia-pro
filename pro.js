@@ -373,6 +373,7 @@
       return true;
     } catch (e) { console.warn('ensurePush', e); return false; }
   }
+  window.hpEnsurePush = ensurePush;
   async function refreshBadges() {
     try {
       if (!uid()) return;

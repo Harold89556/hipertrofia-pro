@@ -131,6 +131,9 @@
     }
     .prof-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .prof-ava-lg { width: 84px; height: 84px; font-size: 1.6rem; }
+    .mr-box { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+    .mr-box small { color: var(--text-muted); font-size: .78rem; }
+    .mr-btn.on { border-color: var(--accent, #ff6b1a); }
     .dl-sug { font-style: normal; font-size: .72rem; color: var(--text-muted); opacity: .8; }
     .dl-time { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--text-muted); margin: 6px 0 2px; font-weight: 600; }
     .dl-time input[type=time], input.dl-time-i, .fuel-time-lbl input[type=time], #edit-train-time {
@@ -2325,6 +2328,12 @@
   "adm.editNote": "El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.",
   "diet.time": "Hora",
   "diet.sug": "sugerida",
+  "mr.on": "🔔 Alarmas de comidas: activadas",
+  "mr.off": "🔕 Activar alarmas de comidas",
+  "mr.help": "Te avisa en el teléfono a la hora de cada comida, aunque la app esté cerrada.",
+  "mr.okOn": "🔔 Alarmas activadas. Te aviso a la hora de cada comida.",
+  "mr.okOff": "🔕 Alarmas de comidas desactivadas",
+  "mr.denied": "Permití las notificaciones de Hipertrofia Pro en el teléfono para recibir las alarmas.",
   "prof.photoPick": "Elegir foto",
   "prof.photoRemove": "Quitar foto",
   "prof.photoRemoveQ": "¿Quitar tu foto de perfil?",
@@ -2826,6 +2835,12 @@
   "adm.editNote": "The user cannot change these fields. If you change the gender and the category no longer fits, it is adjusted automatically.",
   "diet.time": "Time",
   "diet.sug": "suggested",
+  "mr.on": "🔔 Meal alarms: on",
+  "mr.off": "🔕 Turn on meal alarms",
+  "mr.help": "Notifies your phone at each meal time, even when the app is closed.",
+  "mr.okOn": "🔔 Alarms on. I'll notify you at each meal time.",
+  "mr.okOff": "🔕 Meal alarms off",
+  "mr.denied": "Allow Hipertrofia Pro notifications on your phone to get the alarms.",
   "prof.photoPick": "Choose photo",
   "prof.photoRemove": "Remove photo",
   "prof.photoRemoveQ": "Remove your profile photo?",
@@ -3568,6 +3583,12 @@
   "adm.editNote": "O usuário não pode alterar esses dados. Se o gênero mudar e a categoria não corresponder, ela é ajustada automaticamente.",
   "diet.time": "Hora",
   "diet.sug": "sugerida",
+  "mr.on": "🔔 Alarmes de refeições: ativados",
+  "mr.off": "🔕 Ativar alarmes de refeições",
+  "mr.help": "Avisa no celular na hora de cada refeição, mesmo com o app fechado.",
+  "mr.okOn": "🔔 Alarmes ativados. Aviso na hora de cada refeição.",
+  "mr.okOff": "🔕 Alarmes de refeições desativados",
+  "mr.denied": "Permita as notificações do Hipertrofia Pro no celular para receber os alarmes.",
   "prof.photoPick": "Escolher foto",
   "prof.photoRemove": "Remover foto",
   "prof.photoRemoveQ": "Remover sua foto de perfil?",
@@ -6776,6 +6797,7 @@ ${timedSecs ? `
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
+        <div class="mr-box"><button type="button" class="dl-btn mr-btn${mrOn() ? ' on' : ''}" onclick="mrToggle()">${t(mrOn() ? 'mr.on' : 'mr.off')}</button><small>${t('mr.help')}</small></div>
         ${dlAiBox(d)}
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
@@ -6787,6 +6809,42 @@ ${timedSecs ? `
           <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
+      if (mrOn()) mrQueue(d.meals, dlo, sug, sbm);
+    }
+    // ===== Alarmas de comidas (Web Push desde el servidor, suenan con la app cerrada) =====
+    const MR_DEF = { desayuno: '07:00', media: '10:00', almuerzo: '13:00', merienda: '16:00', cena: '19:00', colacion: '22:00' };
+    function mrKey() { return `hp_mealalarm_${currentUser}`; }
+    function mrState() { try { return JSON.parse(localStorage.getItem(mrKey()) || 'null') || {}; } catch (e) { return {}; } }
+    function mrOn() { return !!mrState().on; }
+    let _mrT = null, _mrLast = '';
+    function mrQueue(meals, dlo, sug, sbm) { clearTimeout(_mrT); _mrT = setTimeout(() => mrSync(meals, dlo, sug, sbm), 1200); }
+    async function mrSync(meals, dlo, sug, sbm, force) {
+      try {
+        const st = mrState(); const prev = st.base || {}; const times = dlo.times || {};
+        const anchored = meals.some(m => times[m.mk] || (m.state === 'ate'));
+        const base = {}; meals.forEach(m => { base[m.mk] = (anchored && m.state !== 'skip' && (times[m.mk] || sug[m.mk])) || prev[m.mk] || MR_DEF[m.mk] || '12:00'; });
+        if (anchored) { st.base = base; localStorage.setItem(mrKey(), JSON.stringify(st)); }
+        const supp = mk => (sbm[mk] || []).filter(x => !(dlo.supp || {})[x.k]).map(x => t('supp.' + x.k));
+        const row = m => ({ mk: m.mk, name: tc(m.name), t: base[m.mk], supp: supp(m.mk) });
+        const today = meals.filter(m => m.state === 'pend').map(m => Object.assign(row(m), { t: times[m.mk] || sug[m.mk] || base[m.mk] }));
+        const baseList = meals.map(row);
+        const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user && ss.session.user.id; if (!id) return;
+        const body = { user_id: id, enabled: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Asuncion', lang: (typeof LANG !== 'undefined' && LANG) || 'es', base: baseList, day: dlToday(), today, updated_at: new Date().toISOString() };
+        const sig = JSON.stringify([body.base, body.today, body.day, body.lang]); if (!force && sig === _mrLast) return;
+        const { error } = await sb.from('meal_reminders').upsert(body, { onConflict: 'user_id' }); if (!error) _mrLast = sig; else console.warn('mr', error);
+      } catch (e) { console.warn('mrSync', e); }
+    }
+    async function mrToggle() {
+      const st = mrState();
+      if (st.on) {
+        st.on = false; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
+        try { const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user.id; if (id) await sb.from('meal_reminders').update({ enabled: false }).eq('user_id', id); } catch (e) { }
+        showToast(t('mr.okOff')); renderDiet(); return;
+      }
+      const ok = typeof window.hpEnsurePush === 'function' ? await window.hpEnsurePush(true) : false;
+      if (!ok) { showToast(t('mr.denied')); return; }
+      st.on = true; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
+      showToast(t('mr.okOn')); renderDiet();
     }
     function swapFood(mk, slot) {
       const p = getDietPrefs(); const k = mk + '_' + slot; p[k] = (p[k] || 0) + 1; cloudStore.setItem(dietKey(), JSON.stringify(p)); renderDiet();

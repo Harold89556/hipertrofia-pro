@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v42';
+const CACHE = 'hp-shell-v43';
 const SHELL = ['./', './index.html', './manifest.json', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
@@ -53,6 +53,8 @@ self.addEventListener('push', (e) => {
     lang: data.lang || 'es',
     tag: data.tag || 'coach-msg',
     renotify: true,
+    vibrate: data.alarm ? [400, 200, 400, 200, 600] : undefined,
+    requireInteraction: !!data.alarm,
     data: { url, go: data.go || 'coachh' }
   }));
 });
