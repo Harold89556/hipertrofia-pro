@@ -836,6 +836,8 @@
     .meal-done{border-color:#22c55e;background:rgba(34,197,94,.06)}.meal-skip{opacity:.6}.meal-skip ul,.dl-off span,.dl-off b{text-decoration:line-through;opacity:.55}.meal li b{white-space:normal;text-align:right}.meal li .swap{flex-shrink:0}.meal li s{opacity:.5;font-weight:400;font-size:.8em}.dl-ai textarea{width:100%;font-family:inherit;box-sizing:border-box;font-size:16px;border-radius:10px;padding:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-ai select{flex:1;min-height:46px;font-size:16px;border-radius:10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow{display:grid;grid-template-columns:1fr 72px auto auto;gap:6px;align-items:center;margin:6px 0}.dl-drow input{font-size:16px;min-width:0;padding:6px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow small{grid-column:1/-1;opacity:.75}.dl-extra li,.meal li{gap:6px}.dl-adj{font-size:.8rem;color:#fbbf24;margin-top:4px}.dl-extra{list-style:none;padding:0;margin:0}.dl-extra li.dlr,.dlr{display:flex;align-items:center;gap:10px;padding:10px;margin:6px 0;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.04)}.dlr-m{flex:1;min-width:0}.dlr-t{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.dlr-t b{font-size:.95rem}.dlr-q{font-size:.75rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.1);opacity:.85;white-space:nowrap}.dlr-ch{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center}.dlc{font-size:.72rem;padding:2px 7px;border-radius:999px;white-space:nowrap;font-weight:600}.dlc-p{background:rgba(59,130,246,.18);color:#93c5fd}.dlc-c{background:rgba(234,179,8,.18);color:#fde047}.dlc-f{background:rgba(244,63,94,.18);color:#fda4af}.dlr-k{font-size:1.15rem;font-weight:800;white-space:nowrap;text-align:right}.dlr-k small{font-size:.7rem;font-weight:500;opacity:.7}.dlr-x{flex:0 0 36px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(248,113,113,.12);color:#f87171;font-size:1rem;line-height:1;padding:0;cursor:pointer}.dlr-tot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}.dl-sum{margin:8px 0 0;font-size:.9rem;line-height:1.4}.dl-drow .dlr-ch{grid-column:1/-1;margin-top:0}.dl-drow .dlr-x{flex:none}#diet-content{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 
     .swap { background: none; border: 1px solid var(--border); border-radius: 8px; min-width: 40px; min-height: 40px; cursor: pointer; font-size: 1rem; }
+    .dr-t input { width: 72px; min-height: 38px; padding: 4px 6px; }
+    .adm-grid input, .adm-grid select { width: 100%; }
     .adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
     .adm-grid label { font-size: .8rem; }
     .adm-more { margin-top: 12px; }
@@ -1825,6 +1827,11 @@
       <div id="adm-new"></div>
     </div>
     <div class="exercise-card">
+      <h3 class="adm-h" data-i18n="dr.title">Reglas generales de la dieta</h3>
+      <p class="pc-note" data-i18n="dr.help">Valores para todos los usuarios. Proteína en g por kilo; grasas y calorías en %.</p>
+      <div id="adm-rules"></div>
+    </div>
+    <div class="exercise-card">
       <h3 class="adm-h" data-i18n="adm.users">Usuarios</h3>
       <input type="search" id="adm-usearch" class="adm-search" data-i18n-ph="ph.usearch" placeholder="Buscar por nombre, correo o clave…" oninput="adminRenderUsers()">
       <div class="adm-scroll"><table class="adm-table"><thead><tr><th data-i18n="th.name">Nombre</th><th data-i18n="th.email">Correo</th><th data-i18n="th.sex">Sexo</th><th data-i18n="th.birth">Nacimiento</th><th data-i18n="nut.cat">Categoría</th><th data-i18n="th.key">Clave</th><th data-i18n="th.created">Alta</th><th data-i18n="th.lastAct">Última actividad</th><th data-i18n="th.coachToday">Coach hoy</th><th></th></tr></thead><tbody id="adm-users"></tbody></table></div>
@@ -1835,32 +1842,18 @@
         <p id="adm-edit-who" style="text-align:center;color:var(--text-muted);margin-bottom:12px;font-size:0.9rem;"></p>
         <form class="auth-form" onsubmit="adminSaveProfile(event)">
           <input type="hidden" id="adm-edit-id">
-          <div class="adm-grid">
-            <div><label data-i18n="adm.f.fn">Nombre</label><input type="text" id="adm-edit-fn" maxlength="60"></div>
-            <div><label data-i18n="adm.f.ln">Apellido</label><input type="text" id="adm-edit-ln" maxlength="60"></div>
-            <div><label data-i18n="f.gender">Género</label>
-              <select id="adm-edit-gender" required onchange="adminFillGoals()">
-                <option value="hombre" data-i18n="g.hombre">Hombre</option>
-                <option value="mujer" data-i18n="g.mujer">Mujer</option>
-              </select></div>
-            <div><label data-i18n="ed.birth">Fecha de Nacimiento</label><input type="date" id="adm-edit-birth" required onclick="this.showPicker && this.showPicker()"></div>
-            <div><label data-i18n="adm.f.w">Peso (kg)</label><input type="number" id="adm-edit-w" min="25" max="300" step="0.1" required></div>
-            <div><label data-i18n="adm.f.h">Altura (cm)</label><input type="number" id="adm-edit-h" min="100" max="250" step="1" required></div>
-            <div><label data-i18n="adm.f.goal">Categoría</label><select id="adm-edit-goal"></select></div>
-            <div><label data-i18n="adm.f.freq">Días por semana</label><select id="adm-edit-freq"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></div>
-            <div><label data-i18n="adm.f.phase">Fase</label><select id="adm-edit-phase"></select></div>
-            <div><label data-i18n="prof.trainTime">Hora habitual de entrenamiento</label><input type="time" id="adm-edit-tt"></div>
-            <div><label data-i18n="adm.f.kadj">Ajuste de calorías (kcal)</label><input type="number" id="adm-edit-kadj" min="-1500" max="1500" step="50"></div>
+          <div>
+            <label data-i18n="f.gender">Género</label>
+            <select id="adm-edit-gender" required>
+              <option value="hombre" data-i18n="g.hombre">Hombre</option>
+              <option value="mujer" data-i18n="g.mujer">Mujer</option>
+            </select>
           </div>
-          <details class="field-more adm-more"><summary data-i18n="adm.f.diet">Dieta por kilo de peso</summary>
-            <p class="pc-note" data-i18n="adm.f.dietHelp">Vacío = cálculo automático. Si ponés carbohidratos, las calorías salen de la suma.</p>
-            <div class="adm-grid">
-              <div><label data-i18n="adm.f.p">Proteína (g/kg)</label><input type="number" id="adm-edit-gp" min="0.5" max="4" step="0.1"></div>
-              <div><label data-i18n="adm.f.fat">Grasas (g/kg)</label><input type="number" id="adm-edit-gf" min="0.3" max="2.5" step="0.1"></div>
-              <div><label data-i18n="adm.f.c">Carbohidratos (g/kg)</label><input type="number" id="adm-edit-gc" min="0" max="12" step="0.1"></div>
-            </div>
-          </details>
-          <details class="field-more adm-more"><summary data-i18n="adm.f.supp">Suplementos</summary><div id="adm-edit-supp" class="adm-grid"></div></details>
+          <div>
+            <label data-i18n="ed.birth">Fecha de Nacimiento</label>
+            <input type="date" id="adm-edit-birth" required onclick="this.showPicker && this.showPicker()">
+          </div>
+          <p style="font-size:0.875rem;color:var(--text-muted);" data-i18n="adm.editNote">El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.</p>
           <button type="submit" class="btn-3d" style="width:100%;margin-top:10px;" data-i18n="ed.save">Guardar Cambios</button>
           <button type="button" class="btn-3d btn-secondary" style="width:100%;" onclick="adminCloseEdit()" data-i18n="btn.cancel">Cancelar</button>
         </form>
@@ -2295,28 +2288,35 @@
   "adm.confirmDelete": "¿Eliminar la clave revocada {k}? Desaparece de la lista.",
   "adm.deleted": "Clave eliminada",
   "th.birth": "Nacimiento",
-  "adm.f.fn": "Nombre",
-  "adm.f.ln": "Apellido",
-  "adm.f.w": "Peso (kg)",
-  "adm.f.h": "Altura (cm)",
-  "adm.f.goal": "Categoría",
-  "adm.f.freq": "Días por semana",
-  "adm.f.phase": "Fase",
-  "adm.f.kadj": "Ajuste de calorías (kcal)",
-  "adm.f.diet": "Dieta por kilo de peso",
-  "adm.f.dietHelp": "Vacío = cálculo automático. Si ponés carbohidratos, las calorías salen de la suma.",
-  "adm.f.p": "Proteína (g/kg)",
-  "adm.f.fat": "Grasas (g/kg)",
-  "adm.f.c": "Carbohidratos (g/kg)",
   "adm.f.supp": "Suplementos",
   "adm.s.auto": "Automático",
   "adm.s.on": "Siempre",
   "adm.s.off": "Nunca",
-  "adm.confirmAll": "¿Guardar todos los cambios de {n}?",
-  "diet.custom": "Macros ajustados por tu coach.",
   "ms.pre": "antes de entrenar",
   "ms.post": "después de entrenar",
   "ms.during": "llevar al entreno",
+  "dr.title": "Reglas generales de la dieta",
+  "dr.help": "Valores para todos los usuarios. Proteína en g por kilo; grasas y calorías en %.",
+  "dr.phases": "Por fase (compite)",
+  "dr.prot": "Proteína g/kg",
+  "dr.fat": "Grasas %",
+  "dr.kcal": "Calorías % del gasto",
+  "dr.rec": "No compite (recreativo)",
+  "dr.recP": "Proteína g/kg (volumen/mantener)",
+  "dr.recCutP": "Proteína g/kg (si baja de peso)",
+  "dr.recF": "Grasas % (volumen/mantener)",
+  "dr.recCutF": "Grasas % (si baja de peso)",
+  "dr.catHelp": "Calorías % del gasto por categoría:",
+  "dr.other": "Otros límites",
+  "dr.phyMinP": "Proteína mínima g/kg (Open, Classic, Physique, Figure)",
+  "dr.phyMaxF": "Grasas máx. % (esas categorías)",
+  "dr.minFatKg": "Grasas mínimas g/kg",
+  "dr.bmiCap": "IMC desde el que se usa peso de referencia",
+  "dr.bmiRef": "IMC del peso de referencia",
+  "dr.reset": "Volver a los valores originales",
+  "dr.saved": "Reglas guardadas para todos",
+  "dr.confirm": "¿Guardar estas reglas para todos los usuarios?",
+  "dr.confirmReset": "¿Volver a los valores originales para todos?",
   "adm.edit": "Editar",
   "adm.editProfile": "Editar perfil",
   "adm.confirmEdit": "¿Guardar el género y la fecha de nacimiento de {n}?",
@@ -2789,28 +2789,35 @@
   "adm.confirmDelete": "Delete revoked key {k}? It will disappear from the list.",
   "adm.deleted": "Key deleted",
   "th.birth": "Born",
-  "adm.f.fn": "First name",
-  "adm.f.ln": "Last name",
-  "adm.f.w": "Weight (kg)",
-  "adm.f.h": "Height (cm)",
-  "adm.f.goal": "Category",
-  "adm.f.freq": "Days per week",
-  "adm.f.phase": "Phase",
-  "adm.f.kadj": "Calorie adjustment (kcal)",
-  "adm.f.diet": "Diet per kg of body weight",
-  "adm.f.dietHelp": "Empty = automatic. If you set carbs, calories come from the sum.",
-  "adm.f.p": "Protein (g/kg)",
-  "adm.f.fat": "Fats (g/kg)",
-  "adm.f.c": "Carbs (g/kg)",
   "adm.f.supp": "Supplements",
   "adm.s.auto": "Automatic",
   "adm.s.on": "Always",
   "adm.s.off": "Never",
-  "adm.confirmAll": "Save all changes for {n}?",
-  "diet.custom": "Macros set by your coach.",
   "ms.pre": "before training",
   "ms.post": "after training",
   "ms.during": "bring to training",
+  "dr.title": "General diet rules",
+  "dr.help": "Values for all users. Protein in g per kg; fats and calories in %.",
+  "dr.phases": "By phase (competing)",
+  "dr.prot": "Protein g/kg",
+  "dr.fat": "Fats %",
+  "dr.kcal": "Calories % of expenditure",
+  "dr.rec": "Not competing (recreational)",
+  "dr.recP": "Protein g/kg (bulk/maintain)",
+  "dr.recCutP": "Protein g/kg (losing weight)",
+  "dr.recF": "Fats % (bulk/maintain)",
+  "dr.recCutF": "Fats % (losing weight)",
+  "dr.catHelp": "Calories % of expenditure by category:",
+  "dr.other": "Other limits",
+  "dr.phyMinP": "Minimum protein g/kg (Open, Classic, Physique, Figure)",
+  "dr.phyMaxF": "Max fats % (those categories)",
+  "dr.minFatKg": "Minimum fats g/kg",
+  "dr.bmiCap": "BMI above which reference weight is used",
+  "dr.bmiRef": "BMI of the reference weight",
+  "dr.reset": "Restore original values",
+  "dr.saved": "Rules saved for everyone",
+  "dr.confirm": "Save these rules for all users?",
+  "dr.confirmReset": "Restore the original values for everyone?",
   "adm.edit": "Edit",
   "adm.editProfile": "Edit profile",
   "adm.confirmEdit": "Save the gender and date of birth for {n}?",
@@ -3524,28 +3531,35 @@
   "adm.confirmDelete": "Excluir a chave revogada {k}? Ela some da lista.",
   "adm.deleted": "Chave excluída",
   "th.birth": "Nascimento",
-  "adm.f.fn": "Nome",
-  "adm.f.ln": "Sobrenome",
-  "adm.f.w": "Peso (kg)",
-  "adm.f.h": "Altura (cm)",
-  "adm.f.goal": "Categoria",
-  "adm.f.freq": "Dias por semana",
-  "adm.f.phase": "Fase",
-  "adm.f.kadj": "Ajuste de calorias (kcal)",
-  "adm.f.diet": "Dieta por quilo de peso",
-  "adm.f.dietHelp": "Vazio = cálculo automático. Se definir carboidratos, as calorias saem da soma.",
-  "adm.f.p": "Proteína (g/kg)",
-  "adm.f.fat": "Gorduras (g/kg)",
-  "adm.f.c": "Carboidratos (g/kg)",
   "adm.f.supp": "Suplementos",
   "adm.s.auto": "Automático",
   "adm.s.on": "Sempre",
   "adm.s.off": "Nunca",
-  "adm.confirmAll": "Salvar todas as alterações de {n}?",
-  "diet.custom": "Macros ajustados pelo seu coach.",
   "ms.pre": "antes do treino",
   "ms.post": "depois do treino",
   "ms.during": "levar ao treino",
+  "dr.title": "Regras gerais da dieta",
+  "dr.help": "Valores para todos os usuários. Proteína em g por quilo; gorduras e calorias em %.",
+  "dr.phases": "Por fase (compete)",
+  "dr.prot": "Proteína g/kg",
+  "dr.fat": "Gorduras %",
+  "dr.kcal": "Calorias % do gasto",
+  "dr.rec": "Não compete (recreativo)",
+  "dr.recP": "Proteína g/kg (volume/manter)",
+  "dr.recCutP": "Proteína g/kg (perdendo peso)",
+  "dr.recF": "Gorduras % (volume/manter)",
+  "dr.recCutF": "Gorduras % (perdendo peso)",
+  "dr.catHelp": "Calorias % do gasto por categoria:",
+  "dr.other": "Outros limites",
+  "dr.phyMinP": "Proteína mínima g/kg (Open, Classic, Physique, Figure)",
+  "dr.phyMaxF": "Gorduras máx. % (essas categorias)",
+  "dr.minFatKg": "Gorduras mínimas g/kg",
+  "dr.bmiCap": "IMC a partir do qual se usa peso de referência",
+  "dr.bmiRef": "IMC do peso de referência",
+  "dr.reset": "Voltar aos valores originais",
+  "dr.saved": "Regras salvas para todos",
+  "dr.confirm": "Salvar estas regras para todos os usuários?",
+  "dr.confirmReset": "Voltar aos valores originais para todos?",
   "adm.edit": "Editar",
   "adm.editProfile": "Editar perfil",
   "adm.confirmEdit": "Salvar o gênero e a data de nascimento de {n}?",
@@ -5245,6 +5259,7 @@ ${timedSecs ? `
           profileCache = profileFromRow(prof, email);
           currentUser = email;
           await loadCloudData();
+          await loadDietRules();
           syncLangFromCloud(session.user);
           await offerLocalMigration(email);
         } catch (err) {
@@ -5639,7 +5654,7 @@ ${timedSecs ? `
       if (tabId === 'history-tab') renderCharts();
       if (tabId === 'diet-tab') { renderDiet(); renderSupplements(); }
       if (tabId === 'body-tab') renderWeakPoints();
-      if (tabId === 'admin-tab') adminLoad();
+      if (tabId === 'admin-tab') { adminLoad(); adminRenderRules(); }
     }
 
     // PANEL ADMIN
@@ -5727,51 +5742,43 @@ ${timedSecs ? `
       const m = document.getElementById('admin-edit-modal');
       if (m) m.style.display = 'none';
     }
-    const SUPP_KEYS = ['creatine', 'whey', 'caf', 'd3', 'o3', 'mg', 'multi', 'elec', 'fe'];
-    function adminFillGoals(sel) {
-      const g = document.getElementById('adm-edit-gender').value, el = document.getElementById('adm-edit-goal');
-      const cur = sel || el.value; const list = GOALS_BY_GENDER[g] || [];
-      el.innerHTML = list.map(k => `<option value="${k}">${esc(goalLabel(k))}</option>`).join('');
-      el.value = list.includes(cur) ? cur : list[list.length - 1];
-    }
-    async function adminEditProfile(id) {
-      const u = admUsers.find(x => x.id === id); if (!u) return;
-      const { data, error } = await sb.rpc('admin_get_user', { p_user_id: id });
-      if (error) { showToast(t('err.generic', { m: error.message })); return; }
-      const r = (typeof data === 'string') ? JSON.parse(data) : (data || {}); const p = r.profile || {}, st = r.settings || {};
-      const $v = (i, v) => { document.getElementById(i).value = v == null ? '' : v; };
-      $v('adm-edit-id', id); $v('adm-edit-fn', p.first_name); $v('adm-edit-ln', p.last_name);
-      $v('adm-edit-gender', p.gender || 'hombre'); $v('adm-edit-birth', p.birth_date ? String(p.birth_date).slice(0, 10) : '');
-      $v('adm-edit-w', p.weight); $v('adm-edit-h', p.height); adminFillGoals(p.goal);
-      $v('adm-edit-freq', FREQ_SCHEDULE[st.frequency] ? st.frequency : 5);
-      document.getElementById('adm-edit-phase').innerHTML = Object.keys(PHASES).map(k => `<option value="${k}">${esc(tc(PHASES[k].label))}</option>`).join('');
-      $v('adm-edit-phase', PHASES[st.phase] ? st.phase : 'recreativo');
-      $v('adm-edit-tt', st.trainTime || ''); $v('adm-edit-kadj', Number(st.kcalAdjust) || 0);
-      const dg = st.dietGkg || {}; $v('adm-edit-gp', dg.p || ''); $v('adm-edit-gf', dg.f || ''); $v('adm-edit-gc', dg.c || '');
-      const sp = st.supp || {}, o = (k, v) => `<option value="${v}"${(sp[k] || 'auto') === v ? ' selected' : ''}>${t('adm.s.' + v)}</option>`;
-      document.getElementById('adm-edit-supp').innerHTML = SUPP_KEYS.map(k => `<div><label>${t('supp.' + k)}</label><select data-supp="${k}">${o(k, 'auto')}${o(k, 'on')}${o(k, 'off')}</select></div>`).join('');
-      const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || p.email || '';
-      document.getElementById('adm-edit-who').textContent = name + (p.email && name !== p.email ? ' · ' + p.email : '');
+    function adminEditProfile(id) {
+      const u = admUsers.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('adm-edit-id').value = u.id;
+      document.getElementById('adm-edit-gender').value = u.gender || 'hombre';
+      document.getElementById('adm-edit-birth').value = u.birth_date ? String(u.birth_date).slice(0, 10) : '';
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
+      document.getElementById('adm-edit-who').textContent = name + (u.email && name !== u.email ? ' · ' + u.email : '');
       document.getElementById('admin-edit-modal').style.display = 'flex';
     }
     async function adminSaveProfile(e) {
       e.preventDefault();
-      const g = i => document.getElementById(i).value, num = i => { const v = parseFloat(g(i)); return v > 0 ? v : null; };
-      const id = g('adm-edit-id'); const u = admUsers.find(x => x.id === id); if (!u) return;
-      const profile = { first_name: g('adm-edit-fn').trim(), last_name: g('adm-edit-ln').trim(), gender: g('adm-edit-gender'), birth_date: g('adm-edit-birth'), weight: g('adm-edit-w'), height: g('adm-edit-h'), goal: g('adm-edit-goal') };
-      const supp = {}; document.querySelectorAll('#adm-edit-supp select').forEach(x => { if (x.value !== 'auto') supp[x.dataset.supp] = x.value; });
-      const settings = { frequency: +g('adm-edit-freq'), phase: g('adm-edit-phase'), trainTime: g('adm-edit-tt'), kcalAdjust: Math.round(Number(g('adm-edit-kadj')) || 0), dietGkg: { p: num('adm-edit-gp'), f: num('adm-edit-gf'), c: num('adm-edit-gc') }, supp };
-      if (!COMPETITIVE.includes(profile.goal) && settings.phase !== 'recreativo') settings.phase = 'recreativo';
-      const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || u.email || '';
-      if (!confirm(t('adm.confirmAll', { n: name }))) return;
-      const { error } = await sb.rpc('admin_save_user', { p_user_id: id, p_profile: profile, p_settings: settings });
+      const id = document.getElementById('adm-edit-id').value;
+      const gender = document.getElementById('adm-edit-gender').value;
+      const birth = document.getElementById('adm-edit-birth').value;
+      const u = admUsers.find(x => x.id === id);
+      if (!u || !gender || !birth) return;
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
+      if (!confirm(t('adm.confirmEdit', { n: name }))) return;
+      const { data, error } = await sb.rpc('admin_update_profile', {
+        p_user_id: id, p_gender: gender, p_birth_date: birth
+      });
       if (error) { showToast(t('err.generic', { m: error.message })); return; }
-      showToast(t('adm.profileSaved')); adminCloseEdit();
+      const res = (data && typeof data === 'string') ? JSON.parse(data) : (data || {});
+      showToast(res.goal_adjusted ? t('adm.goalAdjusted') : t('adm.profileSaved'));
+      adminCloseEdit();
       if (cloudUserId && String(cloudUserId) === String(id)) {
-        profileCache = Object.assign(profileCache || {}, { firstname: profile.first_name, lastname: profile.last_name, gender: profile.gender, birthdate: profile.birth_date, age: calculateAge(profile.birth_date), weight: parseFloat(profile.weight), height: parseFloat(profile.height), goal: profile.goal });
-        let cur = {}; try { cur = JSON.parse(cloudStore.getItem(settingsKey()) || '{}') || {}; } catch (er) { }
-        dataCache.set(settingsKey(), JSON.stringify(Object.assign(cur, settings))); _programCache = null;
-        try { checkActiveUserSession(); } catch (err) { }
+        const db = getUsersDB();
+        const me = db[currentUser];
+        if (me) {
+          me.gender = gender;
+          me.birthdate = birth;
+          me.age = calculateAge(birth);
+          if (res.goal) me.goal = res.goal;
+          saveUsersDB(db);
+          try { checkActiveUserSession(); } catch (err) {}
+        }
       }
       adminLoad();
     }
@@ -5986,6 +5993,66 @@ ${timedSecs ? `
         cardio: 'Bajá el cardio gradualmente: 3×20 min/semana', info: 'Dieta inversa: arrancás un poco debajo del mantenimiento y subís +100-150 kcal por semana para recuperar hormonas y energía sin rebote.' }
     };
     const FREQ_ACTIVITY = { 3: 1.45, 4: 1.5, 5: 1.55, 6: 1.65, 7: 1.7 };
+    // ===== REGLAS GENERALES DE DIETA (editables por el administrador; tabla app_config 'diet_rules') =====
+    const DR_PH = ['volumen', 'definicion', 'precontest', 'mantenimiento', 'postshow'];
+    const DR_CAT = ['open', 'classic', 'mens_physique', 'ganar_masa', 'wellness', 'bikini', 'mujer_gluteos', 'mujer_tonificar', 'figure', 'womens_physique'];
+    const DR_DEF = { recP: 1.9, recCutP: 2.2, recF: 0.27, recCutF: 0.25, phyMinP: 2.2, phyMaxF: 0.23, minFatKg: 0.6, bmiCap: 30, bmiRef: 27, supp: {}, ph: {}, cat: {} };
+    DR_PH.forEach(k => { DR_DEF.ph[k] = { prot: PHASES[k].prot, fat: PHASES[k].fat, kcal: PHASES[k].kcal }; });
+    DR_CAT.forEach(k => { DR_DEF.cat[k] = CALORIE_GOAL_FACTORS[k]; });
+    let DR = JSON.parse(JSON.stringify(DR_DEF));
+    function applyDietRules(v) {
+      const d = JSON.parse(JSON.stringify(DR_DEF)), num = (x, lo, hi) => { x = parseFloat(x); return x >= lo && x <= hi ? x : null; };
+      v = v && typeof v === 'object' ? v : {};
+      [['recP', .5, 4], ['recCutP', .5, 4], ['recF', .1, .6], ['recCutF', .1, .6], ['phyMinP', .5, 4], ['phyMaxF', .1, .6], ['minFatKg', .2, 2], ['bmiCap', 20, 60], ['bmiRef', 18, 40]].forEach(([k, lo, hi]) => { const x = num(v[k], lo, hi); if (x != null) d[k] = x; });
+      DR_PH.forEach(k => { const o = (v.ph || {})[k] || {}; [['prot', .5, 4], ['fat', .1, .6], ['kcal', .5, 1.5]].forEach(([f, lo, hi]) => { const x = num(o[f], lo, hi); if (x != null) d.ph[k][f] = x; }); });
+      DR_CAT.forEach(k => { const x = num((v.cat || {})[k], .5, 1.5); if (x != null) d.cat[k] = x; });
+      Object.keys(v.supp || {}).forEach(k => { if (['on', 'off'].includes(v.supp[k])) d.supp[k] = v.supp[k]; });
+      DR = d;
+      DR_PH.forEach(k => Object.assign(PHASES[k], d.ph[k]));
+      DR_CAT.forEach(k => { CALORIE_GOAL_FACTORS[k] = d.cat[k]; });
+    }
+    async function loadDietRules() {
+      try { const { data } = await sb.from('app_config').select('value').eq('key', 'diet_rules').maybeSingle(); applyDietRules(data && data.value); } catch (e) { console.error(e); }
+    }
+    const SUPP_KEYS = ['creatine', 'whey', 'caf', 'd3', 'o3', 'mg', 'multi', 'elec', 'fe'];
+    function adminRenderRules() {
+      const box = document.getElementById('adm-rules'); if (!box) return;
+      const inp = (id, v, step) => `<input type="number" step="${step}" data-r="${id}" value="${v}">`;
+      const pct = x => Math.round(x * 100);
+      const ph = DR_PH.map(k => `<tr><td>${esc(tc(PHASES[k].label))}</td><td>${inp('ph.' + k + '.prot', DR.ph[k].prot, .1)}</td><td>${inp('ph.' + k + '.fat%', pct(DR.ph[k].fat), 1)}</td><td>${inp('ph.' + k + '.kcal%', pct(DR.ph[k].kcal), 1)}</td></tr>`).join('');
+      const cat = DR_CAT.map(k => `<div><label>${esc(goalLabel(k))}</label>${inp('cat.' + k + '%', pct(DR.cat[k]), 1)}</div>`).join('');
+      const sel = k => `<div><label>${t('supp.' + k)}</label><select data-s="${k}">${['auto', 'on', 'off'].map(v => `<option value="${v}"${(DR.supp[k] || 'auto') === v ? ' selected' : ''}>${t('adm.s.' + v)}</option>`).join('')}</select></div>`;
+      box.innerHTML = `
+        <details class="field-more adm-more" open><summary>${t('dr.phases')}</summary>
+          <div class="adm-scroll"><table class="adm-table dr-t"><thead><tr><th>${t('plan.phase')}</th><th>${t('dr.prot')}</th><th>${t('dr.fat')}</th><th>${t('dr.kcal')}</th></tr></thead><tbody>${ph}</tbody></table></div></details>
+        <details class="field-more adm-more"><summary>${t('dr.rec')}</summary><div class="adm-grid">
+          <div><label>${t('dr.recP')}</label>${inp('recP', DR.recP, .1)}</div><div><label>${t('dr.recCutP')}</label>${inp('recCutP', DR.recCutP, .1)}</div>
+          <div><label>${t('dr.recF')}</label>${inp('recF%', pct(DR.recF), 1)}</div><div><label>${t('dr.recCutF')}</label>${inp('recCutF%', pct(DR.recCutF), 1)}</div></div>
+          <p class="pc-note">${t('dr.catHelp')}</p><div class="adm-grid">${cat}</div></details>
+        <details class="field-more adm-more"><summary>${t('dr.other')}</summary><div class="adm-grid">
+          <div><label>${t('dr.phyMinP')}</label>${inp('phyMinP', DR.phyMinP, .1)}</div><div><label>${t('dr.phyMaxF')}</label>${inp('phyMaxF%', pct(DR.phyMaxF), 1)}</div>
+          <div><label>${t('dr.minFatKg')}</label>${inp('minFatKg', DR.minFatKg, .1)}</div><div><label>${t('dr.bmiCap')}</label>${inp('bmiCap', DR.bmiCap, 1)}</div>
+          <div><label>${t('dr.bmiRef')}</label>${inp('bmiRef', DR.bmiRef, 1)}</div></div></details>
+        <details class="field-more adm-more"><summary>${t('adm.f.supp')}</summary><div class="adm-grid">${SUPP_KEYS.map(sel).join('')}</div></details>
+        <div class="dl-actions" style="margin-top:14px"><button type="button" class="btn-3d" onclick="adminSaveRules()">${t('ed.save')}</button><button type="button" class="btn-3d btn-secondary" onclick="adminResetRules()">${t('dr.reset')}</button></div>`;
+    }
+    async function adminPutRules(v) {
+      const { error } = await sb.rpc('admin_set_config', { p_key: 'diet_rules', p_value: v });
+      if (error) { showToast(t('err.generic', { m: error.message })); return false; }
+      applyDietRules(v); _programCache = null; adminRenderRules(); try { refreshAll(); } catch (e) { } showToast(t('dr.saved')); return true;
+    }
+    function adminSaveRules() {
+      const v = { ph: {}, cat: {}, supp: {} };
+      document.querySelectorAll('#adm-rules [data-r]').forEach(el => {
+        let id = el.dataset.r, x = parseFloat(el.value); if (isNaN(x)) return;
+        if (id.endsWith('%')) { id = id.slice(0, -1); x = x / 100; }
+        const parts = id.split('.');
+        if (parts[0] === 'ph') { (v.ph[parts[1]] = v.ph[parts[1]] || {})[parts[2]] = x; } else if (parts[0] === 'cat') v.cat[parts[1]] = x; else v[id] = x;
+      });
+      document.querySelectorAll('#adm-rules [data-s]').forEach(el => { if (el.value !== 'auto') v.supp[el.dataset.s] = el.value; });
+      if (confirm(t('dr.confirm'))) adminPutRules(v);
+    }
+    function adminResetRules() { if (confirm(t('dr.confirmReset'))) adminPutRules({}); }
 
     // ===== CONFIGURACIÓN PERSISTENTE (user_data: hp_settings_<email>) =====
     function settingsKey() { return `hp_settings_${currentUser}`; }
@@ -6175,7 +6242,7 @@ ${timedSecs ? `
       const g = planKey(user.goal);
       // Categorías de físico (Open, Classic, etc.): el IMC alto es músculo, no grasa → se usa el peso real (tope IMC 40 por seguridad)
       if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(g)) return h > 0 && w / (h * h) > 40 ? Math.round(40 * h * h) : w;
-      if (h > 0 && w / (h * h) > 30) return Math.round(27 * h * h); // con sobrepeso, proteína sobre un peso de referencia (~masa magra)
+      if (h > 0 && w / (h * h) > DR.bmiCap) return Math.round(DR.bmiRef * h * h); // con sobrepeso, proteína sobre un peso de referencia (~masa magra)
       return w;
     }
     function computeTargets(user) {
@@ -6190,25 +6257,18 @@ ${timedSecs ? `
       if (s.phase === 'recreativo') {
         factor = CALORIE_GOAL_FACTORS[String(user.goal || '').toLowerCase()] || CALORIE_GOAL_FACTORS[goal] || 1.05;
         const cut = factor < 1;
-        prot = cut ? 2.2 : 1.9; fatPct = cut ? 0.25 : 0.27;
+        prot = cut ? DR.recCutP : DR.recP; fatPct = cut ? DR.recCutF : DR.recF;
         rate = cut ? [-1.0, -0.5] : factor >= 1.1 ? [0.25, 0.5] : [0, 0.35];
         cardio = tc(cut ? '4-5×30-40 min LISS/semana + 10k pasos' : goal === 'mujer_gluteos' || goal === 'bikini' ? '3×25 min LISS/semana' : '2-3×20 min LISS/semana');
       } else { factor = ph.kcal; prot = ph.prot; fatPct = ph.fat; rate = ph.rate; cardio = tc(ph.cardio); }
       // Culturismo de mucha masa (Open/Classic/Physique): mínimo 2,2 g/kg y grasas ~23 % para dejar lugar a los carbohidratos
-      if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) { prot = Math.max(prot, 2.2); fatPct = Math.min(fatPct, 0.23); }
+      if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) { prot = Math.max(prot, DR.phyMinP); fatPct = Math.min(fatPct, DR.phyMaxF); }
       let kcal = Math.round((tdee * factor + s.kcalAdjust) / 50) * 50;
       kcal = Math.max(kcal, female ? 1200 : 1500);
       const rw = refWeight(user);
       const protein = Math.round(rw * prot);
-      let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * 0.6));
-      let carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-      const dg = s.dietGkg || {}, gk = v => { v = parseFloat(v); return v > 0 ? v : 0; };
-      if (gk(dg.p) || gk(dg.f) || gk(dg.c)) { // valores fijados por el coach/administrador, sobre el peso real
-        const P2 = gk(dg.p) ? Math.round(w * gk(dg.p)) : protein, F2 = gk(dg.f) ? Math.round(w * gk(dg.f)) : fat;
-        const C2 = gk(dg.c) ? Math.round(w * gk(dg.c)) : Math.max(0, Math.round((kcal - P2 * 4 - F2 * 9) / 4));
-        if (gk(dg.c)) kcal = Math.round((P2 * 4 + C2 * 4 + F2 * 9) / 10) * 10;
-        return { kcal, tdee: Math.round(tdee), protein: P2, fat: F2, carbs: C2, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: gk(dg.p) ? w : rw, custom: true };
-      }
+      let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * DR.minFatKg));
+      const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
       return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw };
     }
     function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
@@ -6717,7 +6777,7 @@ ${timedSecs ? `
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
         ${dlAiBox(d)}
-        <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}${tg.custom ? ' ' + t('diet.custom') : ''}</p>
+        <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
           <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(dlo.times || {})[m.mk] || sug[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)">${!(dlo.times || {})[m.mk] && sug[m.mk] ? `<em class="dl-sug">${t('diet.sug')}</em>` : ''}</label>
           ${(sbm[m.mk] || []).length ? `<div class="meal-supp">${sbm[m.mk].map(x => `<button type="button" class="ms-chip${(dlo.supp || {})[x.k] ? ' on' : ''}" onclick="dlSupp('${x.k}')">${(dlo.supp || {})[x.k] ? '✅' : '💊'} ${t('supp.' + x.k)}${x.n ? `<small>${t('ms.' + x.n)}</small>` : ''}</button>`).join('')}</div>` : ''}
@@ -6738,7 +6798,7 @@ ${timedSecs ? `
 
     // ===== SUPLEMENTOS (con evidencia; sin sustancias prohibidas) =====
     function suppKeys(u, s, tg) {
-      const female = u.gender === 'mujer', ph = s.phase, cut = ph === 'definicion' || ph === 'precontest' || (tg && tg.factor < 1), sp = s.supp || {};
+      const female = u.gender === 'mujer', ph = s.phase, cut = ph === 'definicion' || ph === 'precontest' || (tg && tg.factor < 1), sp = DR.supp || {};
       return [
         ['creatine', true], ['whey', true], ['caf', cut || ph === 'volumen'], ['d3', true], ['o3', true], ['mg', true],
         ['multi', cut || ph === 'postshow'], ['elec', cut || ph === 'precontest' || s.frequency >= 6], ['fe', female]
@@ -6750,7 +6810,7 @@ ${timedSecs ? `
       const DEF = { desayuno: 420, media: 600, almuerzo: 780, merienda: 960, cena: 1140, colacion: 1320 };
       const ms = meals.filter(m => m.state !== 'skip').map(m => ({ mk: m.mk, at: toM(times[m.mk]) ?? DEF[m.mk] ?? 720, whey: (m.items || []).some(i => i.key === 'whey') }));
       if (!ms.length) return {};
-      const tr = toM(s.trainTime), sp = s.supp || {};
+      const tr = toM(s.trainTime), sp = DR.supp || {};
       const pre = tr == null ? (ms.find(m => m.mk === 'merienda') || ms[Math.floor(ms.length / 2)]) : ([...ms].reverse().find(m => m.at <= tr - 30) || ms[0]);
       const post = tr == null ? (ms.find(m => m.mk === 'cena') || ms[ms.length - 1]) : (ms.find(m => m.at >= tr + 45) || ms[ms.length - 1]);
       const first = ms[0], last = ms[ms.length - 1], lunch = ms.find(m => m.mk === 'almuerzo') || ms[Math.floor(ms.length / 2)];
