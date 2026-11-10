@@ -6072,6 +6072,9 @@ ${timedSecs ? `
     function refWeight(user) {
       const w = parseFloat(user.weight), h = parseFloat(user.height) / 100;
       if (!(w > 0)) return 0;
+      const g = planKey(user.goal);
+      // Categorías de físico (Open, Classic, etc.): el IMC alto es músculo, no grasa → se usa el peso real (tope IMC 40 por seguridad)
+      if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(g)) return h > 0 && w / (h * h) > 40 ? Math.round(40 * h * h) : w;
       if (h > 0 && w / (h * h) > 30) return Math.round(27 * h * h); // con sobrepeso, proteína sobre un peso de referencia (~masa magra)
       return w;
     }
@@ -6091,6 +6094,8 @@ ${timedSecs ? `
         rate = cut ? [-1.0, -0.5] : factor >= 1.1 ? [0.25, 0.5] : [0, 0.35];
         cardio = tc(cut ? '4-5×30-40 min LISS/semana + 10k pasos' : goal === 'mujer_gluteos' || goal === 'bikini' ? '3×25 min LISS/semana' : '2-3×20 min LISS/semana');
       } else { factor = ph.kcal; prot = ph.prot; fatPct = ph.fat; rate = ph.rate; cardio = tc(ph.cardio); }
+      // Culturismo de mucha masa (Open/Classic/Physique): mínimo 2,2 g/kg y grasas ~23 % para dejar lugar a los carbohidratos
+      if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) { prot = Math.max(prot, 2.2); fatPct = Math.min(fatPct, 0.23); }
       let kcal = Math.round((tdee * factor + s.kcalAdjust) / 50) * 50;
       kcal = Math.max(kcal, female ? 1200 : 1500);
       const rw = refWeight(user);
