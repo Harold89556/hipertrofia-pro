@@ -836,6 +836,14 @@
     .meal-done{border-color:#22c55e;background:rgba(34,197,94,.06)}.meal-skip{opacity:.6}.meal-skip ul,.dl-off span,.dl-off b{text-decoration:line-through;opacity:.55}.meal li b{white-space:normal;text-align:right}.meal li .swap{flex-shrink:0}.meal li s{opacity:.5;font-weight:400;font-size:.8em}.dl-ai textarea{width:100%;font-family:inherit;box-sizing:border-box;font-size:16px;border-radius:10px;padding:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-ai select{flex:1;min-height:46px;font-size:16px;border-radius:10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow{display:grid;grid-template-columns:1fr 72px auto auto;gap:6px;align-items:center;margin:6px 0}.dl-drow input{font-size:16px;min-width:0;padding:6px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid var(--border)}.dl-drow small{grid-column:1/-1;opacity:.75}.dl-extra li,.meal li{gap:6px}.dl-adj{font-size:.8rem;color:#fbbf24;margin-top:4px}.dl-extra{list-style:none;padding:0;margin:0}.dl-extra li.dlr,.dlr{display:flex;align-items:center;gap:10px;padding:10px;margin:6px 0;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.04)}.dlr-m{flex:1;min-width:0}.dlr-t{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.dlr-t b{font-size:.95rem}.dlr-q{font-size:.75rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.1);opacity:.85;white-space:nowrap}.dlr-ch{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center}.dlc{font-size:.72rem;padding:2px 7px;border-radius:999px;white-space:nowrap;font-weight:600}.dlc-p{background:rgba(59,130,246,.18);color:#93c5fd}.dlc-c{background:rgba(234,179,8,.18);color:#fde047}.dlc-f{background:rgba(244,63,94,.18);color:#fda4af}.dlr-k{font-size:1.15rem;font-weight:800;white-space:nowrap;text-align:right}.dlr-k small{font-size:.7rem;font-weight:500;opacity:.7}.dlr-x{flex:0 0 36px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(248,113,113,.12);color:#f87171;font-size:1rem;line-height:1;padding:0;cursor:pointer}.dlr-tot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}.dl-sum{margin:8px 0 0;font-size:.9rem;line-height:1.4}.dl-drow .dlr-ch{grid-column:1/-1;margin-top:0}.dl-drow .dlr-x{flex:none}#diet-content{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 
     .swap { background: none; border: 1px solid var(--border); border-radius: 8px; min-width: 40px; min-height: 40px; cursor: pointer; font-size: 1rem; }
+    .adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+    .adm-grid label { font-size: .8rem; }
+    .adm-more { margin-top: 12px; }
+    #admin-edit-modal .auth-card { max-height: 92vh; overflow-y: auto; }
+    .meal-supp { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
+    .ms-chip { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--text); border-radius: 999px; padding: 6px 10px; font-size: .78rem; cursor: pointer; text-align: left; }
+    .ms-chip small { color: var(--text-muted); margin-left: 4px; }
+    .ms-chip.on { border-color: var(--accent); background: rgba(76,175,80,.15); }
     .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
     .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
     .chart-box { position: relative; height: 240px; margin: 8px 0 16px; }
@@ -1827,18 +1835,32 @@
         <p id="adm-edit-who" style="text-align:center;color:var(--text-muted);margin-bottom:12px;font-size:0.9rem;"></p>
         <form class="auth-form" onsubmit="adminSaveProfile(event)">
           <input type="hidden" id="adm-edit-id">
-          <div>
-            <label data-i18n="f.gender">Género</label>
-            <select id="adm-edit-gender" required>
-              <option value="hombre" data-i18n="g.hombre">Hombre</option>
-              <option value="mujer" data-i18n="g.mujer">Mujer</option>
-            </select>
+          <div class="adm-grid">
+            <div><label data-i18n="adm.f.fn">Nombre</label><input type="text" id="adm-edit-fn" maxlength="60"></div>
+            <div><label data-i18n="adm.f.ln">Apellido</label><input type="text" id="adm-edit-ln" maxlength="60"></div>
+            <div><label data-i18n="f.gender">Género</label>
+              <select id="adm-edit-gender" required onchange="adminFillGoals()">
+                <option value="hombre" data-i18n="g.hombre">Hombre</option>
+                <option value="mujer" data-i18n="g.mujer">Mujer</option>
+              </select></div>
+            <div><label data-i18n="ed.birth">Fecha de Nacimiento</label><input type="date" id="adm-edit-birth" required onclick="this.showPicker && this.showPicker()"></div>
+            <div><label data-i18n="adm.f.w">Peso (kg)</label><input type="number" id="adm-edit-w" min="25" max="300" step="0.1" required></div>
+            <div><label data-i18n="adm.f.h">Altura (cm)</label><input type="number" id="adm-edit-h" min="100" max="250" step="1" required></div>
+            <div><label data-i18n="adm.f.goal">Categoría</label><select id="adm-edit-goal"></select></div>
+            <div><label data-i18n="adm.f.freq">Días por semana</label><select id="adm-edit-freq"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></div>
+            <div><label data-i18n="adm.f.phase">Fase</label><select id="adm-edit-phase"></select></div>
+            <div><label data-i18n="prof.trainTime">Hora habitual de entrenamiento</label><input type="time" id="adm-edit-tt"></div>
+            <div><label data-i18n="adm.f.kadj">Ajuste de calorías (kcal)</label><input type="number" id="adm-edit-kadj" min="-1500" max="1500" step="50"></div>
           </div>
-          <div>
-            <label data-i18n="ed.birth">Fecha de Nacimiento</label>
-            <input type="date" id="adm-edit-birth" required onclick="this.showPicker && this.showPicker()">
-          </div>
-          <p style="font-size:0.875rem;color:var(--text-muted);" data-i18n="adm.editNote">El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.</p>
+          <details class="field-more adm-more"><summary data-i18n="adm.f.diet">Dieta por kilo de peso</summary>
+            <p class="pc-note" data-i18n="adm.f.dietHelp">Vacío = cálculo automático. Si ponés carbohidratos, las calorías salen de la suma.</p>
+            <div class="adm-grid">
+              <div><label data-i18n="adm.f.p">Proteína (g/kg)</label><input type="number" id="adm-edit-gp" min="0.5" max="4" step="0.1"></div>
+              <div><label data-i18n="adm.f.fat">Grasas (g/kg)</label><input type="number" id="adm-edit-gf" min="0.3" max="2.5" step="0.1"></div>
+              <div><label data-i18n="adm.f.c">Carbohidratos (g/kg)</label><input type="number" id="adm-edit-gc" min="0" max="12" step="0.1"></div>
+            </div>
+          </details>
+          <details class="field-more adm-more"><summary data-i18n="adm.f.supp">Suplementos</summary><div id="adm-edit-supp" class="adm-grid"></div></details>
           <button type="submit" class="btn-3d" style="width:100%;margin-top:10px;" data-i18n="ed.save">Guardar Cambios</button>
           <button type="button" class="btn-3d btn-secondary" style="width:100%;" onclick="adminCloseEdit()" data-i18n="btn.cancel">Cancelar</button>
         </form>
@@ -2273,6 +2295,28 @@
   "adm.confirmDelete": "¿Eliminar la clave revocada {k}? Desaparece de la lista.",
   "adm.deleted": "Clave eliminada",
   "th.birth": "Nacimiento",
+  "adm.f.fn": "Nombre",
+  "adm.f.ln": "Apellido",
+  "adm.f.w": "Peso (kg)",
+  "adm.f.h": "Altura (cm)",
+  "adm.f.goal": "Categoría",
+  "adm.f.freq": "Días por semana",
+  "adm.f.phase": "Fase",
+  "adm.f.kadj": "Ajuste de calorías (kcal)",
+  "adm.f.diet": "Dieta por kilo de peso",
+  "adm.f.dietHelp": "Vacío = cálculo automático. Si ponés carbohidratos, las calorías salen de la suma.",
+  "adm.f.p": "Proteína (g/kg)",
+  "adm.f.fat": "Grasas (g/kg)",
+  "adm.f.c": "Carbohidratos (g/kg)",
+  "adm.f.supp": "Suplementos",
+  "adm.s.auto": "Automático",
+  "adm.s.on": "Siempre",
+  "adm.s.off": "Nunca",
+  "adm.confirmAll": "¿Guardar todos los cambios de {n}?",
+  "diet.custom": "Macros ajustados por tu coach.",
+  "ms.pre": "antes de entrenar",
+  "ms.post": "después de entrenar",
+  "ms.during": "llevar al entreno",
   "adm.edit": "Editar",
   "adm.editProfile": "Editar perfil",
   "adm.confirmEdit": "¿Guardar el género y la fecha de nacimiento de {n}?",
@@ -2745,6 +2789,28 @@
   "adm.confirmDelete": "Delete revoked key {k}? It will disappear from the list.",
   "adm.deleted": "Key deleted",
   "th.birth": "Born",
+  "adm.f.fn": "First name",
+  "adm.f.ln": "Last name",
+  "adm.f.w": "Weight (kg)",
+  "adm.f.h": "Height (cm)",
+  "adm.f.goal": "Category",
+  "adm.f.freq": "Days per week",
+  "adm.f.phase": "Phase",
+  "adm.f.kadj": "Calorie adjustment (kcal)",
+  "adm.f.diet": "Diet per kg of body weight",
+  "adm.f.dietHelp": "Empty = automatic. If you set carbs, calories come from the sum.",
+  "adm.f.p": "Protein (g/kg)",
+  "adm.f.fat": "Fats (g/kg)",
+  "adm.f.c": "Carbs (g/kg)",
+  "adm.f.supp": "Supplements",
+  "adm.s.auto": "Automatic",
+  "adm.s.on": "Always",
+  "adm.s.off": "Never",
+  "adm.confirmAll": "Save all changes for {n}?",
+  "diet.custom": "Macros set by your coach.",
+  "ms.pre": "before training",
+  "ms.post": "after training",
+  "ms.during": "bring to training",
   "adm.edit": "Edit",
   "adm.editProfile": "Edit profile",
   "adm.confirmEdit": "Save the gender and date of birth for {n}?",
@@ -3458,6 +3524,28 @@
   "adm.confirmDelete": "Excluir a chave revogada {k}? Ela some da lista.",
   "adm.deleted": "Chave excluída",
   "th.birth": "Nascimento",
+  "adm.f.fn": "Nome",
+  "adm.f.ln": "Sobrenome",
+  "adm.f.w": "Peso (kg)",
+  "adm.f.h": "Altura (cm)",
+  "adm.f.goal": "Categoria",
+  "adm.f.freq": "Dias por semana",
+  "adm.f.phase": "Fase",
+  "adm.f.kadj": "Ajuste de calorias (kcal)",
+  "adm.f.diet": "Dieta por quilo de peso",
+  "adm.f.dietHelp": "Vazio = cálculo automático. Se definir carboidratos, as calorias saem da soma.",
+  "adm.f.p": "Proteína (g/kg)",
+  "adm.f.fat": "Gorduras (g/kg)",
+  "adm.f.c": "Carboidratos (g/kg)",
+  "adm.f.supp": "Suplementos",
+  "adm.s.auto": "Automático",
+  "adm.s.on": "Sempre",
+  "adm.s.off": "Nunca",
+  "adm.confirmAll": "Salvar todas as alterações de {n}?",
+  "diet.custom": "Macros ajustados pelo seu coach.",
+  "ms.pre": "antes do treino",
+  "ms.post": "depois do treino",
+  "ms.during": "levar ao treino",
   "adm.edit": "Editar",
   "adm.editProfile": "Editar perfil",
   "adm.confirmEdit": "Salvar o gênero e a data de nascimento de {n}?",
@@ -5639,43 +5727,51 @@ ${timedSecs ? `
       const m = document.getElementById('admin-edit-modal');
       if (m) m.style.display = 'none';
     }
-    function adminEditProfile(id) {
-      const u = admUsers.find(x => x.id === id);
-      if (!u) return;
-      document.getElementById('adm-edit-id').value = u.id;
-      document.getElementById('adm-edit-gender').value = u.gender || 'hombre';
-      document.getElementById('adm-edit-birth').value = u.birth_date ? String(u.birth_date).slice(0, 10) : '';
-      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
-      document.getElementById('adm-edit-who').textContent = name + (u.email && name !== u.email ? ' · ' + u.email : '');
+    const SUPP_KEYS = ['creatine', 'whey', 'caf', 'd3', 'o3', 'mg', 'multi', 'elec', 'fe'];
+    function adminFillGoals(sel) {
+      const g = document.getElementById('adm-edit-gender').value, el = document.getElementById('adm-edit-goal');
+      const cur = sel || el.value; const list = GOALS_BY_GENDER[g] || [];
+      el.innerHTML = list.map(k => `<option value="${k}">${esc(goalLabel(k))}</option>`).join('');
+      el.value = list.includes(cur) ? cur : list[list.length - 1];
+    }
+    async function adminEditProfile(id) {
+      const u = admUsers.find(x => x.id === id); if (!u) return;
+      const { data, error } = await sb.rpc('admin_get_user', { p_user_id: id });
+      if (error) { showToast(t('err.generic', { m: error.message })); return; }
+      const r = (typeof data === 'string') ? JSON.parse(data) : (data || {}); const p = r.profile || {}, st = r.settings || {};
+      const $v = (i, v) => { document.getElementById(i).value = v == null ? '' : v; };
+      $v('adm-edit-id', id); $v('adm-edit-fn', p.first_name); $v('adm-edit-ln', p.last_name);
+      $v('adm-edit-gender', p.gender || 'hombre'); $v('adm-edit-birth', p.birth_date ? String(p.birth_date).slice(0, 10) : '');
+      $v('adm-edit-w', p.weight); $v('adm-edit-h', p.height); adminFillGoals(p.goal);
+      $v('adm-edit-freq', FREQ_SCHEDULE[st.frequency] ? st.frequency : 5);
+      document.getElementById('adm-edit-phase').innerHTML = Object.keys(PHASES).map(k => `<option value="${k}">${esc(tc(PHASES[k].label))}</option>`).join('');
+      $v('adm-edit-phase', PHASES[st.phase] ? st.phase : 'recreativo');
+      $v('adm-edit-tt', st.trainTime || ''); $v('adm-edit-kadj', Number(st.kcalAdjust) || 0);
+      const dg = st.dietGkg || {}; $v('adm-edit-gp', dg.p || ''); $v('adm-edit-gf', dg.f || ''); $v('adm-edit-gc', dg.c || '');
+      const sp = st.supp || {}, o = (k, v) => `<option value="${v}"${(sp[k] || 'auto') === v ? ' selected' : ''}>${t('adm.s.' + v)}</option>`;
+      document.getElementById('adm-edit-supp').innerHTML = SUPP_KEYS.map(k => `<div><label>${t('supp.' + k)}</label><select data-supp="${k}">${o(k, 'auto')}${o(k, 'on')}${o(k, 'off')}</select></div>`).join('');
+      const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || p.email || '';
+      document.getElementById('adm-edit-who').textContent = name + (p.email && name !== p.email ? ' · ' + p.email : '');
       document.getElementById('admin-edit-modal').style.display = 'flex';
     }
     async function adminSaveProfile(e) {
       e.preventDefault();
-      const id = document.getElementById('adm-edit-id').value;
-      const gender = document.getElementById('adm-edit-gender').value;
-      const birth = document.getElementById('adm-edit-birth').value;
-      const u = admUsers.find(x => x.id === id);
-      if (!u || !gender || !birth) return;
-      const name = [u.first_name, u.last_name].filter(Boolean).join(' ').trim() || u.email || '';
-      if (!confirm(t('adm.confirmEdit', { n: name }))) return;
-      const { data, error } = await sb.rpc('admin_update_profile', {
-        p_user_id: id, p_gender: gender, p_birth_date: birth
-      });
+      const g = i => document.getElementById(i).value, num = i => { const v = parseFloat(g(i)); return v > 0 ? v : null; };
+      const id = g('adm-edit-id'); const u = admUsers.find(x => x.id === id); if (!u) return;
+      const profile = { first_name: g('adm-edit-fn').trim(), last_name: g('adm-edit-ln').trim(), gender: g('adm-edit-gender'), birth_date: g('adm-edit-birth'), weight: g('adm-edit-w'), height: g('adm-edit-h'), goal: g('adm-edit-goal') };
+      const supp = {}; document.querySelectorAll('#adm-edit-supp select').forEach(x => { if (x.value !== 'auto') supp[x.dataset.supp] = x.value; });
+      const settings = { frequency: +g('adm-edit-freq'), phase: g('adm-edit-phase'), trainTime: g('adm-edit-tt'), kcalAdjust: Math.round(Number(g('adm-edit-kadj')) || 0), dietGkg: { p: num('adm-edit-gp'), f: num('adm-edit-gf'), c: num('adm-edit-gc') }, supp };
+      if (!COMPETITIVE.includes(profile.goal) && settings.phase !== 'recreativo') settings.phase = 'recreativo';
+      const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || u.email || '';
+      if (!confirm(t('adm.confirmAll', { n: name }))) return;
+      const { error } = await sb.rpc('admin_save_user', { p_user_id: id, p_profile: profile, p_settings: settings });
       if (error) { showToast(t('err.generic', { m: error.message })); return; }
-      const res = (data && typeof data === 'string') ? JSON.parse(data) : (data || {});
-      showToast(res.goal_adjusted ? t('adm.goalAdjusted') : t('adm.profileSaved'));
-      adminCloseEdit();
+      showToast(t('adm.profileSaved')); adminCloseEdit();
       if (cloudUserId && String(cloudUserId) === String(id)) {
-        const db = getUsersDB();
-        const me = db[currentUser];
-        if (me) {
-          me.gender = gender;
-          me.birthdate = birth;
-          me.age = calculateAge(birth);
-          if (res.goal) me.goal = res.goal;
-          saveUsersDB(db);
-          try { checkActiveUserSession(); } catch (err) {}
-        }
+        profileCache = Object.assign(profileCache || {}, { firstname: profile.first_name, lastname: profile.last_name, gender: profile.gender, birthdate: profile.birth_date, age: calculateAge(profile.birth_date), weight: parseFloat(profile.weight), height: parseFloat(profile.height), goal: profile.goal });
+        let cur = {}; try { cur = JSON.parse(cloudStore.getItem(settingsKey()) || '{}') || {}; } catch (er) { }
+        dataCache.set(settingsKey(), JSON.stringify(Object.assign(cur, settings))); _programCache = null;
+        try { checkActiveUserSession(); } catch (err) { }
       }
       adminLoad();
     }
@@ -6105,7 +6201,14 @@ ${timedSecs ? `
       const rw = refWeight(user);
       const protein = Math.round(rw * prot);
       let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * 0.6));
-      const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
+      let carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
+      const dg = s.dietGkg || {}, gk = v => { v = parseFloat(v); return v > 0 ? v : 0; };
+      if (gk(dg.p) || gk(dg.f) || gk(dg.c)) { // valores fijados por el coach/administrador, sobre el peso real
+        const P2 = gk(dg.p) ? Math.round(w * gk(dg.p)) : protein, F2 = gk(dg.f) ? Math.round(w * gk(dg.f)) : fat;
+        const C2 = gk(dg.c) ? Math.round(w * gk(dg.c)) : Math.max(0, Math.round((kcal - P2 * 4 - F2 * 9) / 4));
+        if (gk(dg.c)) kcal = Math.round((P2 * 4 + C2 * 4 + F2 * 9) / 10) * 10;
+        return { kcal, tdee: Math.round(tdee), protein: P2, fat: F2, carbs: C2, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: gk(dg.p) ? w : rw, custom: true };
+      }
       return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw };
     }
     function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
@@ -6298,7 +6401,7 @@ ${timedSecs ? `
     function getDietLog() {
       let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
       if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [], times: {} };
-      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; return o;
+      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; o.supp = o.supp || {}; return o;
     }
     function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
     function dlAct(kind, mk, idx) {
@@ -6329,7 +6432,7 @@ ${timedSecs ? `
     function dlSetExtraTime(id, v) { const o = getDietLog(); const e = (o.extra || []).find(x => x.id === id); if (!e) return; if (v) e.at = v; else delete e.at; saveDietLog(o); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
     function dlSnap(o) { o.undo.push(JSON.stringify({ meals: o.meals, items: o.items, extra: o.extra, times: o.times || {} })); if (o.undo.length > 15) o.undo.shift(); }
     function dlUndo() { const o = getDietLog(); const p = o.undo.pop(); if (!p) return; const x = JSON.parse(p); o.meals = x.meals; o.items = x.items; o.extra = x.extra || []; o.times = x.times || {}; saveDietLog(o); renderDiet(); showToast('↩️ Deshecho'); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
-    function dlReset() { const o = getDietLog(); dlSnap(o); o.meals = {}; o.items = {}; o.extra = []; o.times = {}; saveDietLog(o); dlDraft = null; renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
+    function dlReset() { const o = getDietLog(); dlSnap(o); o.meals = {}; o.items = {}; o.extra = []; o.times = {}; o.supp = {}; saveDietLog(o); dlDraft = null; renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel(); }
     // ===== Registrar lo que comí (texto libre → IA) =====
     let dlDraft = null, dlBusy = false;
     const dlEsc = x => String(x ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -6598,7 +6701,7 @@ ${timedSecs ? `
       if (!tg) { box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
       const d = buildDiet(tg, getDietPrefs()); const ph = PHASES[tg.phase];
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
-      const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo);
+      const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo); const sbm = suppByMeal(d.meals, Object.assign({}, sug, dlo.times || {}), u, getSettings(), tg);
       box.innerHTML = `
         <div class="macro-grid">
           <div><strong>${fmtN(tg.kcal)}</strong><span>${t('diet.kcalDay')}</span></div>
@@ -6614,9 +6717,10 @@ ${timedSecs ? `
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
         ${dlAiBox(d)}
-        <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
+        <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}${tg.custom ? ' ' + t('diet.custom') : ''}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
           <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(dlo.times || {})[m.mk] || sug[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)">${!(dlo.times || {})[m.mk] && sug[m.mk] ? `<em class="dl-sug">${t('diet.sug')}</em>` : ''}</label>
+          ${(sbm[m.mk] || []).length ? `<div class="meal-supp">${sbm[m.mk].map(x => `<button type="button" class="ms-chip${(dlo.supp || {})[x.k] ? ' on' : ''}" onclick="dlSupp('${x.k}')">${(dlo.supp || {})[x.k] ? '✅' : '💊'} ${t('supp.' + x.k)}${x.n ? `<small>${t('ms.' + x.n)}</small>` : ''}</button>`).join('')}</div>` : ''}
           ${m.adj ? '<div class="dl-adj">⚖️ Porciones ajustadas para cubrir lo que falta del día</div>' : ''}
           ${m.state === 'ate' ? `<div class="dl-adj">🍽️ Comiste otra cosa: cuenta lo registrado</div><ul class="dl-extra">${lg.extra.filter(e => e.mk === m.mk).map(dlExtraLi).join('')}</ul>` : ''}
           <ul${m.state === 'ate' ? ' class="meal-skipped-plan" style="opacity:.45"' : ''}>${m.items.map(it => `<li class="${it.off ? 'dl-off' : ''}"><div class="meal-item-main"><span>${tc(FOODS[it.key].n)}</span><b>${fmtPortion(it.key, it.g)}${it.orig !== undefined ? ` <s>${fmtN(it.orig)}</s>` : ''}</b></div><div class="meal-actions">${m.state === 'skip' || m.state === 'ate' ? '' : `<button type="button" class="swap" aria-label="${it.off ? 'Volver a incluir' : 'No lo comí'}" title="${it.off ? 'Volver a incluir' : 'No lo comí / quitar'}" onclick="dlAct('item','${m.mk}',${it.idx})">${it.off ? '↩️' : '✖️'}</button>`}${!it.off && m.state === 'pend' && (it.slot !== 'fix' || MEAL_TPL[m.mk].fix) ? `<button type="button" class="swap" aria-label="${t('diet.swapAria')}" title="${t('diet.swapTitle')}" onclick="swapFood('${m.mk}','${it.slot}')">🔄</button>` : ''}</div></li>`).join('')}</ul>
@@ -6633,15 +6737,42 @@ ${timedSecs ? `
     }
 
     // ===== SUPLEMENTOS (con evidencia; sin sustancias prohibidas) =====
+    function suppKeys(u, s, tg) {
+      const female = u.gender === 'mujer', ph = s.phase, cut = ph === 'definicion' || ph === 'precontest' || (tg && tg.factor < 1), sp = s.supp || {};
+      return [
+        ['creatine', true], ['whey', true], ['caf', cut || ph === 'volumen'], ['d3', true], ['o3', true], ['mg', true],
+        ['multi', cut || ph === 'postshow'], ['elec', cut || ph === 'precontest' || s.frequency >= 6], ['fe', female]
+      ].filter(([k, on]) => sp[k] === 'on' || (sp[k] !== 'off' && on)).map(x => x[0]);
+    }
+    // Suplementos repartidos en las comidas según la hora de entrenamiento
+    function suppByMeal(meals, times, u, s, tg) {
+      const toM = x => { const m = /^(\d{1,2}):(\d{2})/.exec(x || ''); return m ? +m[1] * 60 + +m[2] : null; };
+      const DEF = { desayuno: 420, media: 600, almuerzo: 780, merienda: 960, cena: 1140, colacion: 1320 };
+      const ms = meals.filter(m => m.state !== 'skip').map(m => ({ mk: m.mk, at: toM(times[m.mk]) ?? DEF[m.mk] ?? 720, whey: (m.items || []).some(i => i.key === 'whey') }));
+      if (!ms.length) return {};
+      const tr = toM(s.trainTime), sp = s.supp || {};
+      const pre = tr == null ? (ms.find(m => m.mk === 'merienda') || ms[Math.floor(ms.length / 2)]) : ([...ms].reverse().find(m => m.at <= tr - 30) || ms[0]);
+      const post = tr == null ? (ms.find(m => m.mk === 'cena') || ms[ms.length - 1]) : (ms.find(m => m.at >= tr + 45) || ms[ms.length - 1]);
+      const first = ms[0], last = ms[ms.length - 1], lunch = ms.find(m => m.mk === 'almuerzo') || ms[Math.floor(ms.length / 2)];
+      const hasWhey = ms.some(m => m.whey), out = {}, add = (m, k, n) => { (out[m.mk] = out[m.mk] || []).push({ k, n }); };
+      suppKeys(u, s, tg).forEach(k => {
+        if (k === 'creatine') add(post, k, tr != null ? 'post' : '');
+        else if (k === 'whey') { if (!hasWhey || sp.whey === 'on') add(post, k, tr != null ? 'post' : ''); }
+        else if (k === 'caf') { if (tr == null || tr <= 16 * 60 + 30 || sp.caf === 'on') add(pre, k, 'pre'); }
+        else if (k === 'elec') add(pre, k, 'during');
+        else if (k === 'multi' || k === 'fe') add(first, k, '');
+        else if (k === 'd3' || k === 'o3') add(lunch, k, '');
+        else if (k === 'mg') add(last, k, '');
+      });
+      return out;
+    }
+    function dlSupp(k) { const o = getDietLog(); o.supp = o.supp || {}; if (o.supp[k]) delete o.supp[k]; else o.supp[k] = 1; saveDietLog(o); renderDiet(); }
     function renderSupplements() {
       const box = document.getElementById('supp-content'); if (!box || !currentUser) return;
       const u = getUsersDB()[currentUser] || {}; const s = getSettings(); const tg = computeTargets(u); const w = parseFloat(u.weight) || 70;
       const female = u.gender === 'mujer', ph = s.phase, cut = ph === 'definicion' || ph === 'precontest' || (tg && tg.factor < 1);
       const caf = Math.round(Math.min(w, 100) * 3 / 10) * 10;
-      const list = [
-        ['creatine', true], ['whey', true], ['caf', cut || ph === 'volumen'], ['d3', true], ['o3', true], ['mg', true],
-        ['multi', cut || ph === 'postshow'], ['elec', cut || ph === 'precontest' || s.frequency >= 6], ['fe', female]
-      ].filter(x => x[1]);
+      const list = suppKeys(u, s, tg).map(k => [k]);
       box.innerHTML = list.map(([k]) => `<div class="supp"><div><strong>${t('supp.' + k)}</strong> <span class="dose">${t('supp.' + k + '.d', { a: fmtN(caf), b: fmtN(caf * 2) })}</span></div><small>⏰ ${t('supp.' + k + '.w')} ${t('supp.' + k + '.y')}</small></div>`).join('') +
         `<p class="pc-note">${t('supp.disclaimer')}</p>`;
     }
