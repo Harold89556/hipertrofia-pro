@@ -133,6 +133,8 @@
     .prof-ava-lg { width: 84px; height: 84px; font-size: 1.6rem; }
     .mr-box { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
     .mr-box small { color: var(--text-muted); font-size: .78rem; }
+    .dp-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dp-row .dl-btn { flex: 1 1 160px; }
     .mr-btn.on { border-color: var(--accent, #ff6b1a); }
     .dl-sug { font-style: normal; font-size: .72rem; color: var(--text-muted); opacity: .8; }
     .dl-time { display: flex; align-items: center; gap: 8px; font-size: .78rem; color: var(--text-muted); margin: 6px 0 2px; font-weight: 600; }
@@ -1638,7 +1640,10 @@
           <div><label for="m-calf" class="field-label" data-i18n="m.calf">Pantorrilla (cm)</label><input type="number" step="0.1" id="m-calf" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
           <div><label for="m-shoulders" class="field-label" data-i18n="m.shoulders">Hombros (contorno, cm)</label><input type="number" step="0.1" id="m-shoulders" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
           <div><label for="m-wrist" class="field-label" data-i18n="m.wrist">Muñeca (cm)</label><input type="number" step="0.1" id="m-wrist" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
+          <div><label for="m-bf" class="field-label" data-i18n="m.bf">Grasa corporal (%) · balanza</label><input type="number" step="0.1" min="3" max="60" id="m-bf" inputmode="decimal" placeholder="Ej: 18.5"></div>
+          <div><label for="m-lean" class="field-label" data-i18n="m.lean">Masa magra (kg) · balanza</label><input type="number" step="0.1" id="m-lean" inputmode="decimal" placeholder="Ej: 64.0"></div>
         </div>
+        <details class="field-more"><summary data-i18n="bc.more">Balanza inteligente: ¿para qué sirve?</summary><p class="field-hint" data-i18n="bc.help">Si tu balanza mide grasa corporal o masa magra, cargalas acá. La dieta usa tu masa magra para calcular calorías y proteína con más precisión. Pesate siempre en las mismas condiciones: a la mañana, en ayunas y después de ir al baño.</p></details>
         <details class="field-more">
           <summary data-i18n="body.hintMore">Cómo medir</summary>
           <p class="field-hint" data-i18n="body.hint">Hombros: cinta alrededor de la parte más ancha de los hombros, brazos relajados. Muñeca: justo arriba del hueso. Medite siempre a la mañana, en ayunas.</p>
@@ -2327,6 +2332,26 @@
   "adm.goalAdjusted": "Perfil actualizado. La categoría se ajustó al nuevo género.",
   "adm.editNote": "El usuario no puede cambiar estos datos. Si cambiás el género y la categoría no corresponde, se ajusta sola.",
   "diet.time": "Hora",
+  "wr.on": "💧 Recordatorios de agua: activados",
+  "wr.off": "💧 Activar recordatorios de agua",
+  "wr.okOn": "💧 Te aviso cuándo tomar agua durante el día",
+  "wr.okOff": "Recordatorios de agua desactivados",
+  "wr.plan": "Agua: {l} L → {n} tomas de ~{ml} ml",
+  "lact.on": "🥛 Sin lactosa: activado",
+  "lact.off": "🥛 Soy intolerante a la lactosa",
+  "lact.okOn": "Dieta sin lactosa: se cambiaron los lácteos por opciones deslactosadas o sin lácteos",
+  "lact.okOff": "Dieta normal con lácteos",
+  "ret.on": "💦 Menos retención de líquidos: activado",
+  "ret.off": "💦 Reducir retención de líquidos",
+  "ret.okOn": "Dieta con menos sodio y +0,5 L de agua por día",
+  "ret.okOff": "Modo retención de líquidos desactivado",
+  "ret.more": "Cómo ayuda a eliminar la retención",
+  "ret.tips": "Se cambian enlatados, quesos y panificados por opciones con menos sodio, y se suma medio litro de agua por día (tomar poca agua hace que el cuerpo retenga más). Sumá alimentos con potasio, como batata, banana, palta y verduras. Evitá embutidos, snacks, sopas instantáneas y aderezos. Usá sal con moderación, sin eliminarla del todo. Dormí bien y caminá a diario. Si la hinchazón es fuerte o aparece de golpe, consultá a un médico.",
+  "bc.using": "Usando tu balanza: {bf} % de grasa y {lean} kg de masa magra",
+  "bc.more": "Balanza inteligente: ¿para qué sirve?",
+  "bc.help": "Si tu balanza mide grasa corporal o masa magra, cargalas acá. La dieta usa tu masa magra para calcular calorías y proteína con más precisión. Pesate siempre en las mismas condiciones: a la mañana, en ayunas y después de ir al baño.",
+  "m.bf": "Grasa corporal (%) · balanza",
+  "m.lean": "Masa magra (kg) · balanza",
   "diet.sug": "sugerida",
   "mr.on": "🔔 Alarmas de comidas: activadas",
   "mr.off": "🔕 Activar alarmas de comidas",
@@ -2834,6 +2859,26 @@
   "adm.goalAdjusted": "Profile updated. The category was adjusted to match the new gender.",
   "adm.editNote": "The user cannot change these fields. If you change the gender and the category no longer fits, it is adjusted automatically.",
   "diet.time": "Time",
+  "wr.on": "💧 Water reminders: on",
+  "wr.off": "💧 Turn on water reminders",
+  "wr.okOn": "💧 I'll remind you to drink water during the day",
+  "wr.okOff": "Water reminders off",
+  "wr.plan": "Water: {l} L → {n} drinks of ~{ml} ml",
+  "lact.on": "🥛 Lactose-free: on",
+  "lact.off": "🥛 I'm lactose intolerant",
+  "lact.okOn": "Lactose-free diet: dairy swapped for lactose-free or dairy-free options",
+  "lact.okOff": "Regular diet with dairy",
+  "ret.on": "💦 Less fluid retention: on",
+  "ret.off": "💦 Reduce fluid retention",
+  "ret.okOn": "Lower-sodium diet and +0.5 L of water per day",
+  "ret.okOff": "Fluid retention mode off",
+  "ret.more": "How it helps reduce retention",
+  "ret.tips": "Canned foods, cheese and bread are swapped for lower-sodium options, and half a liter of water is added per day (drinking too little makes the body hold more). Add potassium foods like sweet potato, banana, avocado and vegetables. Avoid cold cuts, snacks, instant soups and dressings. Use salt in moderation without cutting it out. Sleep well and walk daily. If swelling is strong or sudden, see a doctor.",
+  "bc.using": "Using your scale: {bf}% body fat and {lean} kg lean mass",
+  "bc.more": "Smart scale: what is it for?",
+  "bc.help": "If your scale measures body fat or lean mass, enter them here. The diet uses your lean mass to calculate calories and protein more precisely. Always weigh yourself the same way: in the morning, fasted and after using the bathroom.",
+  "m.bf": "Body fat (%) · scale",
+  "m.lean": "Lean mass (kg) · scale",
   "diet.sug": "suggested",
   "mr.on": "🔔 Meal alarms: on",
   "mr.off": "🔕 Turn on meal alarms",
@@ -3051,6 +3096,9 @@
    "Fideos (cocidos)": "Pasta (cooked)",
    "Papa hervida": "Boiled potato",
    "Batata asada": "Baked sweet potato",
+   "Yogur deslactosado descremado": "Lactose-free low-fat yogurt",
+   "Leche deslactosada descremada": "Lactose-free skim milk",
+   "Proteína en polvo sin lactosa (carne/vegetal)": "Lactose-free protein powder (beef/plant)",
    "Poroto (cocido)": "Beans (cooked)",
    "Avena en hojuelas": "Rolled oats",
    "Pan integral": "Whole-wheat bread",
@@ -3582,6 +3630,26 @@
   "adm.goalAdjusted": "Perfil atualizado. A categoria foi ajustada ao novo gênero.",
   "adm.editNote": "O usuário não pode alterar esses dados. Se o gênero mudar e a categoria não corresponder, ela é ajustada automaticamente.",
   "diet.time": "Hora",
+  "wr.on": "💧 Lembretes de água: ativados",
+  "wr.off": "💧 Ativar lembretes de água",
+  "wr.okOn": "💧 Aviso quando beber água durante o dia",
+  "wr.okOff": "Lembretes de água desativados",
+  "wr.plan": "Água: {l} L → {n} doses de ~{ml} ml",
+  "lact.on": "🥛 Sem lactose: ativado",
+  "lact.off": "🥛 Sou intolerante à lactose",
+  "lact.okOn": "Dieta sem lactose: laticínios trocados por opções sem lactose ou sem leite",
+  "lact.okOff": "Dieta normal com laticínios",
+  "ret.on": "💦 Menos retenção de líquidos: ativado",
+  "ret.off": "💦 Reduzir retenção de líquidos",
+  "ret.okOn": "Dieta com menos sódio e +0,5 L de água por dia",
+  "ret.okOff": "Modo retenção de líquidos desativado",
+  "ret.more": "Como ajuda a eliminar a retenção",
+  "ret.tips": "Enlatados, queijos e pães são trocados por opções com menos sódio, e meio litro de água é somado por dia (beber pouca água faz o corpo reter mais). Inclua alimentos com potássio, como batata-doce, banana, abacate e verduras. Evite embutidos, salgadinhos, sopas instantâneas e molhos prontos. Use sal com moderação, sem cortar totalmente. Durma bem e caminhe todos os dias. Se o inchaço for forte ou repentino, procure um médico.",
+  "bc.using": "Usando sua balança: {bf}% de gordura e {lean} kg de massa magra",
+  "bc.more": "Balança inteligente: para que serve?",
+  "bc.help": "Se sua balança mede gordura corporal ou massa magra, registre aqui. A dieta usa sua massa magra para calcular calorias e proteína com mais precisão. Pese-se sempre nas mesmas condições: de manhã, em jejum e depois de ir ao banheiro.",
+  "m.bf": "Gordura corporal (%) · balança",
+  "m.lean": "Massa magra (kg) · balança",
   "diet.sug": "sugerida",
   "mr.on": "🔔 Alarmes de refeições: ativados",
   "mr.off": "🔕 Ativar alarmes de refeições",
@@ -3799,6 +3867,9 @@
    "Fideos (cocidos)": "Macarrão (cozido)",
    "Papa hervida": "Batata cozida",
    "Batata asada": "Batata-doce assada",
+   "Yogur deslactosado descremado": "Iogurte desnatado sem lactose",
+   "Leche deslactosada descremada": "Leite desnatado sem lactose",
+   "Proteína en polvo sin lactosa (carne/vegetal)": "Proteína em pó sem lactose (carne/vegetal)",
    "Poroto (cocido)": "Feijão (cozido)",
    "Avena en hojuelas": "Aveia em flocos",
    "Pan integral": "Pão integral",
@@ -5609,7 +5680,9 @@ ${timedSecs ? `
         glutes: document.getElementById('m-glutes').value || '-',
         calf: document.getElementById('m-calf').value || '-',
         shoulders: document.getElementById('m-shoulders').value || '-',
-        wrist: document.getElementById('m-wrist').value || '-'
+        wrist: document.getElementById('m-wrist').value || '-',
+        bf: document.getElementById('m-bf').value || '',
+        lean: document.getElementById('m-lean').value || ''
       };
 
       const storageKey = `body_metrics_${currentUser}`;
@@ -6266,13 +6339,28 @@ ${timedSecs ? `
       if (h > 0 && w / (h * h) > DR.bmiCap) return Math.round(DR.bmiRef * h * h); // con sobrepeso, proteína sobre un peso de referencia (~masa magra)
       return w;
     }
+    // Composición corporal de balanza inteligente (último registro de los últimos 60 días)
+    function bodyComp(user) {
+      if (!currentUser) return null;
+      let h = []; try { h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]'); } catch (e) { }
+      const lim = new Date(); lim.setDate(lim.getDate() - 60); const ls = lim.toISOString().slice(0, 10);
+      const r = h.filter(x => x && x.date >= ls && (parseFloat(x.bf) > 0 || parseFloat(x.lean) > 0)).sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
+      if (!r) return null;
+      const w = parseFloat(user.weight) || parseFloat(r.weight); let bf = parseFloat(r.bf), lean = parseFloat(r.lean);
+      if (!(lean > 0) && bf > 0) lean = w * (1 - bf / 100);
+      if (!(bf > 0) && lean > 0) bf = (1 - lean / w) * 100;
+      if (!(bf >= 3 && bf <= 60) || !(lean > 20 && lean < w)) return null;
+      return { bf: Math.round(bf * 10) / 10, lean: Math.round(lean * 10) / 10, date: r.date };
+    }
     function computeTargets(user) {
       const w = parseFloat(user && user.weight), h = parseFloat(user && user.height);
       const age = user && user.birthdate ? calculateAge(user.birthdate) : parseFloat(user && user.age);
       if (!(w > 0) || !(h > 0) || !(age > 0)) return null;
       const s = currentUser ? getSettings() : { frequency: 5, phase: 'recreativo', kcalAdjust: 0 };
       const goal = planKey(user.goal), female = user.gender === 'mujer', ph = PHASES[s.phase];
-      const bmr = 10 * w + 6.25 * h - 5 * age + (female ? -161 : 5);
+      const bc = bodyComp(user);
+      // Con balanza inteligente: Katch-McArdle (usa la masa magra real); sin datos: Mifflin-St Jeor
+      const bmr = bc ? 370 + 21.6 * bc.lean : 10 * w + 6.25 * h - 5 * age + (female ? -161 : 5);
       const tdee = bmr * FREQ_ACTIVITY[s.frequency];
       let factor, prot, fatPct, rate, cardio;
       if (s.phase === 'recreativo') {
@@ -6286,18 +6374,35 @@ ${timedSecs ? `
       if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) { prot = Math.max(prot, DR.phyMinP); fatPct = Math.min(fatPct, DR.phyMaxF); }
       let kcal = Math.round((tdee * factor + s.kcalAdjust) / 50) * 50;
       kcal = Math.max(kcal, female ? 1200 : 1500);
-      const rw = refWeight(user);
+      let rw = refWeight(user);
+      // Con % de grasa medido: proteína sobre el peso que tendría con grasa saludable (15 % hombres / 23 % mujeres), nunca más que su peso real
+      if (bc && !['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) rw = Math.round(Math.min(w, bc.lean / (1 - (female ? 0.23 : 0.15))));
       const protein = Math.round(rw * prot);
       let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * DR.minFatKg));
       const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-      return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw };
+      return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw, bc };
     }
     function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
+    function waterL(user) {
+      const w = parseFloat(user && user.weight); if (!(w > 0)) return 0;
+      let l = Math.min(w, 110) * 0.04 + 0.5; try { if (currentUser && getDietPrefs().ret) l += 0.5; } catch (e) { }
+      return Math.round(l * 10) / 10;
+    }
+    // Reparto del agua: desde la primera comida hasta las 21:00, una toma cada ~2 h
+    function waterPlan(user, startT) {
+      const L = waterL(user); if (!L) return [];
+      const toM = x => { const m = /^(\d{1,2}):(\d{2})/.exec(x || ''); return m ? +m[1] * 60 + +m[2] : null; };
+      const toS = n => String(Math.floor(n / 60) % 24).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0');
+      let a = toM(startT); if (a == null || a > 14 * 60) a = 7 * 60; const b = 21 * 60;
+      const n = Math.max(4, Math.round((b - a) / 120) + 1), step = (b - a) / (n - 1);
+      const ml = Math.round(L * 1000 / n / 50) * 50;
+      return Array.from({ length: n }, (_, i) => ({ t: toS(Math.round((a + step * i) / 5) * 5), ml }));
+    }
     function calculateNutrition(user) {
       if (!user || !user.weight) return { water: '-', protein: '-', carbs: '-', fat: '-', cardio: '-', calories: '-' };
       const tg = computeTargets(user); const w = parseFloat(user.weight);
       return {
-        water: fmtN(Math.min(w, 110) * 0.04 + 0.5, 1) + ' L',
+        water: fmtN(waterL(user), 1) + ' L',
         protein: tg ? fmtN(tg.protein) + ' g' : '-', carbs: tg ? fmtN(tg.carbs) + ' g' : '-', fat: tg ? fmtN(tg.fat) + ' g' : '-',
         cardio: tg ? tg.cardio : '-', calories: tg ? fmtN(tg.kcal) + ' kcal' : '-', goalLabel: goalLabel(user.goal), targets: tg
       };
@@ -6427,14 +6532,21 @@ ${timedSecs ? `
       naranja: { n: 'Naranja / mandarina', p: 0.9, c: 12, f: 0.1, unit: 150, un: 'u' }, mamon: { n: 'Mamón / papaya', p: 0.5, c: 11, f: 0.3 },
       aceite: { n: 'Aceite (oliva/soja/girasol)', p: 0, c: 0, f: 100, cda: 10 }, palta: { n: 'Palta', p: 2, c: 9, f: 15 },
       mani: { n: 'Maní natural', p: 26, c: 16, f: 49 }, ensalada: { n: 'Ensalada mixta (lechuga, tomate, zanahoria, locote)', p: 1, c: 5, f: 0.2 },
-      verduras: { n: 'Verduras salteadas/hervidas (zapallo, brócoli, chaucha)', p: 2, c: 7, f: 0.3 }
+      verduras: { n: 'Verduras salteadas/hervidas (zapallo, brócoli, chaucha)', p: 2, c: 7, f: 0.3 },
+      yogur_sl: { n: 'Yogur deslactosado descremado', p: 4.5, c: 5, f: 0.3 }, leche_sl: { n: 'Leche deslactosada descremada', p: 3.4, c: 4.8, f: 0.1, ml: true },
+      prot_sl: { n: 'Proteína en polvo sin lactosa (carne/vegetal)', p: 80, c: 5, f: 3, unit: 30, un: 'scoop' }
     };
+    // Sin lactosa: lácteos → versión deslactosada; queso → claras; whey → proteína sin lactosa
+    const LACT_SUB = { yogur: 'yogur_sl', leche: 'leche_sl', queso: 'claras', whey: 'prot_sl' };
+    // Retención de líquidos: menos sodio (enlatados, quesos y panificados) y más potasio
+    const RET_SUB = { atun: 'pollo', queso: 'claras', pan: 'avena', galleta: 'banana' };
+    function dietSubs(prefs) { return Object.assign({}, prefs && prefs.ret ? RET_SUB : {}, prefs && prefs.lact ? LACT_SUB : {}); }
     const MEAL_TPL = {
       desayuno: { n: 'Desayuno', share: 0.22, prot: ['huevo', 'claras', 'yogur', 'queso'], carb: ['avena', 'pan', 'galleta'], fix: [['banana', 'manzana', 'naranja', 'mamon'], 120], fat: ['mani', 'palta'] },
       media: { n: 'Media mañana', share: 0.10, prot: ['yogur', 'whey', 'leche', 'queso'], carb: ['banana', 'manzana', 'galleta', 'naranja'], fat: ['mani'] },
-      almuerzo: { n: 'Almuerzo', share: 0.30, prot: ['pollo', 'carne', 'pescado', 'cerdo'], carb: ['arroz', 'mandioca', 'fideos', 'poroto', 'papa'], fix: [['ensalada', 'verduras'], 150], fat: ['aceite', 'palta'] },
-      merienda: { n: 'Merienda / pre-entreno', share: 0.15, prot: ['atun', 'claras', 'yogur', 'whey', 'queso'], carb: ['pan', 'banana', 'galleta', 'avena'], fat: ['mani', 'aceite'] },
-      cena: { n: 'Cena', share: 0.23, prot: ['carne', 'pollo', 'pescado', 'huevo'], carb: ['mandioca', 'batata', 'arroz', 'papa', 'fideos'], fix: [['verduras', 'ensalada'], 150], fat: ['aceite', 'palta'] },
+      almuerzo: { n: 'Almuerzo', share: 0.30, prot: ['pollo', 'carne', 'pescado', 'cerdo'], carb: ['batata', 'arroz', 'mandioca', 'fideos', 'poroto', 'papa'], fix: [['ensalada', 'verduras'], 150], fat: ['aceite', 'palta'] },
+      merienda: { n: 'Merienda / pre-entreno', share: 0.15, prot: ['atun', 'claras', 'yogur', 'whey', 'queso'], carb: ['pan', 'banana', 'batata', 'galleta', 'avena'], fat: ['mani', 'aceite'] },
+      cena: { n: 'Cena', share: 0.23, prot: ['carne', 'pollo', 'pescado', 'huevo'], carb: ['batata', 'mandioca', 'arroz', 'papa', 'fideos'], fix: [['verduras', 'ensalada'], 150], fat: ['aceite', 'palta'] },
       colacion: { n: 'Colación nocturna', share: 0.10, prot: ['yogur', 'queso', 'leche', 'claras'], carb: ['avena', 'banana', 'galleta'], fat: ['mani'] }
     };
     function dietKey() { return `hp_diet_${currentUser}`; }
@@ -6446,7 +6558,8 @@ ${timedSecs ? `
     }
     function buildDiet(t, prefs) {
       const ids = mealsFor(t.kcal); const totalShare = ids.reduce((a, k) => a + MEAL_TPL[k].share, 0);
-      const pick = (arr, slot, mk) => { const i = (prefs[mk + '_' + slot] || 0) % arr.length; return arr[i]; };
+      const SUB = dietSubs(prefs); const sub = arr => [...new Set(arr.map(k => { let x = k; for (let i = 0; i < 3 && SUB[x]; i++) x = SUB[x]; return x; }))];
+      const pick = (arr, slot, mk) => { arr = sub(arr); const i = (prefs[mk + '_' + slot] || 0) % arr.length; return arr[i]; };
       const r5 = g => Math.max(0, Math.round(g / 5) * 5);
       const meals = ids.map(mk => {
         const tp = MEAL_TPL[mk], sh = tp.share / totalShare;
@@ -6459,7 +6572,7 @@ ${timedSecs ? `
         const cf = FOODS[ck], pf = FOODS[pk], ff = FOODS[fk];
         // proteína primero estimando lo que aporta el carbohidrato
         const gC0 = Math.max(0, (C - c) / cf.c * 100);
-        let gP = Math.max(0, (P - p - cf.p * gC0 / 100) / pf.p * 100); gP = Math.min(gP, pk === 'whey' ? 60 : pk === 'huevo' ? 250 : pk === 'claras' ? 400 : 350);
+        let gP = Math.max(0, (P - p - cf.p * gC0 / 100) / pf.p * 100); gP = Math.min(gP, pk === 'whey' || pk === 'prot_sl' ? 60 : pk === 'huevo' ? 250 : pk === 'claras' ? 400 : 350);
         push(pk, gP, 'prot');
         let gC = Math.max(0, (C - c) / cf.c * 100); gC = Math.min(gC, ck === 'avena' ? 150 : 600);
         push(ck, gC, 'carb');
@@ -6573,7 +6686,7 @@ ${timedSecs ? `
         const tot = dlDraft.items.reduce((a, it) => { const x = dlDraftScale(it); a.k += x.kcal; a.p += x.p; a.c += x.c; a.f += x.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
         draft = thumb + `<div class="dl-draft"><h4 style="margin:8px 0 4px">${dlT('review')}</h4>${dlDraft.items.length ? dlDraft.items.map((it, i) => { const x = dlDraftScale(it); return `<div class="dl-drow"><input type="text" value="${dlEsc(it.name)}" aria-label="Alimento" oninput="dlDraftEdit(${i},'name',this.value)"><input type="number" inputmode="decimal" min="0" value="${it.grams}" aria-label="Cantidad" oninput="dlDraftEdit(${i},'grams',this.value)"><span>${it.unit}</span><button type="button" class="dlr-x" aria-label="${dlT('del')}" onclick="dlDraftDel(${i})">✕</button><div class="dlr-ch" id="dl-dr-${i}"><b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}</div></div>`; }).join('') + `<div class="dlr dlr-tot"><div class="dlr-m"><b>Total</b> <small>(${dlT('est')})</small><div class="dlr-ch">${dlChips(tot.p, tot.c, tot.f)}</div></div><div class="dlr-k">${fmtN(tot.k)}<small> kcal</small></div></div>` : `<p class="pc-note">No encontré alimentos ${dlDraft.img ? 'en la foto' : 'en el texto'}.</p>`}${dlDraft.note ? `<p class="pc-note">${dlEsc(dlDraft.note)}</p>` : ''}<div class="dl-actions">${dlDraft.items.length ? '<button type="button" class="dl-btn dl-ok" onclick="dlDraftAdd()">✅ Agregar a hoy</button>' : ''}<button type="button" class="dl-btn" onclick="dlDraftCancel()">Cancelar</button></div>${dlDraft.remaining !== undefined ? `<p class="pc-note" style="margin:4px 0 0;font-size:.75rem">Te quedan ${dlDraft.remaining} de ${dlDraft.limit} registros con IA hoy.</p>` : ''}</div>`;
       }
-      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="3" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica (o sacá una foto y aclará acá)">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-ai-fields"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><label class="dl-time"><span>${t('diet.time')}</span><input type="time" id="dl-ai-time" value="${(dlDraft && dlDraft.at) || dlNow()}" onchange="if(dlDraft)dlDraft.at=this.value"></label></div><div class="dl-actions dl-ai-btns"><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button><label class="dl-btn" style="cursor:pointer"${dlBusy ? ' aria-disabled="true"' : ''}>📷 Foto del plato<input type="file" accept="image/*" hidden onchange="dlPhotoPick(this)"${dlBusy ? ' disabled' : ''}></label></div><p class="pc-note" style="margin:10px 0 0;font-size:.8rem">Con foto, lo que escribas arriba se usa como aclaración (ej. "arroz integral, 2 huevos").</p>${draft}</div>`;
+      return `<div class="dl-progress dl-ai"><h3>🍽️ Registrar lo que comí</h3><textarea id="dl-ai-text" rows="3" maxlength="500" placeholder="Ej.: 2 empanadas de carne y una coca chica">${dlDraft ? dlEsc(dlDraft.text) : ''}</textarea><div class="dl-ai-fields"><select id="dl-ai-meal" aria-label="Asignar a">${opts}</select><label class="dl-time"><span>${t('diet.time')}</span><input type="time" id="dl-ai-time" value="${(dlDraft && dlDraft.at) || dlNow()}" onchange="if(dlDraft)dlDraft.at=this.value"></label></div><div class="dl-actions dl-ai-btns"><button type="button" class="dl-btn dl-ok" onclick="dlAiParse()"${dlBusy ? ' disabled' : ''}>✨ Calcular con IA</button></div>${draft}</div>`;
     }
     // Ajusta porciones de comidas pendientes para cubrir lo que falta del día
     function applyDietLog(d, tg, log) {
@@ -6797,7 +6910,7 @@ ${timedSecs ? `
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
-        <div class="mr-box"><button type="button" class="dl-btn mr-btn${mrOn() ? ' on' : ''}" onclick="mrToggle()">${t(mrOn() ? 'mr.on' : 'mr.off')}</button><small>${t('mr.help')}</small></div>
+        ${dietPrefsBox(u, d, dlo, sug)}
         ${dlAiBox(d)}
         <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
@@ -6809,13 +6922,33 @@ ${timedSecs ? `
           <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
-      if (mrOn()) mrQueue(d.meals, dlo, sug, sbm);
+      if (mrOn() || mrWater()) mrQueue(d.meals, dlo, sug, sbm);
+    }
+    function dietFirstTime(meals, dlo, sug) {
+      const tm = dlo.times || {}; const st = mrState(); const m = meals.find(x => x.state !== 'skip');
+      return (m && (tm[m.mk] || sug[m.mk])) || (st.base && m && st.base[m.mk]) || '07:00';
+    }
+    function dietPrefsBox(u, d, dlo, sug) {
+      const pr = getDietPrefs(), wp = waterPlan(u, dietFirstTime(d.meals, dlo, sug)), L = waterL(u);
+      return `<div class="mr-box">
+        <div class="dp-row"><button type="button" class="dl-btn mr-btn${mrOn() ? ' on' : ''}" onclick="mrToggle()">${t(mrOn() ? 'mr.on' : 'mr.off')}</button><button type="button" class="dl-btn mr-btn${mrWater() ? ' on' : ''}" onclick="mrToggle('water')">${t(mrWater() ? 'wr.on' : 'wr.off')}</button></div>
+        <small>${t('mr.help')}</small>
+        ${wp.length ? `<details class="field-more"><summary>💧 ${t('wr.plan', { l: fmtN(L, 1), n: wp.length, ml: fmtN(wp[0].ml) })}</summary><p class="field-hint">${wp.map(x => x.t).join(' · ')}</p></details>` : ''}
+        <div class="dp-row"><button type="button" class="dl-btn mr-btn${pr.lact ? ' on' : ''}" onclick="dietPrefToggle('lact')">${t(pr.lact ? 'lact.on' : 'lact.off')}</button><button type="button" class="dl-btn mr-btn${pr.ret ? ' on' : ''}" onclick="dietPrefToggle('ret')">${t(pr.ret ? 'ret.on' : 'ret.off')}</button></div>
+        ${pr.ret ? `<details class="field-more"><summary>${t('ret.more')}</summary><p class="field-hint">${t('ret.tips')}</p></details>` : ''}
+        ${d && computeTargets(u) && computeTargets(u).bc ? `<small>⚖️ ${t('bc.using', { bf: fmtN(computeTargets(u).bc.bf, 1), lean: fmtN(computeTargets(u).bc.lean, 1) })}</small>` : ''}
+      </div>`;
+    }
+    function dietPrefToggle(k) {
+      const p = getDietPrefs(); p[k] = !p[k]; cloudStore.setItem(dietKey(), JSON.stringify(p));
+      showToast(t(k + (p[k] ? '.okOn' : '.okOff'))); _mrLast = ''; renderDiet(); if (typeof refreshAll === 'function') try { updateNutritionAndHero(getUsersDB()[currentUser]); } catch (e) { }
     }
     // ===== Alarmas de comidas (Web Push desde el servidor, suenan con la app cerrada) =====
     const MR_DEF = { desayuno: '07:00', media: '10:00', almuerzo: '13:00', merienda: '16:00', cena: '19:00', colacion: '22:00' };
     function mrKey() { return `hp_mealalarm_${currentUser}`; }
     function mrState() { try { return JSON.parse(localStorage.getItem(mrKey()) || 'null') || {}; } catch (e) { return {}; } }
     function mrOn() { return !!mrState().on; }
+    function mrWater() { return !!mrState().water; }
     let _mrT = null, _mrLast = '';
     function mrQueue(meals, dlo, sug, sbm) { clearTimeout(_mrT); _mrT = setTimeout(() => mrSync(meals, dlo, sug, sbm), 1200); }
     async function mrSync(meals, dlo, sug, sbm, force) {
@@ -6826,25 +6959,31 @@ ${timedSecs ? `
         if (anchored) { st.base = base; localStorage.setItem(mrKey(), JSON.stringify(st)); }
         const supp = mk => (sbm[mk] || []).filter(x => !(dlo.supp || {})[x.k]).map(x => t('supp.' + x.k));
         const row = m => ({ mk: m.mk, name: tc(m.name), t: base[m.mk], supp: supp(m.mk) });
-        const today = meals.filter(m => m.state === 'pend').map(m => Object.assign(row(m), { t: times[m.mk] || sug[m.mk] || base[m.mk] }));
-        const baseList = meals.map(row);
+        let today = st.on ? meals.filter(m => m.state === 'pend').map(m => Object.assign(row(m), { t: times[m.mk] || sug[m.mk] || base[m.mk] })) : [];
+        let baseList = st.on ? meals.map(row) : [];
+        if (st.water) {
+          const u = getUsersDB()[currentUser] || {}; const fm = meals.find(m => m.state !== 'skip');
+          const wl = (s0, tag) => waterPlan(u, s0).map((x, i) => ({ mk: 'water' + i + tag, kind: 'water', name: fmtN(x.ml) + ' ml', t: x.t }));
+          today = today.concat(wl(fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', ''));
+          baseList = baseList.concat(wl(fm ? base[fm.mk] : '07:00', ''));
+        }
         const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user && ss.session.user.id; if (!id) return;
-        const body = { user_id: id, enabled: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Asuncion', lang: (typeof LANG !== 'undefined' && LANG) || 'es', base: baseList, day: dlToday(), today, updated_at: new Date().toISOString() };
+        const body = { user_id: id, enabled: !!(st.on || st.water), tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Asuncion', lang: (typeof LANG !== 'undefined' && LANG) || 'es', base: baseList, day: dlToday(), today, updated_at: new Date().toISOString() };
         const sig = JSON.stringify([body.base, body.today, body.day, body.lang]); if (!force && sig === _mrLast) return;
         const { error } = await sb.from('meal_reminders').upsert(body, { onConflict: 'user_id' }); if (!error) _mrLast = sig; else console.warn('mr', error);
       } catch (e) { console.warn('mrSync', e); }
     }
-    async function mrToggle() {
-      const st = mrState();
-      if (st.on) {
-        st.on = false; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
-        try { const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user.id; if (id) await sb.from('meal_reminders').update({ enabled: false }).eq('user_id', id); } catch (e) { }
-        showToast(t('mr.okOff')); renderDiet(); return;
+    async function mrToggle(kind) {
+      const st = mrState(), f = kind === 'water' ? 'water' : 'on', px = kind === 'water' ? 'wr' : 'mr';
+      if (st[f]) {
+        st[f] = false; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
+        if (!st.on && !st.water) { try { const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user.id; if (id) await sb.from('meal_reminders').update({ enabled: false }).eq('user_id', id); } catch (e) { } }
+        showToast(t(px + '.okOff')); renderDiet(); return;
       }
       const ok = typeof window.hpEnsurePush === 'function' ? await window.hpEnsurePush(true) : false;
       if (!ok) { showToast(t('mr.denied')); return; }
-      st.on = true; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
-      showToast(t('mr.okOn')); renderDiet();
+      st[f] = true; localStorage.setItem(mrKey(), JSON.stringify(st)); _mrLast = '';
+      showToast(t(px + '.okOn')); renderDiet();
     }
     function swapFood(mk, slot) {
       const p = getDietPrefs(); const k = mk + '_' + slot; p[k] = (p[k] || 0) + 1; cloudStore.setItem(dietKey(), JSON.stringify(p)); renderDiet();
@@ -6860,7 +6999,7 @@ ${timedSecs ? `
       return [
         ['creatine', true], ['whey', true], ['caf', cut || ph === 'volumen'], ['d3', true], ['o3', true], ['mg', true],
         ['multi', cut || ph === 'postshow'], ['elec', cut || ph === 'precontest' || s.frequency >= 6], ['fe', female]
-      ].filter(([k, on]) => sp[k] === 'on' || (sp[k] !== 'off' && on)).map(x => x[0]);
+      ].filter(([k, on]) => sp[k] === 'on' || (sp[k] !== 'off' && on)).map(x => x[0]).filter(k => !(k === 'whey' && currentUser && getDietPrefs().lact));
     }
     // Suplementos repartidos en las comidas según la hora de entrenamiento
     function suppByMeal(meals, times, u, s, tg) {
