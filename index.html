@@ -773,7 +773,20 @@
     .hero-image { height: auto; margin-bottom: 12px; }
     body.compact-header .nutrition-banner, body.compact-header .hero-image { display: none !important; }
     body.compact-header #profile-details { display: none; }
-    body.compact-header header { padding: 8px 10px 6px; margin-bottom: 8px; }
+    body.compact-header header { padding: 8px 10px 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-direction: row-reverse; }
+    body.compact-header header h1 { font-size: 1.15rem !important; margin: 0; text-align: left; }
+    body.compact-header .date-badge, body.compact-header #user-profile-bar { display: none !important; }
+    .dp-fold { margin: 12px 0; border: 1px solid rgba(255,255,255,.08); border-radius: 14px; background: var(--surface-elevated, rgba(255,255,255,.03)); }
+    .dp-fold > summary { cursor: pointer; padding: 14px 16px; font-weight: 700; list-style: none; display: flex; align-items: center; gap: 8px; }
+    .dp-fold > summary::-webkit-details-marker { display: none; }
+    .dp-fold > summary::after { content: '▾'; margin-left: auto; opacity: .7; transition: transform .2s; }
+    .dp-fold[open] > summary::after { transform: rotate(180deg); }
+    .dp-fold > :not(summary) { margin: 0 14px 14px; }
+    .meal .dl-time { display: flex !important; flex-direction: row !important; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 4px; }
+    .meal .dl-time > span { margin: 0; }
+    .meal .dl-time input { max-width: 150px; min-height: 42px; padding: 6px 12px; margin: 0; }
+    .dp-count { background: var(--accent); color: #000; border-radius: 999px; font-size: .75rem; padding: 1px 8px; }
+    @media (max-width: 540px) { .grid-2.keep2 { grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; } .grid-2.keep2 .field-label { font-size: .8rem; } }
     @media (min-width: 900px) { body { max-width: 960px; padding-left: 24px; padding-right: 24px; } }
     @media (max-width: 540px) {
       .tab-btn { flex: 1 1 calc(50% - 6px); }
@@ -1640,7 +1653,7 @@
             <input type="number" step="0.1" id="body-weight" data-i18n-ph="ph.bw" placeholder="Ej: 82.5" required>
           </div>
         </div>
-        <div class="grid-2" style="margin-top:10px;">
+        <div class="grid-2 keep2" style="margin-top:10px;">
           <div><label for="m-chest" class="field-label" data-i18n="m.chest">Pecho (cm)</label><input type="number" step="0.1" id="m-chest" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
           <div><label for="m-waist" class="field-label" data-i18n="m.waist">Cintura / Ombligo (cm)</label><input type="number" step="0.1" id="m-waist" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
           <div><label for="m-biceps" class="field-label" data-i18n="m.biceps">Brazo contraído (cm)</label><input type="number" step="0.1" id="m-biceps" inputmode="decimal" data-i18n-ph="ph.m" placeholder="Ej: 0.0"></div>
@@ -2453,6 +2466,8 @@
   "unit.cda": "cda",
   "diet.noData": "Completá peso, altura y fecha de nacimiento en Editar para calcular tu dieta.",
   "diet.kcalDay": "kcal/día",
+  "dp.title": "⏰ Alarmas y preferencias",
+  "dp.how": "ℹ️ Cómo se calculó tu dieta",
   "diet.protein": "Proteína",
   "diet.summary": "{phaseL}: <b>{phase}</b> · Gasto estimado {tdee} kcal ({f} días/semana){adj}. Proteína {gkg} g/kg{ref}, grasas {fp}% y el resto carbohidratos.",
   "diet.adj": " · ajuste acumulado {a} kcal",
@@ -3023,6 +3038,8 @@
   "unit.cda": "tbsp",
   "diet.noData": "Fill in your weight, height and date of birth in Edit profile to calculate your diet.",
   "diet.kcalDay": "kcal/day",
+  "dp.title": "⏰ Alarms and preferences",
+  "dp.how": "ℹ️ How your diet was calculated",
   "diet.protein": "Protein",
   "diet.summary": "{phaseL}: <b>{phase}</b> · Estimated expenditure {tdee} kcal ({f} days/week){adj}. Protein {gkg} g/kg{ref}, fats {fp}% and the rest carbs.",
   "diet.adj": " · total adjustment {a} kcal",
@@ -3837,6 +3854,8 @@
   "unit.cda": "c. sopa",
   "diet.noData": "Preencha peso, altura e data de nascimento em Editar perfil para calcular sua dieta.",
   "diet.kcalDay": "kcal/dia",
+  "dp.title": "⏰ Alarmes e preferências",
+  "dp.how": "ℹ️ Como sua dieta foi calculada",
   "diet.protein": "Proteína",
   "diet.summary": "{phaseL}: <b>{phase}</b> · Gasto estimado {tdee} kcal ({f} dias/semana){adj}. Proteína {gkg} g/kg{ref}, gorduras {fp}% e o resto carboidratos.",
   "diet.adj": " · ajuste acumulado {a} kcal",
@@ -4432,6 +4451,7 @@
       if (currentUser && cloudStore.getItem(langKey()) !== l) cloudStore.setItem(langKey(), l);
       applyStaticI18n();
       rerenderDynamic();
+      try { displayCurrentDate(); } catch (e) { }
     }
     // Al iniciar sesión: el idioma guardado en la cuenta (user_data) manda, salvo que el usuario lo haya elegido recién en esta pantalla
     function syncLangFromCloud(user) {
@@ -7088,12 +7108,6 @@ ${timedSecs ? `
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
       const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo); const sbm = suppByMeal(d.meals, Object.assign({}, sug, dlo.times || {}), u, getSettings(), tg);
       box.innerHTML = `
-        <div class="macro-grid">
-          <div><strong>${fmtN(tg.kcal)}</strong><span>${t('diet.kcalDay')}</span></div>
-          <div><strong>${fmtN(tg.protein)} g</strong><span>${t('diet.protein')}</span></div>
-          <div><strong>${fmtN(tg.carbs)} g</strong><span>${t('nut.carbs')}</span></div>
-          <div><strong>${fmtN(tg.fat)} g</strong><span>${t('nut.fat')}</span></div>
-        </div>
         <div class="dl-progress"><h3>📊 Progreso de hoy</h3>
           ${dlBar('Calorías', lg.eaten.kcal, tg.kcal, 'kcal')}${dlBar('Proteína', lg.eaten.p, tg.protein, 'g')}${dlBar('Carbohidratos', lg.eaten.c, tg.carbs, 'g')}${dlBar('Grasas', lg.eaten.f, tg.fat, 'g')}
           <p class="dl-sum">${dlT('left')} <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> ${dlT('for')}${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}</p><div class="dlr-ch">${dlChips(Math.max(0, tg.protein - lg.eaten.p), Math.max(0, tg.carbs - lg.eaten.c), Math.max(0, tg.fat - lg.eaten.f))}</div>
@@ -7101,9 +7115,9 @@ ${timedSecs ? `
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
-        ${dietPrefsBox(u, d, dlo, sug)}
         ${dlAiBox(d)}
-        <p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p>
+        <details class="dp-fold"${mrOn() || mrWater() || getDietPrefs().lact || getDietPrefs().ret ? '' : ''}><summary>${t('dp.title')}${[mrOn(), mrWater(), getDietPrefs().lact, getDietPrefs().ret].filter(Boolean).length ? ` <span class="dp-count">${[mrOn(), mrWater(), getDietPrefs().lact, getDietPrefs().ret].filter(Boolean).length}</span>` : ''}</summary>${dietPrefsBox(u, d, dlo, sug)}</details>
+        <details class="dp-fold"><summary>${t('dp.how')}</summary><p class="pc-note">${t('diet.summary', { phaseL: t('plan.phase'), phase: tc(ph.label), tdee: fmtN(tg.tdee), f: tg.freq, adj: tg.adjust ? t('diet.adj', { a: (tg.adjust > 0 ? '+' : '') + fmtN(tg.adjust) }) : '', gkg: fmtN(tg.protein / tg.refW, 1), ref: tg.refW < parseFloat(u.weight) ? t('diet.ref', { w: fmtN(tg.refW) }) : '', fp: Math.round(tg.fat * 9 / tg.kcal * 100) })}</p></details>
         ${d.meals.map(m => `<div class="meal meal-${m.state}"><div class="meal-head"><strong>${m.state === 'done' ? '✅ ' : m.state === 'skip' ? '⏭️ ' : m.state === 'ate' ? '🍽️ ' : ''}${tc(m.name)}</strong><small>${fmtN(m.kcal)} kcal · ${P} ${m.p} · ${C} ${m.c} · ${F} ${m.f}</small></div>
           <label class="dl-time"><span>${t('diet.time')}</span><input type="time" value="${(dlo.times || {})[m.mk] || sug[m.mk] || ''}" onchange="dlSetMealTime('${m.mk}', this.value)">${!(dlo.times || {})[m.mk] && sug[m.mk] ? `<em class="dl-sug">${t('diet.sug')}</em>` : ''}</label>
           ${(sbm[m.mk] || []).length ? `<div class="meal-supp">${sbm[m.mk].map(x => `<button type="button" class="ms-chip${(dlo.supp || {})[x.k] ? ' on' : ''}" onclick="dlSupp('${x.k}')">${(dlo.supp || {})[x.k] ? '✅' : '💊'} ${t('supp.' + x.k)}${x.n ? `<small>${t('ms.' + x.n)}</small>` : ''}</button>`).join('')}</div>` : ''}
