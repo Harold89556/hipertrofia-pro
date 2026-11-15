@@ -134,6 +134,15 @@
     .mr-box { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
     .mr-box small { color: var(--text-muted); font-size: .78rem; }
     .dp-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hl-bp { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; }
+    .hl-bp > div { flex: 1 1 90px; }
+    .hl-st { padding: 10px 12px; border-radius: 10px; margin-top: 10px; font-weight: 700; }
+    .hl-st.ok { background: rgba(46,204,113,.15); color: #2ecc71; }
+    .hl-st.warn { background: rgba(241,196,15,.15); color: #f1c40f; }
+    .hl-st.bad { background: rgba(231,76,60,.18); color: #ff6b5b; }
+    .hl-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); }
+    .hl-row input { max-width: 170px; }
+    .hl-list { margin: 6px 0 0 18px; line-height: 1.6; }
     .dp-row .dl-btn { flex: 1 1 160px; }
     .mr-btn.on { border-color: var(--accent, #ff6b1a); }
     .dl-sug { font-style: normal; font-size: .72rem; color: var(--text-muted); opacity: .8; }
@@ -1651,6 +1660,7 @@
         <button type="submit" class="btn-3d" style="width: 100%; margin-top: 14px;" data-i18n="body.save">Guardar Registro de Medidas</button>
       </form>
     </div>
+    <div class="exercise-card" id="health-card" hidden></div>
     <div class="exercise-card"><h2 class="pc-title" data-i18n="wp.title">🎯 Puntos a mejorar</h2><div id="weakpoints-card-2"></div></div>
   </div>
 
@@ -2501,6 +2511,39 @@
   "supp.night.y": "Mantiene la síntesis de proteína durante la noche.",
   "ms.bed": "antes de dormir",
   "ms.night": "a la noche",
+  "hl.title": "❤️ Salud del atleta",
+  "hl.intro": "Controlá tu presión y tus análisis. Competir exige cuidar el corazón, el hígado y las hormonas.",
+  "hl.bp.title": "Presión arterial",
+  "hl.bp.sys": "Máxima (sistólica)",
+  "hl.bp.dia": "Mínima (diastólica)",
+  "hl.bp.pulse": "Pulso (opcional)",
+  "hl.bp.save": "Guardar",
+  "hl.bp.empty": "Todavía no cargaste ninguna medición.",
+  "hl.bp.invalid": "Revisá los valores: la máxima tiene que ser mayor que la mínima.",
+  "hl.bp.ok": "Normal",
+  "hl.bp.elev": "Algo elevada: seguí controlando.",
+  "hl.bp.high1": "Alta (grado 1): consultá a tu médico.",
+  "hl.bp.high2": "Alta (grado 2): pedí turno con tu médico pronto.",
+  "hl.bp.crisis": "Muy alta: si tenés dolor de pecho, falta de aire o dolor de cabeza fuerte, llamá al 141 o al 911 ya.",
+  "hl.bp.history": "Ver historial",
+  "hl.bp.howT": "Cómo medirla bien",
+  "hl.bp.how": "Sentado, después de 5 minutos de reposo, con el brazo apoyado a la altura del corazón. Sin café, cigarrillo ni entrenamiento 30 minutos antes. Medila 2 o 3 veces por semana, a la misma hora.",
+  "hl.del": "Borrar",
+  "hl.checks": "Controles médicos",
+  "hl.lab": "Análisis de sangre",
+  "hl.labEvery": "Cada 3 meses. Cargá la fecha del último.",
+  "hl.heart": "Control cardíaco (electro y ecocardiograma)",
+  "hl.heartEvery": "Una vez por año. Cargá la fecha del último.",
+  "hl.never": "Sin cargar",
+  "hl.overdue": "Vencido",
+  "hl.upToDate": "Al día",
+  "hl.labsT": "Qué análisis pedir",
+  "hl.labs": "Hemograma: hematocrito y hemoglobina|Perfil lipídico: colesterol HDL, LDL y triglicéridos|Hígado: TGO, TGP, GGT y bilirrubina|Riñón: creatinina, urea y orina completa|Glucosa en ayunas y hemoglobina glicosilada (HbA1c)|Hormonas: testosterona total, estradiol, LH, FSH y prolactina|Tiroides: TSH y T4 libre|PSA (hombres) e IGF-1",
+  "hl.signsT": "Señales de alarma",
+  "hl.signs": "Dolor o presión en el pecho, falta de aire o palpitaciones|Dolor de cabeza fuerte, visión borrosa o sangrado de nariz frecuente|Piel u ojos amarillos, orina muy oscura o dolor en el costado derecho|Piernas o tobillos hinchados|Cambios fuertes de humor, agresividad o depresión|Dolor o bulto en las mamas (hombres)",
+  "hl.emerg": "Ante dolor de pecho o falta de aire, llamá al 141 (SEME) o al 911.",
+  "hl.noteT": "Sobre esta sección",
+  "hl.note": "La app no recomienda ni indica el uso de ninguna sustancia. Esta sección te ayuda a cuidar tu salud. Contale a tu médico con sinceridad todo lo que tomás, así interpreta bien tus análisis.",
   "supp.disclaimer": "⚕️ <b>Consultá con tu médico</b> antes de tomar suplementos, sobre todo si tenés alguna condición de salud, tomás medicación o estás embarazada. Comprá marcas con certificación (Informed Sport / NSF). Hipertrofia Pro nunca recomienda esteroides, prohormonas, SARMs, diuréticos ni sustancias prohibidas.",
   "ch.err": "No se pudieron cargar los gráficos (sin conexión).",
   "ch.weight": "Peso (kg)",
@@ -3038,6 +3081,39 @@
   "supp.night.y": "Keeps protein synthesis going overnight.",
   "ms.bed": "before bed",
   "ms.night": "at night",
+  "hl.title": "❤️ Athlete health",
+  "hl.intro": "Track your blood pressure and lab work. Competing demands taking care of your heart, liver and hormones.",
+  "hl.bp.title": "Blood pressure",
+  "hl.bp.sys": "Systolic (top)",
+  "hl.bp.dia": "Diastolic (bottom)",
+  "hl.bp.pulse": "Pulse (optional)",
+  "hl.bp.save": "Save",
+  "hl.bp.empty": "You haven't logged any readings yet.",
+  "hl.bp.invalid": "Check the values: systolic must be higher than diastolic.",
+  "hl.bp.ok": "Normal",
+  "hl.bp.elev": "Slightly elevated: keep monitoring.",
+  "hl.bp.high1": "High (stage 1): see your doctor.",
+  "hl.bp.high2": "High (stage 2): book a doctor's visit soon.",
+  "hl.bp.crisis": "Very high: if you have chest pain, shortness of breath or a severe headache, call emergency services now.",
+  "hl.bp.history": "See history",
+  "hl.bp.howT": "How to measure it correctly",
+  "hl.bp.how": "Seated, after 5 minutes of rest, with your arm supported at heart level. No coffee, smoking or training for 30 minutes before. Measure 2 or 3 times a week, at the same time.",
+  "hl.del": "Delete",
+  "hl.checks": "Medical check-ups",
+  "hl.lab": "Blood work",
+  "hl.labEvery": "Every 3 months. Enter the date of your last one.",
+  "hl.heart": "Heart check (ECG and echocardiogram)",
+  "hl.heartEvery": "Once a year. Enter the date of your last one.",
+  "hl.never": "Not entered",
+  "hl.overdue": "Overdue",
+  "hl.upToDate": "Up to date",
+  "hl.labsT": "Which tests to ask for",
+  "hl.labs": "Complete blood count: hematocrit and hemoglobin|Lipid panel: HDL, LDL cholesterol and triglycerides|Liver: AST, ALT, GGT and bilirubin|Kidney: creatinine, urea and urinalysis|Fasting glucose and HbA1c|Hormones: total testosterone, estradiol, LH, FSH and prolactin|Thyroid: TSH and free T4|PSA (men) and IGF-1",
+  "hl.signsT": "Warning signs",
+  "hl.signs": "Chest pain or pressure, shortness of breath or palpitations|Severe headache, blurred vision or frequent nosebleeds|Yellow skin or eyes, very dark urine or pain on the right side|Swollen legs or ankles|Strong mood swings, aggression or depression|Breast pain or lump (men)",
+  "hl.emerg": "For chest pain or shortness of breath, call emergency services (141 SEME or 911 in Paraguay).",
+  "hl.noteT": "About this section",
+  "hl.note": "The app doesn't recommend or prescribe any substance. This section helps you look after your health. Tell your doctor honestly about everything you take so they can read your results correctly.",
   "supp.disclaimer": "⚕️ <b>Talk to your doctor</b> before taking supplements, especially if you have a health condition, take medication or are pregnant. Buy certified brands (Informed Sport / NSF). Hipertrofia Pro never recommends steroids, prohormones, SARMs, diuretics or banned substances.",
   "ch.err": "Couldn't load the charts (offline).",
   "ch.weight": "Weight (kg)",
@@ -3819,6 +3895,39 @@
   "supp.night.y": "Mantém a síntese de proteína durante a noite.",
   "ms.bed": "antes de dormir",
   "ms.night": "à noite",
+  "hl.title": "❤️ Saúde do atleta",
+  "hl.intro": "Controle sua pressão e seus exames. Competir exige cuidar do coração, do fígado e dos hormônios.",
+  "hl.bp.title": "Pressão arterial",
+  "hl.bp.sys": "Máxima (sistólica)",
+  "hl.bp.dia": "Mínima (diastólica)",
+  "hl.bp.pulse": "Pulso (opcional)",
+  "hl.bp.save": "Salvar",
+  "hl.bp.empty": "Você ainda não registrou nenhuma medição.",
+  "hl.bp.invalid": "Confira os valores: a máxima tem que ser maior que a mínima.",
+  "hl.bp.ok": "Normal",
+  "hl.bp.elev": "Um pouco elevada: continue controlando.",
+  "hl.bp.high1": "Alta (grau 1): consulte seu médico.",
+  "hl.bp.high2": "Alta (grau 2): marque consulta com seu médico logo.",
+  "hl.bp.crisis": "Muito alta: se tiver dor no peito, falta de ar ou dor de cabeça forte, ligue para a emergência agora.",
+  "hl.bp.history": "Ver histórico",
+  "hl.bp.howT": "Como medir corretamente",
+  "hl.bp.how": "Sentado, depois de 5 minutos de repouso, com o braço apoiado na altura do coração. Sem café, cigarro ou treino 30 minutos antes. Meça 2 ou 3 vezes por semana, no mesmo horário.",
+  "hl.del": "Apagar",
+  "hl.checks": "Controles médicos",
+  "hl.lab": "Exames de sangue",
+  "hl.labEvery": "A cada 3 meses. Registre a data do último.",
+  "hl.heart": "Controle cardíaco (eletro e ecocardiograma)",
+  "hl.heartEvery": "Uma vez por ano. Registre a data do último.",
+  "hl.never": "Sem registro",
+  "hl.overdue": "Vencido",
+  "hl.upToDate": "Em dia",
+  "hl.labsT": "Quais exames pedir",
+  "hl.labs": "Hemograma: hematócrito e hemoglobina|Perfil lipídico: colesterol HDL, LDL e triglicerídeos|Fígado: TGO, TGP, GGT e bilirrubina|Rim: creatinina, ureia e urina tipo 1|Glicose em jejum e hemoglobina glicada (HbA1c)|Hormônios: testosterona total, estradiol, LH, FSH e prolactina|Tireoide: TSH e T4 livre|PSA (homens) e IGF-1",
+  "hl.signsT": "Sinais de alerta",
+  "hl.signs": "Dor ou pressão no peito, falta de ar ou palpitações|Dor de cabeça forte, visão embaçada ou sangramento nasal frequente|Pele ou olhos amarelados, urina muito escura ou dor no lado direito|Pernas ou tornozelos inchados|Mudanças fortes de humor, agressividade ou depressão|Dor ou nódulo nas mamas (homens)",
+  "hl.emerg": "Com dor no peito ou falta de ar, ligue para a emergência (141 SEME ou 911 no Paraguai).",
+  "hl.noteT": "Sobre esta seção",
+  "hl.note": "O app não recomenda nem indica o uso de nenhuma substância. Esta seção ajuda você a cuidar da sua saúde. Conte ao seu médico com sinceridade tudo o que você toma, para que ele interprete bem seus exames.",
   "supp.disclaimer": "⚕️ <b>Consulte seu médico</b> antes de tomar suplementos, principalmente se tiver alguma condição de saúde, tomar medicação ou estiver grávida. Compre marcas certificadas (Informed Sport / NSF). O Hipertrofia Pro nunca recomenda esteroides, pró-hormônios, SARMs, diuréticos nem substâncias proibidas.",
   "ch.err": "Não foi possível carregar os gráficos (sem conexão).",
   "ch.weight": "Peso (kg)",
@@ -5730,6 +5839,7 @@ ${timedSecs ? `
 
     function renderMetricsHistory() {
       if (!currentUser) return;
+      try { renderHealth(); } catch (e) { console.error(e); }
       const tbody = document.getElementById('metrics-history-body');
       const storageKey = `body_metrics_${currentUser}`;
       const history = JSON.parse(cloudStore.getItem(storageKey) || '[]');
@@ -5753,6 +5863,57 @@ ${timedSecs ? `
           <td>${fmtN(item.wrist || '-')} cm</td>
         </tr>
       `).join('');
+    }
+
+
+    // ===== SALUD DEL ATLETA (categorías de competición): presión, análisis y controles =====
+    const HL_CATS = ['open', 'classic', 'mens_physique', 'muscular_physique', '212', 'figure', 'womens_physique', 'bikini', 'wellness', 'ms_olympia', 'fitness'];
+    function hlKey() { return `hp_health_${currentUser}`; }
+    function getHealth() { try { return JSON.parse(cloudStore.getItem(hlKey()) || '{}') || {}; } catch (e) { return {}; } }
+    function saveHealth(o) { cloudStore.setItem(hlKey(), JSON.stringify(o)); renderHealth(); }
+    function bpClass(sy, di) {
+      if (sy >= 180 || di >= 120) return ['bad', 'hl.bp.crisis'];
+      if (sy >= 140 || di >= 90) return ['bad', 'hl.bp.high2'];
+      if (sy >= 130 || di >= 80) return ['warn', 'hl.bp.high1'];
+      if (sy >= 120) return ['warn', 'hl.bp.elev'];
+      return ['ok', 'hl.bp.ok'];
+    }
+    function hlDays(d) { if (!d) return null; const x = new Date(d + 'T12:00:00'); return isNaN(x) ? null : Math.floor((Date.now() - x) / 864e5); }
+    function hlAddBp() {
+      const sy = parseInt(document.getElementById('hl-sys').value, 10), di = parseInt(document.getElementById('hl-dia').value, 10), pu = parseInt(document.getElementById('hl-pulse').value, 10);
+      if (!(sy >= 70 && sy <= 260 && di >= 40 && di <= 160 && sy > di)) { alert(t('hl.bp.invalid')); return; }
+      const o = getHealth(); o.bp = o.bp || [];
+      o.bp.unshift({ d: new Date().toISOString().slice(0, 10), s: sy, di, p: pu >= 30 && pu <= 220 ? pu : '' });
+      o.bp = o.bp.slice(0, 60); saveHealth(o);
+    }
+    function hlDelBp(i) { const o = getHealth(); (o.bp || []).splice(i, 1); saveHealth(o); }
+    function hlSetDate(f, v) { const o = getHealth(); o[f] = v || ''; saveHealth(o); }
+    function renderHealth() {
+      const card = document.getElementById('health-card'); if (!card || !currentUser) return;
+      const u = getUsersDB()[currentUser] || {};
+      if (!HL_CATS.includes(u.goal)) { card.hidden = true; card.innerHTML = ''; return; }
+      card.hidden = false;
+      const o = getHealth(), bp = o.bp || [], last = bp[0];
+      const st = last ? bpClass(last.s, last.di) : null;
+      const due = (f, every) => { const d = hlDays(o[f]); return d == null ? `<span class="hl-st warn" style="display:inline-block;margin:0">${t('hl.never')}</span>` : d > every ? `<span class="hl-st bad" style="display:inline-block;margin:0">${t('hl.overdue')}</span>` : `<span class="hl-st ok" style="display:inline-block;margin:0">${t('hl.upToDate')}</span>`; };
+      card.innerHTML = `<h2 class="pc-title">${t('hl.title')}</h2>
+        <p class="pc-note">${t('hl.intro')}</p>
+        <h3 style="margin-top:14px">${t('hl.bp.title')}</h3>
+        <div class="hl-bp">
+          <div><label class="field-label" for="hl-sys">${t('hl.bp.sys')}</label><input type="number" id="hl-sys" inputmode="numeric" placeholder="120"></div>
+          <div><label class="field-label" for="hl-dia">${t('hl.bp.dia')}</label><input type="number" id="hl-dia" inputmode="numeric" placeholder="80"></div>
+          <div><label class="field-label" for="hl-pulse">${t('hl.bp.pulse')}</label><input type="number" id="hl-pulse" inputmode="numeric" placeholder="70"></div>
+          <div><button type="button" class="btn-3d" style="width:100%" onclick="hlAddBp()">${t('hl.bp.save')}</button></div>
+        </div>
+        ${st ? `<div class="hl-st ${st[0]}">${last.s}/${last.di} mmHg · ${t(st[1])}</div>` : `<p class="field-hint">${t('hl.bp.empty')}</p>`}
+        ${bp.length ? `<details class="field-more"><summary>${t('hl.bp.history')}</summary><div class="sets-table-wrapper"><table><tbody>${bp.map((x, i) => `<tr><td>${formatDateES(x.d)}</td><td><strong>${x.s}/${x.di}</strong></td><td>${x.p ? x.p + ' lpm' : '-'}</td><td><button type="button" class="btn-3d btn-secondary" style="padding:4px 10px" onclick="hlDelBp(${i})" aria-label="${t('hl.del')}">✕</button></td></tr>`).join('')}</tbody></table></div></details>` : ''}
+        <details class="field-more"><summary>${t('hl.bp.howT')}</summary><p class="field-hint">${t('hl.bp.how')}</p></details>
+        <h3 style="margin-top:16px">${t('hl.checks')}</h3>
+        <div class="hl-row"><div><strong>${t('hl.lab')}</strong><br><small class="field-hint">${t('hl.labEvery')}</small></div><div>${due('lab', 92)}</div><input type="date" value="${o.lab || ''}" aria-label="${t('hl.lab')}" onchange="hlSetDate('lab', this.value)"></div>
+        <div class="hl-row"><div><strong>${t('hl.heart')}</strong><br><small class="field-hint">${t('hl.heartEvery')}</small></div><div>${due('heart', 366)}</div><input type="date" value="${o.heart || ''}" aria-label="${t('hl.heart')}" onchange="hlSetDate('heart', this.value)"></div>
+        <details class="field-more"><summary>${t('hl.labsT')}</summary><ul class="hl-list">${t('hl.labs').split('|').map(x => `<li>${x}</li>`).join('')}</ul></details>
+        <details class="field-more"><summary>${t('hl.signsT')}</summary><ul class="hl-list">${t('hl.signs').split('|').map(x => `<li>${x}</li>`).join('')}</ul><p class="field-hint"><strong>${t('hl.emerg')}</strong></p></details>
+        <details class="field-more"><summary>${t('hl.noteT')}</summary><p class="field-hint">${t('hl.note')}</p></details>`;
     }
 
     // Accesos rápidos / widget: ?go=train|food|diet|progress|coachh|admin
