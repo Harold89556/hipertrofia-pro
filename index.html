@@ -873,6 +873,16 @@
     .ms-chip { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--text); border-radius: 999px; padding: 6px 10px; font-size: .78rem; cursor: pointer; text-align: left; }
     .ms-chip small { color: var(--text-muted); margin-left: 4px; }
     .ms-chip.on { border-color: var(--accent); background: rgba(76,175,80,.15); }
+    .wt-box { margin: 14px 0 6px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .wt-box .dl-track i { background: linear-gradient(90deg, #38bdf8, #0ea5e9); }
+    .wt-row { display: flex; gap: 8px; margin: 10px 0 8px; }
+    .wt-row .wt-add { flex: 1 1 0; width: auto; min-width: 0; gap: 6px; white-space: nowrap; font-weight: 700; }
+    .wt-row .wt-add small { opacity: .7; font-weight: 500; }
+    .wt-row .wt-undo { flex: 0 0 56px; width: 56px; padding: 12px 0; }
+    .wt-doses { display: flex; flex-wrap: wrap; gap: 6px; }
+    .wt-chip { font-variant-numeric: tabular-nums; }
+    .wt-chip.on { border-color: #0ea5e9; background: rgba(14,165,233,.16); }
+    .wt-goal { margin: 8px 0 0; font-size: .85rem; color: var(--accent); }
     .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
     .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
     .chart-box { position: relative; height: 240px; margin: 8px 0 16px; }
@@ -2360,6 +2370,13 @@
   "wr.okOn": "💧 Te aviso cuándo tomar agua durante el día",
   "wr.okOff": "Recordatorios de agua desactivados",
   "wr.plan": "Agua: {l} L → {n} tomas de ~{ml} ml",
+  "wt.title": "💧 Agua",
+  "wt.add": "+ Vaso",
+  "wt.undo": "Deshacer último vaso",
+  "wt.doses": "Tomas",
+  "wt.toast": "💧 +{ml} ml",
+  "wt.notif": "💧 Registrado desde el aviso: {ml} ml",
+  "wt.goal": "🎉 ¡Meta de agua cumplida!",
   "lact.on": "🥛 Sin lactosa: activado",
   "lact.off": "🥛 Soy intolerante a la lactosa",
   "lact.okOn": "Dieta sin lactosa: se cambiaron los lácteos por opciones deslactosadas o sin lácteos",
@@ -2932,6 +2949,13 @@
   "wr.okOn": "💧 I'll remind you to drink water during the day",
   "wr.okOff": "Water reminders off",
   "wr.plan": "Water: {l} L → {n} drinks of ~{ml} ml",
+  "wt.title": "💧 Water",
+  "wt.add": "+ Glass",
+  "wt.undo": "Undo last glass",
+  "wt.doses": "Doses",
+  "wt.toast": "💧 +{ml} ml",
+  "wt.notif": "💧 Logged from the reminder: {ml} ml",
+  "wt.goal": "🎉 Water goal reached!",
   "lact.on": "🥛 Lactose-free: on",
   "lact.off": "🥛 I'm lactose intolerant",
   "lact.okOn": "Lactose-free diet: dairy swapped for lactose-free or dairy-free options",
@@ -3748,6 +3772,13 @@
   "wr.okOn": "💧 Aviso quando beber água durante o dia",
   "wr.okOff": "Lembretes de água desativados",
   "wr.plan": "Água: {l} L → {n} doses de ~{ml} ml",
+  "wt.title": "💧 Água",
+  "wt.add": "+ Copo",
+  "wt.undo": "Desfazer último copo",
+  "wt.doses": "Doses",
+  "wt.toast": "💧 +{ml} ml",
+  "wt.notif": "💧 Registrado pelo aviso: {ml} ml",
+  "wt.goal": "🎉 Meta de água cumprida!",
   "lact.on": "🥛 Sem lactose: ativado",
   "lact.off": "🥛 Sou intolerante à lactose",
   "lact.okOn": "Dieta sem lactose: laticínios trocados por opções sem lactose ou sem leite",
@@ -5532,6 +5563,7 @@ ${timedSecs ? `
         showDateHint(document.getElementById('body-date'));
         try { onSessionAccess(); } catch (e) { console.error(e); }
         try { hpGoRoute(); } catch (e) { console.error(e); }
+        try { hpWaterSync(false); } catch (e) { console.error(e); }
       } else {
         document.getElementById('auth-modal').style.display = 'flex';
         window._isAdmin = false;
@@ -6806,7 +6838,7 @@ ${timedSecs ? `
     function getDietLog() {
       let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
       if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [], times: {} };
-      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; o.supp = o.supp || {}; return o;
+      o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; o.supp = o.supp || {}; o.water = Array.isArray(o.water) ? o.water : []; return o;
     }
     function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
     function dlAct(kind, mk, idx) {
@@ -7112,6 +7144,7 @@ ${timedSecs ? `
           ${dlBar('Calorías', lg.eaten.kcal, tg.kcal, 'kcal')}${dlBar('Proteína', lg.eaten.p, tg.protein, 'g')}${dlBar('Carbohidratos', lg.eaten.c, tg.carbs, 'g')}${dlBar('Grasas', lg.eaten.f, tg.fat, 'g')}
           <p class="dl-sum">${dlT('left')} <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> ${dlT('for')}${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}</p><div class="dlr-ch">${dlChips(Math.max(0, tg.protein - lg.eaten.p), Math.max(0, tg.carbs - lg.eaten.c), Math.max(0, tg.fat - lg.eaten.f))}</div>
           <div class="dl-tools">${lg.canUndo ? `<button type="button" class="dl-btn" onclick="dlUndo()">↩️ Deshacer</button>` : ''}${lg.any ? `<button type="button" class="dl-btn" onclick="dlReset()">🔄 Reiniciar día</button>` : ''}</div>
+          ${dlWaterBox(u, d, dlo, sug)}
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
           ${lg.extra.filter(e => e.mk === 'extra').length ? `<h4 style="margin:10px 0 4px">${dlT('extras')}</h4><ul class="dl-extra">${lg.extra.filter(e => e.mk === 'extra').map(dlExtraLi).join('')}</ul>${dlTotRow(lg.extra.filter(e => e.mk === 'extra'))}` : ''}
         </div>
@@ -7129,6 +7162,49 @@ ${timedSecs ? `
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
       if (mrOn() || mrWater()) mrQueue(d.meals, dlo, sug, sbm);
     }
+    // ===== Agua: vasos tomados vs meta (también se marca desde la notificación «Ya tomé») =====
+    function dlWaterTotal(o) { return (o.water || []).reduce((a, x) => a + (Number(x.ml) || 0), 0); }
+    function dlWaterBox(u, d, dlo, sug) {
+      const L = waterL(u); if (!L) return '';
+      const wp = waterPlan(u, dietFirstTime(d.meals, dlo, sug)), tot = dlWaterTotal(dlo), tgt = Math.round(L * 1000), glass = (wp[0] && wp[0].ml) || 250;
+      const marked = {}; (dlo.water || []).forEach(x => { if (x.slot) marked[x.slot] = 1; });
+      return `<div class="wt-box">${dlBar(t('wt.title'), tot, tgt, 'ml')}
+        <div class="wt-row"><button type="button" class="dl-btn wt-add" onclick="dlWaterAdd(${glass})">${t('wt.add')} <small>${fmtN(glass)} ml</small></button>${(dlo.water || []).length ? `<button type="button" class="dl-btn wt-undo" aria-label="${t('wt.undo')}" title="${t('wt.undo')}" onclick="dlWaterUndo()">↩️</button>` : ''}</div>
+        ${wp.length ? `<div class="wt-doses" aria-label="${t('wt.doses')}">${wp.map((x, i) => `<button type="button" class="ms-chip wt-chip${marked['water' + i] ? ' on' : ''}" onclick="dlWaterSlot('water${i}', ${x.ml})">${marked['water' + i] ? '✅' : '💧'} ${x.t}</button>`).join('')}</div>` : ''}
+        ${tot >= tgt ? `<p class="wt-goal">${t('wt.goal')}</p>` : ''}</div>`;
+    }
+    function dlWaterSave(o) { saveDietLog(o); renderDiet(); }
+    function dlWaterAdd(ml) { const o = getDietLog(); o.water.push({ ml, at: dlNow() }); dlWaterSave(o); showToast(t('wt.toast', { ml: fmtN(ml) })); }
+    function dlWaterUndo() { const o = getDietLog(); o.water.pop(); dlWaterSave(o); }
+    function dlWaterSlot(slot, ml) {
+      const o = getDietLog(); const i = o.water.findIndex(x => x.slot === slot);
+      if (i >= 0) o.water.splice(i, 1); else { o.water.push({ ml, slot, at: dlNow() }); showToast(t('wt.toast', { ml: fmtN(ml) })); }
+      dlWaterSave(o);
+    }
+    // Aplica las tomas marcadas con «Ya tomé» en la notificación (cola IndexedDB del service worker)
+    let _wqBusy = false;
+    async function hpWaterSync(live) {
+      if (!currentUser || _wqBusy || !('indexedDB' in window)) return; _wqBusy = true;
+      try {
+        let uid = ''; try { const { data: ss } = await sb.auth.getSession(); uid = (ss && ss.session && ss.session.user.id) || ''; } catch (e) { }
+        const db = await new Promise((ok, ko) => { const r = indexedDB.open('hp-sw', 1); r.onupgradeneeded = () => r.result.createObjectStore('water', { keyPath: 'id' }); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
+        const all = await new Promise((ok, ko) => { const r = db.transaction('water').objectStore('water').getAll(); r.onsuccess = () => ok(r.result || []); r.onerror = () => ko(r.error); });
+        const today = dlToday(), mine = all.filter(w => !w.uid || !uid || w.uid === uid);
+        const o = getDietLog(); let added = 0;
+        mine.forEach(w => { if (w.date && w.date !== today) return; if (w.slot && o.water.some(x => x.slot === w.slot)) return; const at = new Date(w.at || Date.now()); o.water.push({ ml: Number(w.ml) || 0, slot: w.slot || undefined, at: String(at.getHours()).padStart(2, '0') + ':' + String(at.getMinutes()).padStart(2, '0'), n: 1 }); added += Number(w.ml) || 0; });
+        // Se borra lo aplicado y lo de otros días; lo de otra cuenta queda para cuando entre
+        const drop = all.filter(w => mine.includes(w) || (w.date && w.date < today));
+        if (drop.length) await new Promise((ok) => { const tx = db.transaction('water', 'readwrite'); const st = tx.objectStore('water'); drop.forEach(w => st.delete(w.id)); tx.oncomplete = ok; tx.onerror = ok; });
+        db.close();
+        if (added) { saveDietLog(o); if (document.getElementById('diet-tab') && document.getElementById('diet-tab').classList.contains('active')) renderDiet(); if (live) showToast(t('wt.notif', { ml: fmtN(added) })); }
+      } catch (e) { console.warn('water sync', e); } finally { _wqBusy = false; }
+    }
+    if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', (ev) => {
+      const m = ev.data || {};
+      if (m.type === 'hp-water') hpWaterSync(true);
+      if (m.type === 'hp-notif-click' && (m.go === 'diet' || m.go === 'food')) { const b = document.querySelector(`.tab-btn[onclick*="'diet-tab'"]`); if (b && currentUser) switchTab('diet-tab', b); }
+    });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) hpWaterSync(true); });
     function dietFirstTime(meals, dlo, sug) {
       const tm = dlo.times || {}; const st = mrState(); const m = meals.find(x => x.state !== 'skip');
       return (m && (tm[m.mk] || sug[m.mk])) || (st.base && m && st.base[m.mk]) || '07:00';
@@ -7168,8 +7244,9 @@ ${timedSecs ? `
         let baseList = st.on ? meals.map(row) : [];
         if (st.water) {
           const u = getUsersDB()[currentUser] || {}; const fm = meals.find(m => m.state !== 'skip');
-          const wl = (s0, tag) => waterPlan(u, s0).map((x, i) => ({ mk: 'water' + i + tag, kind: 'water', name: fmtN(x.ml) + ' ml', t: x.t }));
-          today = today.concat(wl(fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', ''));
+          const wl = (s0, tag) => waterPlan(u, s0).map((x, i) => ({ mk: 'water' + i + tag, kind: 'water', name: fmtN(x.ml) + ' ml', ml: x.ml, t: x.t }));
+          const wDone = {}; (dlo.water || []).forEach(x => { if (x.slot) wDone[x.slot] = 1; });
+          today = today.concat(wl(fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', '').filter(x => !wDone[x.mk]));
           baseList = baseList.concat(wl(fm ? base[fm.mk] : '07:00', ''));
         }
         const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user && ss.session.user.id; if (!id) return;
