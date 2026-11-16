@@ -934,9 +934,14 @@
     .acct-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .del-list { color: var(--text-muted); font-size: .9rem; margin: 8px 0 12px 18px; }
     .del-err { color: #fca5a5; font-size: .88rem; margin-top: 8px; display: none; }
-      .swap-sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-end;justify-content:center}
-    .swap-panel{background:#18181b;color:#fafafa;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px 24px;max-height:80vh;overflow:auto;border:1px solid #27272a}
-    .swap-head{display:flex;justify-content:space-between;align-items:center}.swap-head h3{margin:0}
+      .swap-sheet{position:fixed;inset:0;background:rgba(0,0,0,.66);z-index:9850;display:flex;align-items:flex-end;justify-content:center;padding-top:calc(12px + env(safe-area-inset-top))}
+    .swap-panel{background:#18181b;color:#fafafa;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:0 16px calc(28px + env(safe-area-inset-bottom));max-height:82vh;max-height:82dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border:1px solid #27272a;box-shadow:0 -12px 40px rgba(0,0,0,.6)}
+    .swap-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;background:#18181b;padding:14px 0 8px;margin:0 -2px}.swap-head h3{margin:0}
+    /* Con una hoja o ventana abierta no la tapa nada: se ocultan la barra inferior, el chat y el cronómetro */
+    body.sheet-open .bnav, body.sheet-open .coach-fab, body.sheet-open .timer-bubble,
+    body:has(#swap-sheet[style*="flex"]) .bnav, body:has(#swap-sheet[style*="flex"]) .coach-fab, body:has(#swap-sheet[style*="flex"]) .timer-bubble,
+    body:has(.ex-anim-modal) .bnav, body:has(.ex-anim-modal) .coach-fab, body:has(.ex-anim-modal) .timer-bubble,
+    body:has(.more-sheet.open) .coach-fab, body:has(.more-sheet.open) .timer-bubble { display:none !important; }
     .swap-x{background:none;border:0;color:#a1a1aa;font-size:20px;cursor:pointer;padding:6px}
     .swap-opt{display:block;width:100%;text-align:left;background:#27272a;border:1px solid #3f3f46;color:#fafafa;border-radius:12px;padding:12px;margin:8px 0;font-size:15px;cursor:pointer;font-family:inherit}
     .swap-opt small{display:block;color:#a1a1aa;font-size:12px;margin-top:2px}.swap-orig{border-color:var(--accent)}
@@ -1044,7 +1049,7 @@
     body.has-bnav .hp-toast { bottom: calc(90px + env(safe-area-inset-bottom)); }
     .more-sheet { position:fixed; inset:0; z-index:9800; background:rgba(0,0,0,.6); display:none; align-items:flex-end; justify-content:center; }
     .more-sheet.open { display:flex; }
-    .more-card { width:100%; max-width:640px; background:var(--surface-elevated); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:14px 14px calc(14px + env(safe-area-inset-bottom)); }
+    .more-card { width:100%; max-width:640px; max-height:85vh; max-height:85dvh; overflow-y:auto; overscroll-behavior:contain; background:var(--surface-elevated); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:14px 14px calc(14px + env(safe-area-inset-bottom)); }
     .more-card h3 { margin:2px 6px 10px; font-size:1rem; }
     .more-card button { width:100%; min-height:50px; display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:12px; padding:0 14px; margin-bottom:8px; font:inherit; font-size:1rem; font-weight:600; cursor:pointer; text-align:left; }
     .more-card button.danger { color:#fca5a5; border-color:#7f1d1d; }
@@ -8042,9 +8047,10 @@ ${timedSecs ? `
         (list || `<p class="pc-note">${t('swap.none')}</p>`) +
         (ex.swapped ? `<button type="button" class="swap-opt swap-orig" onclick="chooseSwap(null)">${t('swap.orig')}${typeof hpAnimThumb === 'function' ? hpAnimThumb(ex.origName) : ''}<small>${catEsc(exName(ex.origName))}</small></button>` : '');
       document.getElementById('swap-title').textContent = t('swap.title'); document.querySelector('#swap-sheet .swap-panel > .pc-note').textContent = t('swap.sub');
-      document.getElementById('swap-sheet').style.display = 'flex';
+      document.getElementById('swap-sheet').style.display = 'flex'; document.body.classList.add('sheet-open');
+      const sp = document.querySelector('#swap-sheet .swap-panel'); if (sp) sp.scrollTop = 0;
     }
-    function closeSwap() { const s = document.getElementById('swap-sheet'); if (s) s.style.display = 'none'; }
+    function closeSwap() { const s = document.getElementById('swap-sheet'); if (s) s.style.display = 'none'; document.body.classList.remove('sheet-open'); }
     function chooseSwap(name) {
       if (!_swapCtx) return; const sw = getSwaps(); const k = slotKey(_swapCtx.dk, _swapCtx.i, _swapCtx.orig);
       if (!name || name === _swapCtx.orig) delete sw[k]; else sw[k] = name;

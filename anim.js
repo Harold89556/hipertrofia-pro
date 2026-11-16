@@ -28,8 +28,8 @@
 .ex-anim-zoom{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;padding:2px 6px;font-size:13px}
 .ex-anim-th{width:64px;height:48px;object-fit:contain;background:#fff;border-radius:8px;float:left;margin:0 10px 0 0}
 .swap-opt::after{content:"";display:block;clear:both}
-.ex-anim-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:4000;display:flex;align-items:center;justify-content:center;padding:16px}
-.ex-anim-box{background:#18181b;color:#fafafa;border-radius:16px;padding:14px;max-width:520px;width:100%;max-height:90vh;overflow:auto;position:relative}
+.ex-anim-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9900;display:flex;align-items:center;justify-content:center;padding:16px}
+.ex-anim-box{background:#18181b;color:#fafafa;border-radius:16px;padding:14px;max-width:520px;width:100%;max-height:90vh;max-height:calc(100dvh - 32px);overflow:auto;position:relative}
 .ex-anim-box h3{margin:0 32px 10px 0;font-size:1rem}.ex-anim-big{width:100%;background:#fff;border-radius:10px;margin-bottom:8px}
 .ex-anim-x{position:absolute;top:8px;right:8px;background:none;border:0;color:#a1a1aa;font-size:22px;cursor:pointer;padding:6px}`;
   document.head.appendChild(st);
