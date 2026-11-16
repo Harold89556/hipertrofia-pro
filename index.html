@@ -883,6 +883,23 @@
     .wt-chip { font-variant-numeric: tabular-nums; }
     .wt-chip.on { border-color: #0ea5e9; background: rgba(14,165,233,.16); }
     .wt-goal { margin: 8px 0 0; font-size: .85rem; color: var(--accent); }
+    .wt-row .wt-other { flex: 0 0 auto; width: auto; padding: 12px 14px; white-space: nowrap; }
+    .wt-row .wt-other.on { border-color: #0ea5e9; }
+    .wt-chip small { margin-left: 5px; opacity: .75; }
+    .wt-chip.miss, .wt-chip.off { opacity: .45; }
+    .wt-form { border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin: 0 0 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(14,165,233,.05); }
+    .wt-types { display: flex; flex-wrap: wrap; gap: 6px; }
+    .wt-ml { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .wt-ml input { width: 80px; min-height: 44px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.05); color: inherit; border: 1px solid var(--border); }
+    .wt-ml span { opacity: .7; margin-right: 4px; }
+    .wt-hint { opacity: .75; font-size: .78rem; }
+    .wt-log { margin-top: 10px; }
+    .wt-list { list-style: none; padding: 0; margin: 6px 0 0; }
+    .wt-list li { display: grid; grid-template-columns: 48px 1fr auto 36px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+    .wt-list li:last-child { border-bottom: 0; }
+    .wt-list li.wt-auto { opacity: .85; }
+    .dlr-q.wt-q { background: rgba(14,165,233,.18); color: #7dd3fc; }
+    .wt-list li > span:first-child { opacity: .7; font-variant-numeric: tabular-nums; }
     .supp { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,.08); } .supp .dose { color: var(--accent); font-weight: 700; font-size: .85rem; }
     .supp small { display: block; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
     .chart-box { position: relative; height: 240px; margin: 8px 0 16px; }
@@ -2377,11 +2394,29 @@
   "wr.plan": "Agua: {l} L → {n} tomas de ~{ml} ml",
   "wt.title": "💧 Agua",
   "wt.add": "+ Vaso",
-  "wt.undo": "Deshacer último vaso",
+  "wt.undo": "Deshacer último registro",
   "wt.doses": "Tomas",
   "wt.toast": "💧 +{ml} ml",
   "wt.notif": "💧 Registrado desde el aviso: {ml} ml",
   "wt.goal": "🎉 ¡Meta de agua cumplida!",
+  "wt.src.food": "De «Registrar lo que comí»",
+  "wt.src.meal": "Líquidos de una comida cumplida",
+  "wt.src.supp": "Batido de suplemento",
+  "wt.autoNote": "🍽️ comida registrada · 📋 comida cumplida · 💊 batido: se suman solos y se quitan si borrás o desmarcás el origen.",
+  "wt.other": "✏️ Otro",
+  "wt.save": "✓ Registrar",
+  "wt.bad": "Poné entre 10 y 3000 ml",
+  "wt.kcal": "🍽️ Mejor anotalo abajo en «Registrar lo que comí»: suma las calorías y el líquido juntos (no lo cargues dos veces)",
+  "wt.log": "📋 Hoy: {n} registros",
+  "wt.del": "Borrar",
+  "wt.miss": "Toma pasada sin marcar",
+  "wt.off": "Ya no hace falta: cubriste lo que faltaba",
+  "wt.ty.agua": "Agua",
+  "wt.ty.terere": "Tereré/Mate",
+  "wt.ty.jugo": "Jugo",
+  "wt.ty.te": "Té/Café",
+  "wt.ty.leche": "Leche",
+  "wt.ty.gaseosa": "Gaseosa/Deportiva",
   "lact.on": "🥛 Sin lactosa: activado",
   "lact.off": "🥛 Soy intolerante a la lactosa",
   "lact.okOn": "Dieta sin lactosa: se cambiaron los lácteos por opciones deslactosadas o sin lácteos",
@@ -2956,11 +2991,29 @@
   "wr.plan": "Water: {l} L → {n} drinks of ~{ml} ml",
   "wt.title": "💧 Water",
   "wt.add": "+ Glass",
-  "wt.undo": "Undo last glass",
+  "wt.undo": "Undo last entry",
   "wt.doses": "Doses",
   "wt.toast": "💧 +{ml} ml",
   "wt.notif": "💧 Logged from the reminder: {ml} ml",
   "wt.goal": "🎉 Water goal reached!",
+  "wt.src.food": "From the food log",
+  "wt.src.meal": "Liquids from a completed meal",
+  "wt.src.supp": "Supplement shake",
+  "wt.autoNote": "🍽️ logged food · 📋 completed meal · 💊 shake: added automatically and removed if you delete or unmark the source.",
+  "wt.other": "✏️ Other",
+  "wt.save": "✓ Log it",
+  "wt.bad": "Enter 10 to 3000 ml",
+  "wt.kcal": "🍽️ Better to log it in the 🍽️ food box below: it adds the calories and the liquid together (don't log it twice)",
+  "wt.log": "📋 Today: {n} entries",
+  "wt.del": "Delete",
+  "wt.miss": "Past dose not marked",
+  "wt.off": "Not needed: you covered the rest",
+  "wt.ty.agua": "Water",
+  "wt.ty.terere": "Tereré/Mate",
+  "wt.ty.jugo": "Juice",
+  "wt.ty.te": "Tea/Coffee",
+  "wt.ty.leche": "Milk",
+  "wt.ty.gaseosa": "Soda/Sports drink",
   "lact.on": "🥛 Lactose-free: on",
   "lact.off": "🥛 I'm lactose intolerant",
   "lact.okOn": "Lactose-free diet: dairy swapped for lactose-free or dairy-free options",
@@ -3779,11 +3832,29 @@
   "wr.plan": "Água: {l} L → {n} doses de ~{ml} ml",
   "wt.title": "💧 Água",
   "wt.add": "+ Copo",
-  "wt.undo": "Desfazer último copo",
+  "wt.undo": "Desfazer último registro",
   "wt.doses": "Doses",
   "wt.toast": "💧 +{ml} ml",
   "wt.notif": "💧 Registrado pelo aviso: {ml} ml",
   "wt.goal": "🎉 Meta de água cumprida!",
+  "wt.src.food": "Do registro de comida",
+  "wt.src.meal": "Líquidos de uma refeição cumprida",
+  "wt.src.supp": "Shake de suplemento",
+  "wt.autoNote": "🍽️ comida registrada · 📋 refeição cumprida · 💊 shake: somam sozinhos e saem se você apagar ou desmarcar a origem.",
+  "wt.other": "✏️ Outro",
+  "wt.save": "✓ Registrar",
+  "wt.bad": "Informe de 10 a 3000 ml",
+  "wt.kcal": "🍽️ Melhor registrar no quadro 🍽️ de comida abaixo: soma as calorias e o líquido juntos (não registre duas vezes)",
+  "wt.log": "📋 Hoje: {n} registros",
+  "wt.del": "Apagar",
+  "wt.miss": "Dose passada não marcada",
+  "wt.off": "Não precisa mais: você cobriu o restante",
+  "wt.ty.agua": "Água",
+  "wt.ty.terere": "Tereré/Mate",
+  "wt.ty.jugo": "Suco",
+  "wt.ty.te": "Chá/Café",
+  "wt.ty.leche": "Leite",
+  "wt.ty.gaseosa": "Refri/Isotônico",
   "lact.on": "🥛 Sem lactose: ativado",
   "lact.off": "🥛 Sou intolerante à lactose",
   "lact.okOn": "Dieta sem lactose: laticínios trocados por opções sem lactose ou sem leite",
@@ -6898,11 +6969,11 @@ ${timedSecs ? `
         const msg = err && err.error === 'limit_day' ? (err.pro ? `Llegaste al límite de ${err.limit} registros por día. Mañana se renueva.` : `Usaste tus ${err.limit} registros gratis de hoy. Con Pro tenés hasta ${img ? 20 : 60} por día.`) : err && err.error === 'login' ? 'Iniciá sesión para usar la IA.' : err && err.error === 'nokey' ? 'La IA todavía no está disponible.' : 'La IA no pudo responder. Probá de nuevo en un momento.';
         dlDraft = { text: txt, mk, items: [], error: msg, img, at }; renderDiet(); return;
       }
-      const items = data.result.items.map(i => ({ name: i.name, unit: i.unit, grams: i.grams, base: i.grams > 0 ? i.grams : 1, k0: i.kcal, p0: i.protein, c0: i.carbs, f0: i.fat }));
+      const items = data.result.items.map(i => ({ name: i.name, unit: i.unit, grams: i.grams, base: i.grams > 0 ? i.grams : 1, k0: i.kcal, p0: i.protein, c0: i.carbs, f0: i.fat, l0: i.liquid_ml != null ? Number(i.liquid_ml) || 0 : (i.unit === 'ml' ? Number(i.grams) || 0 : 0) }));
       dlDraft = { text: txt, mk, items, note: data.result.note, remaining: data.remaining, limit: data.limit, img, at };
       renderDiet();
     }
-    function dlDraftScale(it) { const r = (it.grams || 0) / it.base; return { kcal: Math.round(it.k0 * r), p: Math.round(it.p0 * r), c: Math.round(it.c0 * r), f: Math.round(it.f0 * r) }; }
+    function dlDraftScale(it) { const r = (it.grams || 0) / it.base; return { kcal: Math.round(it.k0 * r), p: Math.round(it.p0 * r), c: Math.round(it.c0 * r), f: Math.round(it.f0 * r), liq: Math.round((it.l0 || 0) * r) }; }
     function dlDraftEdit(i, field, v) { if (!dlDraft || !dlDraft.items[i]) return; if (field === 'grams') dlDraft.items[i].grams = Math.max(0, parseFloat(v) || 0); else dlDraft.items[i].name = String(v).slice(0, 60); const row = document.getElementById('dl-dr-' + i); if (row && field === 'grams') { const x = dlDraftScale(dlDraft.items[i]); row.innerHTML = `<b>${fmtN(x.kcal)} kcal</b> ${dlChips(x.p, x.c, x.f)}`; } }
     function dlDraftDel(i) { if (!dlDraft) return; dlDraft.items.splice(i, 1); renderDiet(); }
     function dlDraftCancel() { dlDraft = null; renderDiet(); }
@@ -6910,7 +6981,7 @@ ${timedSecs ? `
       if (!dlDraft || !dlDraft.items.length) return;
       const o = getDietLog(); dlSnap(o); const mk = (document.getElementById('dl-ai-meal') || {}).value || dlDraft.mk;
       const at = (document.getElementById('dl-ai-time') || {}).value || dlDraft.at || dlNow();
-      dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f, at }); });
+      dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f, at }, x.liq > 0 ? { liq: x.liq } : {})); });
       if (mk !== 'extra') { if (!o.meals[mk]) o.meals[mk] = 'ate'; if (!o.times[mk]) o.times[mk] = at; }
       dlLastAdd = dlDraft.items.reduce((a, it) => a + (it.grams > 0 ? dlDraftScale(it).kcal : 0), 0);
       saveDietLog(o); dlDraft = null; renderDiet(); showToast('🍽️ ' + dlT('added') + ': ' + fmtN(dlLastAdd) + ' kcal');
@@ -6921,7 +6992,7 @@ ${timedSecs ? `
       pt: { prot: 'Prot', carb: 'Carb', fat: 'Gord', del: 'Remover', extras: 'Extras registrados', total: 'Total extras', left: 'Faltam', for: 'para hoje', added: 'Adicionado', review: 'Confira antes de adicionar', est: 'estimado' } };
     const dlT = k => (DLT[typeof LANG !== 'undefined' && DLT[LANG] ? LANG : 'es'])[k];
     const dlChips = (p, c, f) => `<span class="dlc dlc-p">${dlT('prot')} ${fmtN(p)} g</span><span class="dlc dlc-c">${dlT('carb')} ${fmtN(c)} g</span><span class="dlc dlc-f">${dlT('fat')} ${fmtN(f)} g</span>`;
-    const dlExtraLi = e => `<li class="dlr"><div class="dlr-m"><div class="dlr-t"><b>${dlEsc(e.name)}</b><span class="dlr-q">${fmtN(e.grams)} ${e.unit === 'ml' ? 'ml' : 'g'}</span><input type="time" class="dl-time-i" value="${e.at || ''}" aria-label="${t('diet.time')}" onchange="dlSetExtraTime('${e.id}',this.value)"></div><div class="dlr-ch">${dlChips(e.p, e.c, e.f)}</div></div><div class="dlr-k">${fmtN(e.kcal)}<small> kcal</small></div><button type="button" class="dlr-x" aria-label="${dlT('del')}" title="${dlT('del')}" onclick="dlExtraDel('${e.id}')">✕</button></li>`;
+    const dlExtraLi = e => `<li class="dlr"><div class="dlr-m"><div class="dlr-t"><b>${dlEsc(e.name)}</b><span class="dlr-q">${fmtN(e.grams)} ${e.unit === 'ml' ? 'ml' : 'g'}</span>${e.liq > 0 ? `<span class="dlr-q wt-q">💧 ${fmtN(e.liq)} ml</span>` : ''}<input type="time" class="dl-time-i" value="${e.at || ''}" aria-label="${t('diet.time')}" onchange="dlSetExtraTime('${e.id}',this.value)"></div><div class="dlr-ch">${dlChips(e.p, e.c, e.f)}</div></div><div class="dlr-k">${fmtN(e.kcal)}<small> kcal</small></div><button type="button" class="dlr-x" aria-label="${dlT('del')}" title="${dlT('del')}" onclick="dlExtraDel('${e.id}')">✕</button></li>`;
     const dlTotRow = arr => { const t2 = arr.reduce((a, e) => ({ k: a.k + e.kcal, p: a.p + e.p, c: a.c + e.c, f: a.f + e.f }), { k: 0, p: 0, c: 0, f: 0 }); return `<div class="dlr dlr-tot"><div class="dlr-m"><b>${dlT('total')}</b><div class="dlr-ch">${dlChips(t2.p, t2.c, t2.f)}</div></div><div class="dlr-k">${fmtN(t2.k)}<small> kcal</small></div></div>`; };
     let dlLastAdd = null;
     function dlAiBox(d) {
@@ -7168,19 +7239,71 @@ ${timedSecs ? `
       if (mrOn() || mrWater()) mrQueue(d.meals, dlo, sug, sbm);
     }
     // ===== Agua: vasos tomados vs meta (también se marca desde la notificación «Ya tomé») =====
-    function dlWaterTotal(o) { return (o.water || []).reduce((a, x) => a + (Number(x.ml) || 0), 0); }
+    // Hidratación del día = registros manuales/avisos + bebidas de «Registrar lo que comí» + líquidos de comidas cumplidas + batidos de suplementos
+    const WT_SCOOP_ML = 250, WT_SUPP_ML = { whey: 250, night: 250 };
+    function dlHydro(o, meals) {
+      const out = (o.water || []).map((x, i) => Object.assign({}, x, { src: 'man', i }));
+      (o.extra || []).forEach(e => { if (Number(e.liq) > 0) out.push({ ml: Number(e.liq), at: e.at, src: 'food', name: e.name }); });
+      (meals || []).forEach(m => {
+        if (m.state !== 'done') return;
+        const ml = (m.items || []).filter(it => !it.off && FOODS[it.key]).reduce((a, it) => a + (FOODS[it.key].ml ? it.g : FOODS[it.key].un === 'scoop' ? it.g / 30 * WT_SCOOP_ML : 0), 0);
+        if (ml > 0) out.push({ ml: Math.round(ml / 10) * 10, at: (o.times || {})[m.mk], src: 'meal', name: tc(m.name) });
+      });
+      Object.keys(WT_SUPP_ML).forEach(k => { if ((o.supp || {})[k]) out.push({ ml: WT_SUPP_ML[k], src: 'supp', name: t('supp.' + k) }); });
+      return out;
+    }
+    function dlWaterTotal(o, meals) { return dlHydro(o, meals).reduce((a, x) => a + (Number(x.ml) || 0), 0); }
+    const WT_TYPES = [['agua', '💧'], ['terere', '🧉'], ['jugo', '🧃'], ['te', '☕'], ['leche', '🥛'], ['gaseosa', '🥤']];
+    const WT_ICON = Object.fromEntries(WT_TYPES);
+    // Reparto automático: lo que falta (meta − tomado, cuenta cualquier líquido sin alcohol) se divide entre las tomas que quedan
+    function waterSplit(u, startT, o, meals) {
+      const L = waterL(u); if (!L) return null;
+      const wp = waterPlan(u, startT), tgt = Math.round(L * 1000), tot = dlWaterTotal(o, meals), left = Math.max(0, tgt - tot);
+      const got = {}; (o.water || []).forEach(x => { if (x.slot) got[x.slot] = (got[x.slot] || 0) + (Number(x.ml) || 0); });
+      const now = new Date(), nowM = now.getHours() * 60 + now.getMinutes(), toM = x => { const m = /^(\d{1,2}):(\d{2})/.exec(x || ''); return m ? +m[1] * 60 + +m[2] : 0; };
+      const isToday = (o.date || dlToday()) === dlToday();
+      const slots = wp.map((x, i) => ({ slot: 'water' + i, t: x.t, base: x.ml, ml: got['water' + i] || 0, st: got['water' + i] != null ? 'done' : (isToday && toM(x.t) < nowM - 15 ? 'miss' : 'pend') }));
+      const pend = slots.filter(x => x.st === 'pend');
+      let dose = 0;
+      if (left > 0 && pend.length) {
+        dose = Math.min(750, Math.max(100, Math.round(left / pend.length / 50) * 50)); // tope 750 ml por toma
+        const k = Math.min(pend.length, Math.max(1, Math.ceil(left / dose))); // si alcanza con menos tomas, las últimas se cancelan
+        pend.forEach((x, j) => { if (j < k) x.ml = dose; else x.st = 'off'; });
+      } else pend.forEach(x => { x.st = 'off'; });
+      const glass = dose || (wp[0] && wp[0].ml) || 250;
+      return { slots, tgt, tot, left, dose, glass };
+    }
+    let _wtForm = false, _wtType = 'agua';
     function dlWaterBox(u, d, dlo, sug) {
-      const L = waterL(u); if (!L) return '';
-      const wp = waterPlan(u, dietFirstTime(d.meals, dlo, sug)), tot = dlWaterTotal(dlo), tgt = Math.round(L * 1000), glass = (wp[0] && wp[0].ml) || 250;
-      const marked = {}; (dlo.water || []).forEach(x => { if (x.slot) marked[x.slot] = 1; });
+      const ws = waterSplit(u, dietFirstTime(d.meals, dlo, sug), dlo, d.meals); if (!ws) return '';
+      const { slots, tgt, tot, glass } = ws, log = dlo.water || [], hy = dlHydro(dlo, d.meals).sort((a, b) => String(a.at || '99').localeCompare(String(b.at || '99')));
+      const chip = x => x.st === 'done' ? `<button type="button" class="ms-chip wt-chip on" onclick="dlWaterSlot('${x.slot}', ${x.ml})">✅ ${x.t}<small>${fmtN(x.ml)}</small></button>`
+        : x.st === 'pend' ? `<button type="button" class="ms-chip wt-chip" onclick="dlWaterSlot('${x.slot}', ${x.ml})">💧 ${x.t}<small>${fmtN(x.ml)}</small></button>`
+        : `<button type="button" class="ms-chip wt-chip ${x.st}" onclick="dlWaterSlot('${x.slot}', ${glass})" title="${t(x.st === 'off' ? 'wt.off' : 'wt.miss')}">${x.st === 'off' ? '⏹️' : '·'} ${x.t}</button>`;
+      const lowCal = ['jugo', 'leche', 'gaseosa'].includes(_wtType);
       return `<div class="wt-box">${dlBar(t('wt.title'), tot, tgt, 'ml')}
-        <div class="wt-row"><button type="button" class="dl-btn wt-add" onclick="dlWaterAdd(${glass})">${t('wt.add')} <small>${fmtN(glass)} ml</small></button>${(dlo.water || []).length ? `<button type="button" class="dl-btn wt-undo" aria-label="${t('wt.undo')}" title="${t('wt.undo')}" onclick="dlWaterUndo()">↩️</button>` : ''}</div>
-        ${wp.length ? `<div class="wt-doses" aria-label="${t('wt.doses')}">${wp.map((x, i) => `<button type="button" class="ms-chip wt-chip${marked['water' + i] ? ' on' : ''}" onclick="dlWaterSlot('water${i}', ${x.ml})">${marked['water' + i] ? '✅' : '💧'} ${x.t}</button>`).join('')}</div>` : ''}
-        ${tot >= tgt ? `<p class="wt-goal">${t('wt.goal')}</p>` : ''}</div>`;
+        <div class="wt-row"><button type="button" class="dl-btn wt-add" onclick="dlWaterAdd(${glass})">${t('wt.add')} <small>${fmtN(glass)} ml</small></button><button type="button" class="dl-btn wt-other${_wtForm ? ' on' : ''}" onclick="dlWaterForm()">${t('wt.other')}</button>${log.length ? `<button type="button" class="dl-btn wt-undo" aria-label="${t('wt.undo')}" title="${t('wt.undo')}" onclick="dlWaterUndo()">↩️</button>` : ''}</div>
+        ${_wtForm ? `<div class="wt-form">
+          <div class="wt-types">${WT_TYPES.map(([k, ic]) => `<button type="button" class="ms-chip${_wtType === k ? ' on' : ''}" onclick="dlWaterType('${k}')">${ic} ${t('wt.ty.' + k)}</button>`).join('')}</div>
+          <div class="wt-ml"><input id="wt-ml" type="number" inputmode="numeric" min="10" max="3000" step="10" placeholder="ml" value="${glass}" aria-label="ml"><span>ml</span>${[250, 500, 750].map(v => `<button type="button" class="ms-chip" onclick="document.getElementById('wt-ml').value=${v}">${v}</button>`).join('')}</div>
+          ${lowCal ? `<small class="wt-hint">${t('wt.kcal')}</small>` : ''}
+          <button type="button" class="dl-btn dl-ok wt-save" onclick="dlWaterManual()">${t('wt.save')}</button></div>` : ''}
+        ${slots.length ? `<div class="wt-doses" aria-label="${t('wt.doses')}">${slots.map(chip).join('')}</div>` : ''}
+        ${tot >= tgt ? `<p class="wt-goal">${t('wt.goal')}</p>` : ''}
+        ${hy.length ? `<details class="dp-fold wt-log"><summary>${t('wt.log', { n: hy.length })}</summary><ul class="wt-list">${hy.map(x => x.src === 'man'
+          ? `<li><span>${x.at || ''}</span><span>${WT_ICON[x.ty] || '💧'} ${t('wt.ty.' + (x.ty || 'agua'))}${x.slot ? ' 🔔' : ''}</span><b>${fmtN(x.ml)} ml</b><button type="button" class="dlr-x" aria-label="${t('wt.del')}" onclick="dlWaterDel(${x.i})">✕</button></li>`
+          : `<li class="wt-auto" title="${t('wt.src.' + x.src)}"><span>${x.at || ''}</span><span>${{ food: '🍽️', meal: '📋', supp: '💊' }[x.src]} ${dlEsc(x.name || '')}</span><b>${fmtN(x.ml)} ml</b><span></span></li>`).join('')}</ul>${hy.some(x => x.src !== 'man') ? `<small class="wt-hint">${t('wt.autoNote')}</small>` : ''}</details>` : ''}</div>`;
     }
     function dlWaterSave(o) { saveDietLog(o); renderDiet(); }
-    function dlWaterAdd(ml) { const o = getDietLog(); o.water.push({ ml, at: dlNow() }); dlWaterSave(o); showToast(t('wt.toast', { ml: fmtN(ml) })); }
+    function dlWaterAdd(ml, ty) { const o = getDietLog(); o.water.push(Object.assign({ ml, at: dlNow() }, ty && ty !== 'agua' ? { ty } : {})); dlWaterSave(o); showToast(t('wt.toast', { ml: fmtN(ml) })); }
     function dlWaterUndo() { const o = getDietLog(); o.water.pop(); dlWaterSave(o); }
+    function dlWaterDel(i) { const o = getDietLog(); o.water.splice(i, 1); saveDietLog(o); const op = document.querySelector('.wt-log') && document.querySelector('.wt-log').open; renderDiet(); const d = document.querySelector('.wt-log'); if (d && op) d.open = true; }
+    function dlWaterForm() { _wtForm = !_wtForm; renderDiet(); if (_wtForm) setTimeout(() => { const i = document.getElementById('wt-ml'); if (i) i.focus(); }, 50); }
+    function dlWaterType(k) { const v = (document.getElementById('wt-ml') || {}).value; _wtType = k; renderDiet(); const i = document.getElementById('wt-ml'); if (i && v) i.value = v; }
+    function dlWaterManual() {
+      const v = Math.round(Number((document.getElementById('wt-ml') || {}).value)); if (!(v >= 10 && v <= 3000)) { showToast(t('wt.bad')); return; }
+      _wtForm = false; const ty = _wtType; _wtType = 'agua'; dlWaterAdd(v, ty);
+    }
     function dlWaterSlot(slot, ml) {
       const o = getDietLog(); const i = o.water.findIndex(x => x.slot === slot);
       if (i >= 0) o.water.splice(i, 1); else { o.water.push({ ml, slot, at: dlNow() }); showToast(t('wt.toast', { ml: fmtN(ml) })); }
@@ -7250,8 +7373,9 @@ ${timedSecs ? `
         if (st.water) {
           const u = getUsersDB()[currentUser] || {}; const fm = meals.find(m => m.state !== 'skip');
           const wl = (s0, tag) => waterPlan(u, s0).map((x, i) => ({ mk: 'water' + i + tag, kind: 'water', name: fmtN(x.ml) + ' ml', ml: x.ml, t: x.t }));
-          const wDone = {}; (dlo.water || []).forEach(x => { if (x.slot) wDone[x.slot] = 1; });
-          today = today.concat(wl(fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', '').filter(x => !wDone[x.mk]));
+          // Hoy: solo las tomas pendientes, con la dosis recalculada según lo que ya se tomó (meta cumplida = sin avisos)
+          const ws = waterSplit(u, fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', dlo, meals);
+          if (ws) today = today.concat(ws.slots.filter(x => x.st === 'pend').map(x => ({ mk: x.slot, kind: 'water', name: fmtN(x.ml) + ' ml', ml: x.ml, t: x.t })));
           baseList = baseList.concat(wl(fm ? base[fm.mk] : '07:00', ''));
         }
         const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user && ss.session.user.id; if (!id) return;
