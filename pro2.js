@@ -86,16 +86,20 @@
   const voiceOn = () => localStorage.getItem('hp_voice') === '1';
   const VL = () => (typeof LANG !== 'undefined' && (LANG === 'en' || LANG === 'pt')) ? LANG : 'es';
   const num = (n, l) => String(n).replace('.', l === 'en' ? '.' : ',');
+  // Frases con datos variables: partes separadas por U+2063 (cada parte tiene su propio audio pregrabado)
+  const VSEP = '\u2063', J = (...a) => a.filter(Boolean).join(VSEP);
+  const repTxt = (r, l) => String(r).trim().replace(/^(\d+)\s*(?:-|a|to)\s*(\d+)$/, (m, a, b) => `${a} ${l === 'en' ? 'to' : 'a'} ${b}`);
+  window._hpVJ = { J, repTxt, num, VSEP };
   const PH = {
     es: { on: 'Coach de voz activado. ¡Vamos con todo!', test: 'Hola, soy tu coach de voz. ¡Vamos a entrenar juntos!', ten: 'Diez segundos', cd: 'Tres, dos, uno', go: '¡A trabajar!', done: 'Serie completada. ¡Muy bien!', exDone: '¡Ejercicio terminado! Excelente trabajo.',
       rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('es') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
-      next: (ex, r, w) => `Siguiente serie de ${ex}: ${r} repeticiones${w ? ' con ' + num(w, 'es') + ' kilos' : ''}. ¡Vamos!`, nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!` },
+      next: (ex, r, w) => J(`Siguiente serie de ${ex}`, `${repTxt(r, 'es')} repeticiones`, w ? `con ${num(w, 'es')} kilos` : '', '¡Vamos!'), nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!` },
     en: { on: 'Voice coach activated. Let\'s go!', test: 'Hi, I\'m your voice coach. Let\'s train together!', ten: 'Ten seconds', cd: 'Three, two, one', go: 'Let\'s work!', done: 'Set complete. Great job!', exDone: 'Exercise finished! Excellent work.',
       rest: s => `Rest for ${s >= 60 && s % 30 === 0 ? (s / 60) + (s === 60 ? ' minute' : ' minutes') : s + ' seconds'}`,
-      next: (ex, r, w) => `Next set of ${ex}: ${r} reps${w ? ' with ' + num(w, 'en') + ' kilos' : ''}. Let's go!`, nextEx: ex => `Next up: ${ex}. Let's go!` },
+      next: (ex, r, w) => J(`Next set of ${ex}`, `${repTxt(r, 'en')} reps`, w ? `with ${num(w, 'en')} kilos` : '', 'Let\'s go!'), nextEx: ex => `Next up: ${ex}. Let's go!` },
     pt: { on: 'Coach de voz ativado. Vamos com tudo!', test: 'Olá, sou sua coach de voz. Vamos treinar juntos!', ten: 'Dez segundos', cd: 'Três, dois, um', go: 'Bora trabalhar!', done: 'Série concluída. Muito bem!', exDone: 'Exercício concluído! Excelente trabalho.',
       rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('pt') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
-      next: (ex, r, w) => `Próxima série de ${ex}: ${r} repetições${w ? ' com ' + num(w, 'pt') + ' quilos' : ''}. Vamos!`, nextEx: ex => `Agora vem ${ex}. Vamos!` },
+      next: (ex, r, w) => J(`Próxima série de ${ex}`, `${repTxt(r, 'pt')} repetições`, w ? `com ${num(w, 'pt')} quilos` : '', 'Vamos!'), nextEx: ex => `Agora vem ${ex}. Vamos!` },
   };
   const P = () => PH[VL()];
   // frases de ánimo variadas (cortas y fijas => cacheables)
@@ -127,70 +131,119 @@
   const cueRot = {};
   function oneCue(n) { const c = cuesOf(n); if (!c.length) return ''; const k = VL() + n; cueRot[k] = ((cueRot[k] === undefined ? Math.floor(Math.random() * c.length) : cueRot[k]) + 1) % c.length; return c[cueRot[k]]; }
   const fullCues = n => { const c = cuesOf(n); return c.length ? [TECH[VL()] + ':', ...c] : []; };
-  window._hpCoach = { MOT, pick, oneCue, fullCues };
-  // Solo voces del celular (speechSynthesis). No se usa la función tts de Gemini ni el bucket de voz.
-  const audio = { pause() {} };
+  window._hpCoach = { MOT, pick, oneCue, fullCues, PH, TECH };
+  // Voz natural: frases fijas pregrabadas con voces neuronales (MP3 en voice/<idioma>/, sin Gemini).
+  // Lo que no está pregrabado (pesos raros, textos nuevos) usa la mejor voz del teléfono, por oraciones y con pausas cortas.
+  const au = new Audio(); au.preload = 'auto';
+  const audio = { pause() { try { au.pause(); } catch (e) {} } };
   window._hpVoice = { log: [] };
+  const neuralOn = () => localStorage.getItem('hp_vneural') !== '0';
+  let VM = null, vmLoading = null;
+  function loadVM() {
+    if (VM || vmLoading) return vmLoading;
+    vmLoading = fetch('voice/manifest.json').then(r => r.ok ? r.json() : null).then(j => { VM = { v: (j && j.v) || 1 }; ['es', 'en', 'pt'].forEach(l => { VM[l] = new Set((j && j[l]) || []); }); }).catch(() => { VM = { es: new Set(), en: new Set(), pt: new Set() }; vmLoading = null; });
+    return vmLoading;
+  }
+  loadVM();
+  const vnorm = x => String(x || '').replace(/\u2063/g, ' ').replace(/\s+/g, ' ').trim().replace(/[.\s]+$/, '').toLowerCase();
+  function vhash(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
+  const clipOf = (l, txt) => { const n = vnorm(txt); if (!n || !VM || !VM[l]) return null; const h = vhash(l + '|' + n); return VM[l].has(h) ? `voice/${l}/${h}.mp3?v=${VM.v}` : null; };
+  // lista de MP3 para una frase (entera o por partes), o null si falta alguna
+  function clipsFor(l, phrase) {
+    if (!neuralOn()) return null;
+    const whole = clipOf(l, phrase); if (whole) return [whole];
+    const parts = String(phrase).split('\u2063').filter(x => x.trim()); if (parts.length < 2) return null;
+    const out = parts.map(x => clipOf(l, x)); return out.every(Boolean) ? out : null;
+  }
   let unlocked = false;
   function unlock() { // debe correr dentro del toque del usuario (Android/iOS bloquean audio sin gesto)
-    try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); unlocked = true; } } catch (e) {}
+    try { au.muted = true; au.src = 'voice/silence.mp3'; const pr = au.play(); if (pr && pr.then) pr.then(() => { au.pause(); au.muted = false; }).catch(() => { au.muted = false; }); else au.muted = false; unlocked = true; } catch (e) { au.muted = false; }
+    try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
   }
   document.addEventListener('pointerdown', () => { if (voiceOn() && !unlocked) unlock(); }, { capture: true });
   let sysVoices = [];
   const loadV = () => { try { sysVoices = speechSynthesis.getVoices() || []; } catch (e) {} };
   if ('speechSynthesis' in window) { loadV(); speechSynthesis.onvoiceschanged = () => { loadV(); const s = document.getElementById('vc-voice'); if (s && +s.dataset.n !== sysVoices.length) fillVoices(s); }; }
-  const FEM = /female|mujer|femenin|paulina|sabina|m[oó]nica|ang[eé]lica|helena|laura|elvira|dalia|lupe|pe?nelope|samantha|victoria|karen|zira|aria|jenny|ava|allison|susan|luciana|francisca|joana|fernanda|vit[oó]ria|maria|google (español|us english|português)/i;
-  const MALE = /male\b|hombre|jorge|diego|carlos|juan|pablo|alex|daniel|fred|tom\b|david|mark|guy|ant[oô]nio|felipe/i;
+  const FEM = /female|mujer|femenin|paulina|sabina|m[oó]nica|ang[eé]lica|helena|laura|elvira|dalia|lupe|pe?nelope|samantha|victoria|karen|zira|aria|jenny|ava|allison|susan|luciana|francisca|joana|fernanda|vit[oó]ria|maria|elena|tania|paloma|salome|valentina|google (español|us english|português)/i;
+  const MALE = /male\b|hombre|jorge|diego|carlos|juan|pablo|alex|daniel|fred|tom\b|tomas|david|mark|guy|ant[oô]nio|felipe|alvaro|alonso|mario|mateo|gonzalo/i;
+  const HQ = /natural|neural|online|google|enhanced|premium|siri/i; // voces de mejor calidad
   const norm = v => String(v.lang || '').replace('_', '-');
-  const PREF = { es: ['es-419', 'es-US', 'es-MX', 'es-CO', 'es-AR', 'es-CL', 'es-PY', 'es'], en: ['en-US', 'en-GB', 'en'], pt: ['pt-BR', 'pt'] };
+  const PREF = { es: ['es-PY', 'es-AR', 'es-UY', 'es-419', 'es-US', 'es-MX', 'es-CO', 'es-CL', 'es'], en: ['en-US', 'en-GB', 'en'], pt: ['pt-BR', 'pt'] };
   function bestVoice(l) {
-    for (const pre of PREF[l]) {
-      const c = sysVoices.filter(v => norm(v).toLowerCase().startsWith(pre.toLowerCase()) && !(l === 'es' && pre === 'es' && /^es-ES/i.test(norm(v))));
-      if (!c.length) continue;
-      return c.find(v => FEM.test(v.name) && !MALE.test(v.name)) || c.find(v => !MALE.test(v.name)) || c[0];
-    }
-    return sysVoices.find(v => norm(v).toLowerCase().startsWith(l)) || null;
+    const all = sysVoices.filter(v => norm(v).toLowerCase().startsWith(l));
+    const rank = v => { const g = norm(v).toLowerCase(); const i = PREF[l].findIndex(p => g.startsWith(p.toLowerCase()) && !(l === 'es' && p === 'es' && g.startsWith('es-es'))); return (HQ.test(v.name) ? 0 : 100) + (i >= 0 ? i : 50) + (FEM.test(v.name) && !MALE.test(v.name) ? 0 : MALE.test(v.name) ? 20 : 10); };
+    return all.sort((a, b) => rank(a) - rank(b))[0] || null;
   }
   function pickVoice(l) {
     loadV(); const saved = localStorage.getItem('hp_vname_' + l);
     return (saved && sysVoices.find(v => v.name === saved)) || bestVoice(l);
   }
+  const NEURAL_LBL = { es: '✨ Natural (voz neuronal)', en: '✨ Natural (neural voice)', pt: '✨ Natural (voz neural)' };
   function fillVoices(s) {
     const l = VL(); const pref = PREF[l].map(x => x.toLowerCase());
     const rank = v => { const g = norm(v).toLowerCase(); const i = pref.findIndex(p => g.startsWith(p) && !(l === 'es' && p === 'es' && g.startsWith('es-es'))); return i >= 0 ? i : g.startsWith(l) ? pref.length : 99; };
     const all = sysVoices.slice().sort((a, b) => rank(a) - rank(b) || norm(a).localeCompare(norm(b)) || a.name.localeCompare(b.name));
     const cur = pickVoice(l); const esc = x => String(x).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     const tag = v => v.localService === true ? ' · local' : v.localService === false ? ' · online' : '';
-    const opt = v => `<option value="${esc(v.name)}"${cur && v.name === cur.name ? ' selected' : ''}>${esc(v.name)} (${esc(norm(v))}${tag(v)})</option>`;
+    const opt = v => `<option value="${esc(v.name)}"${!neuralOn() && cur && v.name === cur.name ? ' selected' : ''}>${esc(v.name)} (${esc(norm(v))}${tag(v)})</option>`;
     const mine = all.filter(v => rank(v) < 99), rest = all.filter(v => rank(v) >= 99);
-    const G = { es: ['Español', 'Otros idiomas'], en: ['English', 'Other languages'], pt: ['Português', 'Outros idiomas'] }[l];
-    s.innerHTML = (mine.length ? `<optgroup label="${G[0]}">${mine.map(opt).join('')}</optgroup>` : '') + (rest.length ? `<optgroup label="${G[1]}">${rest.map(opt).join('')}</optgroup>` : '');
+    const G = { es: ['Voces del teléfono', 'Otros idiomas'], en: ['Phone voices', 'Other languages'], pt: ['Vozes do telefone', 'Outros idiomas'] }[l];
+    s.innerHTML = `<option value="__neural"${neuralOn() ? ' selected' : ''}>${NEURAL_LBL[l]}</option>` + (mine.length ? `<optgroup label="${G[0]}">${mine.map(opt).join('')}</optgroup>` : '') + (rest.length ? `<optgroup label="${G[1]}">${rest.map(opt).join('')}</optgroup>` : '');
     s.dataset.n = sysVoices.length;
   }
   let playId = 0;
-  const end = x => /[.!?:,¡¿]$/.test(x) ? x : x + '.';
-  // dice una o varias frases en orden, con una pausa breve entre cada una
-  function say(t, force) {
-    const list = (Array.isArray(t) ? t : [t]).filter(Boolean);
-    if (!list.length || (!voiceOn() && !force) || !('speechSynthesis' in window)) return;
-    const id = ++playId;
-    const speakOne = k => {
-      if (id !== playId || k >= list.length) return;
-      const u = new SpeechSynthesisUtterance(end(list[k])); const l = VL();
-      u.lang = { es: 'es-US', en: 'en-US', pt: 'pt-BR' }[l]; const v = pickVoice(l); if (v) { u.voice = v; u.lang = v.lang; }
-      u.rate = 0.97; u.pitch = 1.08;
-      let done = false; const next = () => { if (done) return; done = true; setTimeout(() => speakOne(k + 1), 350); };
-      u.onend = next; u.onerror = next; setTimeout(next, 4000 + list[k].length * 120); // por si onend no llega
-      speechSynthesis.speak(u); window._hpVoice.log.push('sys:' + list[k]);
+  const end = x => /[.!?:,¡¿…]$/.test(x) ? x : x + '.';
+  // oraciones cortas para la voz del teléfono: suena más natural que un bloque largo
+  const chunks = x => String(x).replace(/\u2063/g, ', ').replace(/\s+/g, ' ').trim().split(/(?<=[.!?…;:])\s+/).flatMap(c => c.length > 160 ? c.split(/(?<=,)\s+/) : [c]).filter(c => c.trim());
+  function speakSys(text, id, done) {
+    if (!('speechSynthesis' in window)) { done(); return; }
+    const parts = chunks(text); const l = VL(); const v = pickVoice(l);
+    const one = k => {
+      if (id !== playId) return; if (k >= parts.length) { done(); return; }
+      const u = new SpeechSynthesisUtterance(end(parts[k]));
+      u.lang = { es: 'es-US', en: 'en-US', pt: 'pt-BR' }[l]; if (v) { u.voice = v; u.lang = v.lang; }
+      u.rate = 0.97; u.pitch = 1;
+      let fin = false; const next = () => { if (fin) return; fin = true; setTimeout(() => one(k + 1), 220); };
+      u.onend = next; u.onerror = next; setTimeout(next, 4000 + parts[k].length * 110); // por si onend no llega
+      try { speechSynthesis.speak(u); } catch (e) { next(); }
     };
-    try {
-      if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(() => speakOne(0), 150); } else speakOne(0); // cancel()+speak() juntos se pierden en Chrome Android
-    } catch (e) {}
+    one(0);
   }
-  const prefetch = () => {};
+  function playClips(urls, id, done, fail) {
+    const one = k => {
+      if (id !== playId) return; if (k >= urls.length) { done(); return; }
+      let fin = false; const next = ok => { if (fin) return; fin = true; clearTimeout(tm); au.onended = au.onerror = null; if (!ok) { fail(k); return; } setTimeout(() => one(k + 1), 40); };
+      const tm = setTimeout(() => next(false), 15000);
+      au.onended = () => next(true); au.onerror = () => next(false);
+      try { au.muted = false; au.src = urls[k]; const pr = au.play(); if (pr && pr.catch) pr.catch(() => next(false)); } catch (e) { next(false); }
+    };
+    one(0);
+  }
+  let busy = false;
+  window.hpVoiceBusy = () => busy || (('speechSynthesis' in window) && (speechSynthesis.speaking || speechSynthesis.pending));
+  // dice una o varias frases en orden, con una pausa breve entre cada una
+  async function say(t, force) {
+    const list = (Array.isArray(t) ? t : [t]).filter(Boolean);
+    if (!list.length || (!voiceOn() && !force)) return;
+    const id = ++playId; busy = true;
+    try { au.pause(); } catch (e) {}
+    try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
+    if (neuralOn() && !VM) { try { await Promise.race([loadVM(), new Promise(r => setTimeout(r, 1500))]); } catch (e) {} }
+    if (id !== playId) return;
+    const l = VL();
+    const step = k => {
+      if (id !== playId) return; if (k >= list.length) { busy = false; return; }
+      const ph = list[k], next = () => setTimeout(() => step(k + 1), 300), urls = clipsFor(l, ph);
+      window._hpVoice.log.push((urls ? 'mp3:' : 'sys:') + String(ph).replace(/\u2063/g, ' | '));
+      if (urls) playClips(urls, id, next, () => speakSys(ph, id, next)); else speakSys(ph, id, next);
+    };
+    setTimeout(() => step(0), 120); // cancel()+speak() juntos se pierden en Chrome Android
+  }
+  // precarga los audios que vienen (quedan en la caché del service worker)
+  const prefetch = list => { try { (Array.isArray(list) ? list : [list]).forEach(ph => (clipsFor(VL(), ph) || []).forEach(u => fetch(u).catch(() => {}))); } catch (e) {} };
   window.hpSay = say;
   window.hpUnlock = unlock;
-  window.hpHush = function () { playId++; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} };
+  window.hpHush = function () { playId++; busy = false; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} };
   const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest), ...(motOn() ? MOT[VL()].set.slice(0, 4) : [])]; };
   let lastSet = null;
   const origCSW = window.completeSetWorkflow;
@@ -255,7 +308,7 @@
   if (typeof origRT === 'function') window.resetTimer = function () { clearInterval(window._hpVoiceInt); return origRT.apply(this, arguments); };
   function setVoice(on) {
     localStorage.setItem('hp_voice', on ? '1' : '0');
-    if (on) { unlock(); say(P().on, true); prefetch(fixed()); } else { playId++; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} }
+    if (on) { unlock(); say(P().on, true); prefetch(fixed()); } else { playId++; busy = false; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} }
     document.querySelectorAll('.voice-tg,#voice-set-tg').forEach(lab);
   }
   function lab(b) { if (b.id === 'voice-set-tg') { b.textContent = voiceOn() ? '🔊 Activado' : '🔇 Desactivado'; b.classList.toggle('on', voiceOn()); } else b.textContent = voiceOn() ? '🔊 Voz' : '🔇 Voz'; b.setAttribute('aria-pressed', voiceOn()); }
@@ -273,7 +326,7 @@
       wt.insertBefore(c, wt.firstChild);
       $('vc-tech').onchange = e => localStorage.setItem('hp_vtech', e.target.checked ? '1' : '0');
       $('vc-mot').onchange = e => localStorage.setItem('hp_vmot', e.target.checked ? '1' : '0');
-      fillVoices($('vc-voice')); $('vc-voice').onchange = e => { localStorage.setItem('hp_vname_' + VL(), e.target.value); unlock(); say(P().test, true); };
+      fillVoices($('vc-voice')); $('vc-voice').onchange = e => { if (e.target.value === '__neural') localStorage.setItem('hp_vneural', '1'); else { localStorage.setItem('hp_vneural', '0'); localStorage.setItem('hp_vname_' + VL(), e.target.value); } unlock(); say(P().test, true); };
       $('voice-set-tg').onclick = () => setVoice(!voiceOn());
       $('voice-test').onclick = () => { unlock(); say(P().test, true); };
       lab($('voice-set-tg'));

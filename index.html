@@ -873,6 +873,8 @@
     .ms-chip { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--text); border-radius: 999px; padding: 6px 10px; font-size: .78rem; cursor: pointer; text-align: left; }
     .ms-chip small { color: var(--text-muted); margin-left: 4px; }
     .ms-chip.on { border-color: var(--accent); background: rgba(76,175,80,.15); }
+    .rest-badge { display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; vertical-align: middle; background: rgba(129,140,248,.16); color: #c7d2fe; border: 1px solid rgba(129,140,248,.35); }
+    .rest-note { margin: 0 0 6px; font-size: .78rem; color: var(--text-muted); }
     .wt-box { margin: 14px 0 6px; padding-top: 12px; border-top: 1px solid var(--border); }
     .wt-box .dl-track i { background: linear-gradient(90deg, #38bdf8, #0ea5e9); }
     .wt-row { display: flex; gap: 8px; margin: 10px 0 8px; }
@@ -2376,6 +2378,12 @@
   "dr.minFatKg": "Grasas mínimas g/kg",
   "dr.bmiCap": "IMC desde el que se usa peso de referencia",
   "dr.bmiRef": "IMC del peso de referencia",
+  "dr.restPct": "Día de descanso: % menos de kcal (de carbohidratos)",
+  "diet.restDay": "Día de descanso",
+  "diet.restNote": "Hoy te movés menos: −{p} % de kcal (menos carbohidratos; proteína y grasa iguales). Día de entrenamiento: {tr} kcal.",
+  "diet.restTip": "En la semana comés lo mismo: los días de entrenamiento llevan un poco más. Día de entrenamiento: {tr} kcal.",
+  "swap.latB": "🦵 Es un bloque sin descanso con ejercicios bilaterales: solo se muestran opciones bilaterales, para que ningún lado llegue descansado.",
+  "swap.latU": "🦵 Es un bloque sin descanso con ejercicios unilaterales: solo se muestran opciones unilaterales.",
   "dr.reset": "Volver a los valores originales",
   "dr.saved": "Reglas guardadas para todos",
   "dr.confirm": "¿Guardar estas reglas para todos los usuarios?",
@@ -2973,6 +2981,12 @@
   "dr.minFatKg": "Minimum fats g/kg",
   "dr.bmiCap": "BMI above which reference weight is used",
   "dr.bmiRef": "BMI of the reference weight",
+  "dr.restPct": "Rest day: % fewer kcal (from carbs)",
+  "diet.restDay": "Rest day",
+  "diet.restNote": "You move less today: −{p} % kcal (fewer carbs; protein and fat unchanged). Training day: {tr} kcal.",
+  "diet.restTip": "Your weekly intake stays the same: training days get a bit more. Training day: {tr} kcal.",
+  "swap.latB": "🦵 This is a no-rest block of two-sided exercises: only two-sided options are shown, so neither side arrives rested.",
+  "swap.latU": "🦵 This is a no-rest block of single-side exercises: only single-side options are shown.",
   "dr.reset": "Restore original values",
   "dr.saved": "Rules saved for everyone",
   "dr.confirm": "Save these rules for all users?",
@@ -3814,6 +3828,12 @@
   "dr.minFatKg": "Gorduras mínimas g/kg",
   "dr.bmiCap": "IMC a partir do qual se usa peso de referência",
   "dr.bmiRef": "IMC do peso de referência",
+  "dr.restPct": "Dia de descanso: % a menos de kcal (dos carboidratos)",
+  "diet.restDay": "Dia de descanso",
+  "diet.restNote": "Hoje você se movimenta menos: −{p} % de kcal (menos carboidratos; proteína e gordura iguais). Dia de treino: {tr} kcal.",
+  "diet.restTip": "Na semana você come o mesmo: os dias de treino levam um pouco mais. Dia de treino: {tr} kcal.",
+  "swap.latB": "🦵 É um bloco sem descanso com exercícios bilaterais: só aparecem opções bilaterais, para nenhum lado chegar descansado.",
+  "swap.latU": "🦵 É um bloco sem descanso com exercícios unilaterais: só aparecem opções unilaterais.",
   "dr.reset": "Voltar aos valores originais",
   "dr.saved": "Regras salvas para todos",
   "dr.confirm": "Salvar estas regras para todos os usuários?",
@@ -6409,14 +6429,14 @@ ${timedSecs ? `
     // ===== REGLAS GENERALES DE DIETA (editables por el administrador; tabla app_config 'diet_rules') =====
     const DR_PH = ['volumen', 'definicion', 'precontest', 'mantenimiento', 'postshow'];
     const DR_CAT = ['open', 'classic', 'mens_physique', 'ganar_masa', 'wellness', 'bikini', 'mujer_gluteos', 'mujer_tonificar', 'figure', 'womens_physique'];
-    const DR_DEF = { recP: 1.9, recCutP: 2.2, recF: 0.27, recCutF: 0.25, phyMinP: 2.2, phyMaxF: 0.23, minFatKg: 0.6, bmiCap: 30, bmiRef: 27, supp: {}, ph: {}, cat: {} };
+    const DR_DEF = { restPct: 0.12, recP: 1.9, recCutP: 2.2, recF: 0.27, recCutF: 0.25, phyMinP: 2.2, phyMaxF: 0.23, minFatKg: 0.6, bmiCap: 30, bmiRef: 27, supp: {}, ph: {}, cat: {} };
     DR_PH.forEach(k => { DR_DEF.ph[k] = { prot: PHASES[k].prot, fat: PHASES[k].fat, kcal: PHASES[k].kcal }; });
     DR_CAT.forEach(k => { DR_DEF.cat[k] = CALORIE_GOAL_FACTORS[k]; });
     let DR = JSON.parse(JSON.stringify(DR_DEF));
     function applyDietRules(v) {
       const d = JSON.parse(JSON.stringify(DR_DEF)), num = (x, lo, hi) => { x = parseFloat(x); return x >= lo && x <= hi ? x : null; };
       v = v && typeof v === 'object' ? v : {};
-      [['recP', .5, 4], ['recCutP', .5, 4], ['recF', .1, .6], ['recCutF', .1, .6], ['phyMinP', .5, 4], ['phyMaxF', .1, .6], ['minFatKg', .2, 2], ['bmiCap', 20, 60], ['bmiRef', 18, 40]].forEach(([k, lo, hi]) => { const x = num(v[k], lo, hi); if (x != null) d[k] = x; });
+      [['restPct', 0, .3], ['recP', .5, 4], ['recCutP', .5, 4], ['recF', .1, .6], ['recCutF', .1, .6], ['phyMinP', .5, 4], ['phyMaxF', .1, .6], ['minFatKg', .2, 2], ['bmiCap', 20, 60], ['bmiRef', 18, 40]].forEach(([k, lo, hi]) => { const x = num(v[k], lo, hi); if (x != null) d[k] = x; });
       DR_PH.forEach(k => { const o = (v.ph || {})[k] || {}; [['prot', .5, 4], ['fat', .1, .6], ['kcal', .5, 1.5]].forEach(([f, lo, hi]) => { const x = num(o[f], lo, hi); if (x != null) d.ph[k][f] = x; }); });
       DR_CAT.forEach(k => { const x = num((v.cat || {})[k], .5, 1.5); if (x != null) d.cat[k] = x; });
       Object.keys(v.supp || {}).forEach(k => { if (['on', 'off'].includes(v.supp[k])) d.supp[k] = v.supp[k]; });
@@ -6445,7 +6465,7 @@ ${timedSecs ? `
         <details class="field-more adm-more"><summary>${t('dr.other')}</summary><div class="adm-grid">
           <div><label>${t('dr.phyMinP')}</label>${inp('phyMinP', DR.phyMinP, .1)}</div><div><label>${t('dr.phyMaxF')}</label>${inp('phyMaxF%', pct(DR.phyMaxF), 1)}</div>
           <div><label>${t('dr.minFatKg')}</label>${inp('minFatKg', DR.minFatKg, .1)}</div><div><label>${t('dr.bmiCap')}</label>${inp('bmiCap', DR.bmiCap, 1)}</div>
-          <div><label>${t('dr.bmiRef')}</label>${inp('bmiRef', DR.bmiRef, 1)}</div></div></details>
+          <div><label>${t('dr.bmiRef')}</label>${inp('bmiRef', DR.bmiRef, 1)}</div><div><label>${t('dr.restPct')}</label>${inp('restPct%', pct(DR.restPct), 1)}</div></div></details>
         <details class="field-more adm-more"><summary>${t('adm.f.supp')}</summary><div class="adm-grid">${SUPP_KEYS.map(sel).join('')}</div></details>
         <div class="dl-actions" style="margin-top:14px"><button type="button" class="btn-3d" onclick="adminSaveRules()">${t('ed.save')}</button><button type="button" class="btn-3d btn-secondary" onclick="adminResetRules()">${t('dr.reset')}</button></div>`;
     }
@@ -6671,7 +6691,14 @@ ${timedSecs ? `
       if (!(bf >= 3 && bf <= 60) || !(lean > 20 && lean < w)) return null;
       return { bf: Math.round(bf * 10) / 10, lean: Math.round(lean * 10) / 10, date: r.date };
     }
-    function computeTargets(user) {
+    // Día de descanso según el plan (los días sin rutina); d = fecha (por defecto hoy)
+    function hpIsRestDay(d) {
+      if (!currentUser) return false;
+      try { const dk = WEEKDAYS[((d || new Date()).getDay() + 6) % 7]; const pr = getPlan().program; return !pr[dk] || !(pr[dk].exercises || []).length; } catch (e) { return false; }
+    }
+    // getDay() (0 = domingo) de los días con y sin entrenamiento
+    function hpTrainDows() { try { const pr = getPlan().program; return WEEKDAYS.map((dk, i) => pr[dk] && (pr[dk].exercises || []).length ? (i + 1) % 7 : null).filter(x => x != null); } catch (e) { return [1, 2, 3, 4, 5]; } }
+    function computeTargets(user, opts) {
       const w = parseFloat(user && user.weight), h = parseFloat(user && user.height);
       const age = user && user.birthdate ? calculateAge(user.birthdate) : parseFloat(user && user.age);
       if (!(w > 0) || !(h > 0) || !(age > 0)) return null;
@@ -6693,13 +6720,22 @@ ${timedSecs ? `
       if (['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) { prot = Math.max(prot, DR.phyMinP); fatPct = Math.min(fatPct, DR.phyMaxF); }
       let kcal = Math.round((tdee * factor + s.kcalAdjust) / 50) * 50;
       kcal = Math.max(kcal, female ? 1200 : 1500);
+      // Ciclado semanal: los días de descanso (más sedentarios) llevan menos kcal, sacadas de los carbohidratos; la semana suma lo mismo
+      const kcalAvg = kcal, rp = Math.max(0, Math.min(0.3, DR.restPct || 0)), nTrain = currentUser ? hpTrainDows().length : 7;
+      const rest = opts && opts.day ? opts.day === 'rest' : hpIsRestDay();
+      let kcalTrain = kcal, kcalRest = kcal;
+      if (rp > 0 && nTrain > 0 && nTrain < 7) {
+        kcalTrain = Math.round(kcalAvg * 7 / (nTrain + (7 - nTrain) * (1 - rp)) / 50) * 50;
+        kcalRest = Math.max(female ? 1200 : 1500, Math.round(kcalTrain * (1 - rp) / 50) * 50);
+        kcal = rest ? kcalRest : kcalTrain;
+      }
       let rw = refWeight(user);
       // Con % de grasa medido: proteína sobre el peso que tendría con grasa saludable (15 % hombres / 23 % mujeres), nunca más que su peso real
       if (bc && !['open', 'classic', 'mens_physique', 'womens_physique', 'figure'].includes(goal)) rw = Math.round(Math.min(w, bc.lean / (1 - (female ? 0.23 : 0.15))));
       const protein = Math.round(rw * prot);
-      let fat = Math.round(kcal * fatPct / 9); fat = Math.max(fat, Math.round(rw * DR.minFatKg));
+      let fat = Math.round(kcalAvg * fatPct / 9); fat = Math.max(fat, Math.round(rw * DR.minFatKg)); // grasa igual todos los días
       const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-      return { kcal, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw, bc };
+      return { kcal, kcalAvg, kcalTrain, kcalRest, restDay: rest && kcalRest < kcalTrain, restPct: rp, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw, bc };
     }
     function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
     function waterL(user) {
@@ -7216,7 +7252,8 @@ ${timedSecs ? `
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
       const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo); const sbm = suppByMeal(d.meals, Object.assign({}, sug, dlo.times || {}), u, getSettings(), tg);
       box.innerHTML = `
-        <div class="dl-progress"><h3>📊 Progreso de hoy</h3>
+        <div class="dl-progress"><h3>📊 Progreso de hoy${tg.restDay ? ` <span class="rest-badge" title="${t('diet.restTip', { p: Math.round(tg.restPct * 100), tr: fmtN(tg.kcalTrain) })}">😴 ${t('diet.restDay')}</span>` : ''}</h3>
+          ${tg.restDay ? `<p class="rest-note">${t('diet.restNote', { p: Math.round((1 - tg.kcalRest / tg.kcalTrain) * 100), tr: fmtN(tg.kcalTrain) })}</p>` : ''}
           ${dlBar('Calorías', lg.eaten.kcal, tg.kcal, 'kcal')}${dlBar('Proteína', lg.eaten.p, tg.protein, 'g')}${dlBar('Carbohidratos', lg.eaten.c, tg.carbs, 'g')}${dlBar('Grasas', lg.eaten.f, tg.fat, 'g')}
           <p class="dl-sum">${dlT('left')} <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> ${dlT('for')}${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}</p><div class="dlr-ch">${dlChips(Math.max(0, tg.protein - lg.eaten.p), Math.max(0, tg.carbs - lg.eaten.c), Math.max(0, tg.fat - lg.eaten.f))}</div>
           <div class="dl-tools">${lg.canUndo ? `<button type="button" class="dl-btn" onclick="dlUndo()">↩️ Deshacer</button>` : ''}${lg.any ? `<button type="button" class="dl-btn" onclick="dlReset()">🔄 Reiniciar día</button>` : ''}</div>
@@ -7335,7 +7372,7 @@ ${timedSecs ? `
     document.addEventListener('visibilitychange', () => { if (!document.hidden) hpWaterSync(true); });
     function dietFirstTime(meals, dlo, sug) {
       const tm = dlo.times || {}; const st = mrState(); const m = meals.find(x => x.state !== 'skip');
-      return (m && (tm[m.mk] || sug[m.mk])) || (st.base && m && st.base[m.mk]) || '07:00';
+      const b = (hpIsRestDay() && st.baseRest) || st.base; return (m && (tm[m.mk] || sug[m.mk])) || (b && m && b[m.mk]) || '07:00';
     }
     function dietPrefsBox(u, d, dlo, sug) {
       const pr = getDietPrefs(), wp = waterPlan(u, dietFirstTime(d.meals, dlo, sug)), L = waterL(u);
@@ -7362,21 +7399,26 @@ ${timedSecs ? `
     function mrQueue(meals, dlo, sug, sbm) { clearTimeout(_mrT); _mrT = setTimeout(() => mrSync(meals, dlo, sug, sbm), 1200); }
     async function mrSync(meals, dlo, sug, sbm, force) {
       try {
-        const st = mrState(); const prev = st.base || {}; const times = dlo.times || {};
+        // Horarios aprendidos por separado: días de entrenamiento (base) y de descanso (baseRest), así uno no corre los horarios del otro
+        const st = mrState(); const restToday = hpIsRestDay(), rk = restToday ? 'baseRest' : 'base'; const prev = st[rk] || st.base || {}; const times = dlo.times || {};
         const anchored = meals.some(m => times[m.mk] || (m.state === 'ate'));
         const base = {}; meals.forEach(m => { base[m.mk] = (anchored && m.state !== 'skip' && (times[m.mk] || sug[m.mk])) || prev[m.mk] || MR_DEF[m.mk] || '12:00'; });
-        if (anchored) { st.base = base; localStorage.setItem(mrKey(), JSON.stringify(st)); }
+        if (anchored) { st[rk] = base; localStorage.setItem(mrKey(), JSON.stringify(st)); }
+        const fill = b => { const o = {}; meals.forEach(m => { o[m.mk] = (b || {})[m.mk] || base[m.mk]; }); return o; };
+        const bTrain = restToday ? fill(st.base) : base, bRest = restToday ? base : fill(st.baseRest || st.base);
+        const trainD = hpTrainDows(), restD = [0, 1, 2, 3, 4, 5, 6].filter(x => !trainD.includes(x));
         const supp = mk => (sbm[mk] || []).filter(x => !(dlo.supp || {})[x.k]).map(x => t('supp.' + x.k));
-        const row = m => ({ mk: m.mk, name: tc(m.name), t: base[m.mk], supp: supp(m.mk) });
+        const row = (m, b) => ({ mk: m.mk, name: tc(m.name), t: (b || base)[m.mk], supp: supp(m.mk) });
+        const tagD = (list, d) => list.map(x => Object.assign(x, { dows: d }));
         let today = st.on ? meals.filter(m => m.state === 'pend').map(m => Object.assign(row(m), { t: times[m.mk] || sug[m.mk] || base[m.mk] })) : [];
-        let baseList = st.on ? meals.map(row) : [];
+        let baseList = st.on ? tagD(meals.map(m => row(m, bTrain)), trainD).concat(tagD(meals.map(m => row(m, bRest)), restD)) : [];
         if (st.water) {
           const u = getUsersDB()[currentUser] || {}; const fm = meals.find(m => m.state !== 'skip');
           const wl = (s0, tag) => waterPlan(u, s0).map((x, i) => ({ mk: 'water' + i + tag, kind: 'water', name: fmtN(x.ml) + ' ml', ml: x.ml, t: x.t }));
           // Hoy: solo las tomas pendientes, con la dosis recalculada según lo que ya se tomó (meta cumplida = sin avisos)
           const ws = waterSplit(u, fm ? (times[fm.mk] || sug[fm.mk] || base[fm.mk]) : '07:00', dlo, meals);
           if (ws) today = today.concat(ws.slots.filter(x => x.st === 'pend').map(x => ({ mk: x.slot, kind: 'water', name: fmtN(x.ml) + ' ml', ml: x.ml, t: x.t })));
-          baseList = baseList.concat(wl(fm ? base[fm.mk] : '07:00', ''));
+          baseList = baseList.concat(tagD(wl(fm ? bTrain[fm.mk] : '07:00', ''), trainD), tagD(wl(fm ? bRest[fm.mk] : '07:00', ''), restD));
         }
         const { data: ss } = await sb.auth.getSession(); const id = ss && ss.session && ss.session.user && ss.session.user.id; if (!id) return;
         const body = { user_id: id, enabled: !!(st.on || st.water), tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Asuncion', lang: (typeof LANG !== 'undefined' && LANG) || 'es', base: baseList, day: dlToday(), today, updated_at: new Date().toISOString() };
@@ -7418,7 +7460,7 @@ ${timedSecs ? `
       const DEF = { desayuno: 420, media: 600, almuerzo: 780, merienda: 960, cena: 1140, colacion: 1320 };
       const ms = meals.filter(m => m.state !== 'skip').map(m => ({ mk: m.mk, at: toM(times[m.mk]) ?? DEF[m.mk] ?? 720, whey: (m.items || []).some(i => i.key === 'whey') }));
       if (!ms.length) return {};
-      const tr = toM(s.trainTime), sp = DR.supp || {};
+      const tr = hpIsRestDay() ? null : toM(s.trainTime), sp = DR.supp || {};
       const pre = tr == null ? (ms.find(m => m.mk === 'merienda') || ms[Math.floor(ms.length / 2)]) : ([...ms].reverse().find(m => m.at <= tr - 30) || ms[0]);
       const post = tr == null ? (ms.find(m => m.mk === 'cena') || ms[ms.length - 1]) : (ms.find(m => m.at >= tr + 45) || ms[ms.length - 1]);
       const first = ms[0], last = ms[ms.length - 1], lunch = ms.find(m => m.mk === 'almuerzo') || ms[Math.floor(ms.length / 2)];
@@ -8139,6 +8181,12 @@ ${timedSecs ? `
     function getSwaps() { try { return JSON.parse(cloudStore.getItem(swapsKey()) || '{}') || {}; } catch (e) { return {}; } }
     function saveSwaps(s) { cloudStore.setItem(swapsKey(), JSON.stringify(s)); }
     function slotKey(dk, i, orig) { return `${dk}|${i}|${orig}`; }
+    // Unilateral = un lado por vez (una pierna / un brazo). En biseries y superseries no se mezcla con bilaterales:
+    // al cambiar de ejercicio un lado llegaría descansado.
+    const HP_UNI_RX = /unilateral|b[uú]lgara|zancada|estocada|step-?up|una pierna|un brazo|single|patada de (gl[uú]teo|tr[ií]ceps)|bayesian|abducci[oó]n en polea|plancha lateral|elevaciones laterales en polea|remo unilateral/i;
+    function hpUni(n) { return HP_UNI_RX.test(String(n || '')); }
+    // nombres de los otros ejercicios del mismo bloque combinado
+    function hpGroupMates(exs, i) { const g = exs[i] && exs[i].group; if (!g) return []; const out = []; for (let j = i - 1; j >= 0 && exs[j].group && exs[j].group.id === g.id; j--) out.push(j); for (let j = i + 1; j < exs.length && exs[j].group && exs[j].group.id === g.id; j++) out.push(j); return out; }
     function applySwaps(program) {
       if (!currentUser) return program;
       let sw = getSwaps(); const out = {};
@@ -8155,19 +8203,29 @@ ${timedSecs ? `
           if (!to || to === ex.name) return base;
           return Object.assign(base, { name: to, baseMultiplier: hpMult(to), swapped: true });
         }) });
+        // bloque combinado con mezcla unilateral/bilateral (cambios viejos): vuelve al original lo cambiado
+        const exs = out[dk].exercises;
+        exs.forEach((ex, i) => {
+          const mates = hpGroupMates(exs, i); if (!mates.length) return;
+          if (mates.some(j => hpUni(exs[j].name) !== hpUni(ex.name)) && ex.swapped) Object.assign(ex, { name: ex.origName, baseMultiplier: hpMult(ex.origName), swapped: false, latFix: true });
+        });
       });
       return out;
     }
     function hpAlternatives(name) { const g = HP_EX2ALT[name]; return g ? HP_ALT[g].slice(1).filter(n => n !== name).slice(0, 5) : []; }
     let _swapCtx = null;
     function openSwap(dk, i) {
-      const ex = getProgramForUser(getUsersDB()[currentUser] || {})[dk].exercises[i]; if (!ex) return;
+      const exs = getProgramForUser(getUsersDB()[currentUser] || {})[dk].exercises, ex = exs[i]; if (!ex) return;
       _swapCtx = { dk, i, orig: ex.origName };
-      const alts = hpAlternatives(ex.origName).concat(ex.swapped ? [] : []).filter(n => n !== ex.name);
+      // en biserie/superserie: solo alternativas con la misma lateralidad que los compañeros del bloque
+      const mates = hpGroupMates(exs, i), lat = mates.length ? hpUni(exs[mates[0]].name) : null;
+      const allAlts = (HP_EX2ALT[ex.origName] ? HP_ALT[HP_EX2ALT[ex.origName]].slice(1).filter(n => n !== ex.origName) : []);
+      const alts = (lat == null ? hpAlternatives(ex.origName) : allAlts.filter(n => hpUni(n) === lat).slice(0, 5)).filter(n => n !== ex.name);
+      const latNote = lat != null && allAlts.some(n => hpUni(n) !== lat) ? `<p class="pc-note swap-lat">${t(lat ? 'swap.latU' : 'swap.latB')}</p>` : '';
       if (ex.swapped && !alts.includes(ex.origName)) {} // el original se ofrece abajo
       const list = alts.filter(n => n !== ex.origName).map(n => `<button type="button" class="swap-opt" onclick="chooseSwap(${JSON.stringify(n).replace(/"/g, '&quot;')})">${typeof hpAnimThumb === 'function' ? hpAnimThumb(n) : ''}${catEsc(exName(n))}<small>${catEsc(hpAngle(n))}</small></button>`).join('');
       document.getElementById('swap-body').innerHTML =
-        `<p class="swap-cur">${t('swap.current')}: <b>${catEsc(exName(ex.name))}</b></p>` +
+        `<p class="swap-cur">${t('swap.current')}: <b>${catEsc(exName(ex.name))}</b></p>` + latNote +
         (list || `<p class="pc-note">${t('swap.none')}</p>`) +
         (ex.swapped ? `<button type="button" class="swap-opt swap-orig" onclick="chooseSwap(null)">${t('swap.orig')}${typeof hpAnimThumb === 'function' ? hpAnimThumb(ex.origName) : ''}<small>${catEsc(exName(ex.origName))}</small></button>` : '');
       document.getElementById('swap-title').textContent = t('swap.title'); document.querySelector('#swap-sheet .swap-panel > .pc-note').textContent = t('swap.sub');
@@ -8434,12 +8492,12 @@ ${timedSecs ? `
     labels(); renderRegCards(); sync();
   })();
   </script>
-  <script src="anim.js?v=2"></script>
+  <script src="anim.js?v=3"></script>
   <script src="pro.js?v=7"></script>
   <script src="cues.js?v=1"></script>
-  <script src="pro2.js?v=15"></script>
-  <script src="superset.js?v=4"></script>
-  <script src="features.js?v=2"></script>
-  <script src="guide.js?v=3"></script>
+  <script src="pro2.js?v=16"></script>
+  <script src="superset.js?v=5"></script>
+  <script src="features.js?v=3"></script>
+  <script src="guide.js?v=4"></script>
 </body>
 </html>

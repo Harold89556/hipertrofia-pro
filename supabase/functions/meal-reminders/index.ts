@@ -95,9 +95,10 @@ const COPY: Record<string, { title: (n: string) => string; body: string; supp: s
   pt: { title: (n) => `🍽️ Hora de: ${n}`, body: "Abra sua dieta para ver o que tem agora.", supp: "Tome também" },
 };
 function localNow(tz: string) {
-  const f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short" });
   const p: Record<string, string> = {}; for (const x of f.formatToParts(new Date())) p[x.type] = x.value;
-  return { date: `${p.year}-${p.month}-${p.day}`, min: Number(p.hour) * 60 + Number(p.minute) };
+  const dow = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(p.weekday);
+  return { date: `${p.year}-${p.month}-${p.day}`, min: Number(p.hour) * 60 + Number(p.minute), dow };
 }
 const DRANK: Record<string, string> = { es: "✅ Ya tomé", en: "✅ I drank it", pt: "✅ Já bebi" };
 // ml de la toma: campo ml (app v48+) o el número del nombre ("300 ml")
@@ -119,7 +120,8 @@ Deno.serve(async (req) => {
   for (const r of rows || []) {
     let tz = r.tz || "America/Asuncion"; let now;
     try { now = localNow(tz); } catch { tz = "America/Asuncion"; now = localNow(tz); }
-    const list = (r.day === now.date ? r.today : r.base) || [];
+    // base trae una lista para días de entrenamiento y otra para descanso (dows = días de la semana, 0 = domingo); sin dows vale todos los días
+    const list = ((r.day === now.date ? r.today : r.base) || []).filter((m: { dows?: number[] }) => !Array.isArray(m.dows) || m.dows.includes(now.dow));
     const done: string[] = r.sent_day === now.date ? (r.sent || []) : [];
     const due = (list as { mk: string; name: string; t: string; supp?: string[] }[]).filter((m) => {
       const t = toMin(m.t); return t != null && now.min >= t && now.min - t < 20 && !done.includes(m.mk);

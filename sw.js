@@ -1,5 +1,6 @@
 /* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v50';
+const CACHE = 'hp-shell-v51';
+const VCACHE = 'hp-voice-v1';
 const SHELL = ['./', './index.html', './manifest.json', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
@@ -21,6 +22,11 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   // Only handle our own files; Supabase, Gemini, fonts and CDNs go straight to the network.
   if (url.origin !== self.location.origin || !url.pathname.startsWith('/hipertrofia-pro/')) return;
+  // Clips de voz: nombre = hash del texto, así que cache-first en una caché propia que sobrevive a cada versión.
+  if (/\/voice\/(es|en|pt)\/[0-9a-f]{8}\.mp3$/.test(url.pathname)) {
+    e.respondWith(caches.open(VCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res && res.ok) c.put(req, res.clone()); return res; }))));
+    return;
+  }
   // Páginas: revalidar siempre con el servidor (ignora la caché HTTP de 10 min de GitHub Pages)
   const net = req.mode === 'navigate' ? fetch(req, { cache: 'no-cache' }) : fetch(req);
   e.respondWith(

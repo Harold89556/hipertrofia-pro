@@ -1,5 +1,6 @@
 /* Clases con audio de la Guía científica: usa la voz del teléfono (hpSay). */
 (function () {
+  window._hpSentences = function (s) { return sentences(s); };
   function sentences(s) {
     return String(s || '').replace(/\s+/g, ' ').trim()
       .split(/(?<=[.!?…])\s+/)
@@ -21,7 +22,7 @@
     var quiet = 0;
     window._sciWatch = setInterval(function () {
       try {
-        if (speechSynthesis.speaking || speechSynthesis.pending) { quiet = 0; return; }
+        if (window.hpVoiceBusy ? window.hpVoiceBusy() : (speechSynthesis.speaking || speechSynthesis.pending)) { quiet = 0; return; }
         quiet++;
         if (quiet >= 3) { clearInterval(window._sciWatch); setPlaying(false); }
       } catch (e) { clearInterval(window._sciWatch); setPlaying(false); }
@@ -280,6 +281,7 @@
     return t[lang()] || t.es;
   }
 
+  window._hpTips = TIPS;
   window.hpRestLesson = function (ctx) {
     ctx = ctx || {};
     if (ctx.lastEx) return '';

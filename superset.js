@@ -1,20 +1,23 @@
 /* Superseries / biseries: bloque visual único, rondas alternadas A1/A2 y flujo "sin descanso" con la voz. */
 (function () {
+  const VJ = () => (window._hpVJ ? window._hpVJ.J : (...a) => a.filter(Boolean).join(', '));
+  const rt = r => (window._hpVJ ? window._hpVJ.repTxt(r, L()) : String(r));
   const L = () => (typeof LANG !== 'undefined' && ({ es: 1, en: 1, pt: 1 })[LANG] ? LANG : 'es');
   const TX = {
     es: { badge: 'Sin descanso entre ejercicios', flow: (a, s) => `${a} sin pausa · descanso ${s} al terminar cada ronda`, round: (r, n) => `Ronda ${r} de ${n}`, more: 'Técnica, notas y cambiar ejercicio',
-      noRest: (ex, r, w) => `¡Sin descanso! Ahora ${ex}${r ? ': ' + r + ' repeticiones' : ''}${w ? ' con ' + num(w) + ' kilos' : ''}`,
-      roundDone: r => `¡Ronda ${r} completa!`, nextRound: (r, ex, rp, w) => `Siguiente ronda, la ${r}: ${ex}${rp ? ', ' + rp + ' repeticiones' : ''}${w ? ' con ' + num(w) + ' kilos' : ''}. ¡Vamos!`,
+      noRest: (ex, r, w) => VJ()(`¡Sin descanso! Ahora ${ex}`, r ? `${rt(r)} repeticiones` : '', w ? `con ${num(w)} kilos` : ''),
+      roundDone: r => `¡Ronda ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Siguiente ronda, la ${r}`, ex, rp ? `${rt(rp)} repeticiones` : '', w ? `con ${num(w)} kilos` : '', '¡Vamos!'),
       lastRound: '¡Última ronda, dejá todo!', ssDone: '¡Superserie terminada! Excelente trabajo.', bisDone: '¡Biserie terminada! Excelente trabajo.', nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!`, sess: '¡Entrenamiento completo! Estoy orgullosa de vos.', go: '¡A trabajar!', toast: ex => `⚡ Sin descanso → ${ex}` },
     en: { badge: 'No rest between exercises', flow: (a, s) => `${a} back to back · rest ${s} after each round`, round: (r, n) => `Round ${r} of ${n}`, more: 'Technique, notes and swap',
-      noRest: (ex, r, w) => `No rest! Now ${ex}${r ? ': ' + r + ' reps' : ''}${w ? ' with ' + num(w) + ' kilos' : ''}`,
-      roundDone: r => `Round ${r} complete!`, nextRound: (r, ex, rp, w) => `Next round, number ${r}: ${ex}${rp ? ', ' + rp + ' reps' : ''}${w ? ' with ' + num(w) + ' kilos' : ''}. Let's go!`,
+      noRest: (ex, r, w) => VJ()(`No rest! Now ${ex}`, r ? `${rt(r)} reps` : '', w ? `with ${num(w)} kilos` : ''),
+      roundDone: r => `Round ${r} complete!`, nextRound: (r, ex, rp, w) => VJ()(`Next round, number ${r}`, ex, rp ? `${rt(rp)} reps` : '', w ? `with ${num(w)} kilos` : '', 'Let\'s go!'),
       lastRound: 'Last round, give it everything!', ssDone: 'Superset finished! Excellent work.', bisDone: 'Bi-set finished! Excellent work.', nextEx: ex => `Next up: ${ex}. Let's go!`, sess: 'Workout complete! I\'m proud of you.', go: 'Let\'s work!', toast: ex => `⚡ No rest → ${ex}` },
     pt: { badge: 'Sem descanso entre exercícios', flow: (a, s) => `${a} sem pausa · descanso ${s} ao terminar cada rodada`, round: (r, n) => `Rodada ${r} de ${n}`, more: 'Técnica, notas e trocar exercício',
-      noRest: (ex, r, w) => `Sem descanso! Agora ${ex}${r ? ': ' + r + ' repetições' : ''}${w ? ' com ' + num(w) + ' quilos' : ''}`,
-      roundDone: r => `Rodada ${r} completa!`, nextRound: (r, ex, rp, w) => `Próxima rodada, a ${r}: ${ex}${rp ? ', ' + rp + ' repetições' : ''}${w ? ' com ' + num(w) + ' quilos' : ''}. Vamos!`,
+      noRest: (ex, r, w) => VJ()(`Sem descanso! Agora ${ex}`, r ? `${rt(r)} repetições` : '', w ? `com ${num(w)} quilos` : ''),
+      roundDone: r => `Rodada ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Próxima rodada, a ${r}`, ex, rp ? `${rt(rp)} repetições` : '', w ? `com ${num(w)} quilos` : '', 'Vamos!'),
       lastRound: 'Última rodada, dê tudo!', ssDone: 'Supersérie concluída! Excelente trabalho.', bisDone: 'Bi-set concluído! Excelente trabalho.', nextEx: ex => `Agora vem ${ex}. Vamos!`, sess: 'Treino completo! Estou orgulhosa de você.', go: 'Bora trabalhar!', toast: ex => `⚡ Sem descanso → ${ex}` } };
   const T = () => TX[L()];
+  window._hpSSTX = TX;
   function num(w) { const n = +w; return Number.isInteger(n) ? String(n) : String(n).replace('.', L() === 'en' ? '.' : ','); }
   const nm = n => { try { return exName(n); } catch (e) { return n; } };
   const prog = () => getProgramForUser(getUsersDB()[currentUser] || {});
@@ -40,7 +43,7 @@
     const w = document.getElementById(`w_${dk}_${j}_${s}`), r = document.getElementById(`r_${dk}_${j}_${s}`);
     let reps = tg && !tg.first ? tg.reps : (r && r.value) || (tg && tg.lo) || (String(ex.target || '').match(/\d+(?:-\d+)?/) || [''])[0];
     let kg = tg && !tg.first ? tg.w : (w && +w.value) || 0;
-    return { reps: String(reps || '').replace('-', ' a '), kg };
+    return { reps: String(reps || ''), kg };
   }
   function focusRow(dk, j, s) {
     document.querySelectorAll('.set-row.ss-next').forEach(x => x.classList.remove('ss-next'));

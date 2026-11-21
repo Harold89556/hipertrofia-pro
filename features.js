@@ -46,6 +46,7 @@
     else if (s === 'fatiga') { sets = Math.min(sets, -1); load = 0.95; lbl = T({ es: '😮‍💨 Fatiga: −1 serie y −5 % de carga', en: '😮‍💨 Fatigue: −1 set and −5% load', pt: '😮‍💨 Fadiga: −1 série e −5 % de carga' }); }
     return sets || load < 1 ? { sets, load, lbl } : null;
   };
+  window._hpCyclePH = PH;
   let voiceDay = '';
   window.hpCycleVoice = function () { const p = pro() && cyclePhase(); if (!p || voiceDay === today()) return []; voiceDay = today(); return [T(PH[p.k].voice)]; };
   // Dieta: fase lútea +125 kcal en carbohidratos
