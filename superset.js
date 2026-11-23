@@ -42,7 +42,7 @@
     const tg = window._apTargets && window._apTargets[dk + '_' + j];
     const w = document.getElementById(`w_${dk}_${j}_${s}`), r = document.getElementById(`r_${dk}_${j}_${s}`);
     let reps = tg && !tg.first ? tg.reps : (r && r.value) || (tg && tg.lo) || (String(ex.target || '').match(/\d+(?:-\d+)?/) || [''])[0];
-    let kg = tg && !tg.first ? tg.w : (w && +w.value) || 0;
+    let kg = (w && parseFloat(w.value) > 0) ? parseFloat(w.value) : (tg && !tg.first ? tg.w : 0); // primero el peso que vas a usar
     return { reps: String(reps || ''), kg };
   }
   function focusRow(dk, j, s) {

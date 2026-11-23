@@ -72,6 +72,15 @@
   #wu-btn-1,#wu-btn-2{padding:10px 10px!important;font-size:.82rem!important;min-width:0!important;white-space:nowrap}
   #warmup-row-1 td:nth-child(2),#warmup-row-2 td:nth-child(2),#warmup-row-1 td:nth-child(3),#warmup-row-2 td:nth-child(3){width:64px}
   #wu-r-1,#wu-r-2,#wu-w-1,#wu-w-2{min-width:58px;width:62px!important;text-align:center;padding-left:4px!important;padding-right:4px!important;box-sizing:border-box}
+  .ss-rounds td{padding-left:3px!important;padding-right:3px!important}
+  .ss-rounds td:first-child{max-width:74px}
+  .ss-row td:first-child small{max-width:70px!important}
+  .ss-rounds input[id^="w_"],.ss-rounds input[id^="r_"]{width:100%;min-width:52px;max-width:72px;padding-left:4px!important;padding-right:4px!important;text-align:center;box-sizing:border-box}
+  .ss-row button[id^="btn_"]{min-width:0!important;padding:10px 9px!important;font-size:.8rem!important;white-space:nowrap}
+  .ss-block .sets-table-wrapper{overflow-x:visible}
+  #exercises-container .set-row td{padding-left:4px!important;padding-right:4px!important}
+  #exercises-container .set-row input[id^="w_"],#exercises-container .set-row input[id^="r_"]{min-width:60px;padding-left:6px!important;padding-right:6px!important;text-align:center;box-sizing:border-box}
+  #exercises-container .set-row button[id^="btn_"]{white-space:nowrap;padding-left:10px!important;padding-right:10px!important;min-width:0}
   #ux-top{margin:0 0 14px}
   #ux-top > .ux-b{padding:0 10px 12px}
   #ux-top .nutrition-banner{margin:0 0 12px}
@@ -420,7 +429,7 @@
   }
   function workout() {
     const tab = $('#workout-tab'); if (!tab) return;
-    topFold(); warmup();
+    topFold(); warmup(); carryAll();
     $$(':scope > .exercise-card, :scope > .warmup-box, :scope > details.exercise-card', tab).forEach(c => {
       if (c.offsetParent === null && getComputedStyle(c).display === 'none') return;
       foldCard(c, 'wtop', c.id || ('p' + txt(c.querySelector('h2,summary,h3')).slice(0, 14)), metaFor(c));
@@ -448,6 +457,35 @@
       }
       prevDone[key] = all;
     });
+  }
+
+  // ---------- Peso que arrastra: lo que pusiste a mano en una serie pasa a las siguientes del mismo ejercicio ----------
+  // (normales y biseries/superseries, cada ejercicio por separado). Nunca pisa una serie ya hecha ni un peso que escribiste vos.
+  const WRX = /^w_(.+)_(\d+)_(\d+)$/;
+  function carry(dk, j) {
+    let c = '';
+    for (let s = 1; s < 60; s++) {
+      const w = document.getElementById(`w_${dk}_${j}_${s}`); if (!w) break;
+      if (w.type === 'hidden') continue;
+      const row = document.getElementById(`row_${dk}_${j}_${s}`); const done = row && row.classList.contains('completed-row');
+      const v = parseFloat(String(w.value).replace(',', '.'));
+      if (done || w.dataset.uxMan === '1') { if (v > 0) c = String(w.value); continue; }
+      if (c && w.value !== c) { w.value = c; w.dataset.uxAuto = '1'; }
+      else if (!c && w.dataset.uxAuto === '1' && w.value !== '') { w.value = ''; w.dataset.uxAuto = ''; }
+    }
+  }
+  window.uxCarry = carry;
+  document.addEventListener('input', e => {
+    const w = e.target; const m = w && w.id && WRX.exec(w.id); if (!m || !w.closest('#exercises-container')) return;
+    w.dataset.uxMan = '1'; w.dataset.uxAuto = ''; carry(m[1], m[2]);
+  }, true);
+  // antes de «Marcar» (captura: corre antes del onclick) dejamos los pesos al día
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('button[id^="btn_"]'); if (!b) return; const m = /^btn_(.+)_(\d+)_(\d+)$/.exec(b.id); if (!m) return;
+    carry(m[1], m[2]); setTimeout(() => carry(m[1], m[2]), 0);
+  }, true);
+  function carryAll() {
+    const seen = {}; $$('#exercises-container input[id^="w_"]').forEach(w => { const m = WRX.exec(w.id); if (m && !seen[m[1] + '|' + m[2]]) { seen[m[1] + '|' + m[2]] = 1; carry(m[1], m[2]); } });
   }
 
   // ---------- resto de pestañas ----------

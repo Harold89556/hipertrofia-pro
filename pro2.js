@@ -72,7 +72,7 @@
       box.innerHTML += rirSel;
       box.querySelectorAll('[data-rir]').forEach(b => b.onclick = () => { const r = rirLog(); r[today() + '|' + ex.name] = +b.dataset.rir; const ks = Object.keys(r); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(k => delete r[k]); store.set('hp_rir', r); decorateWorkout(); toast('RIR guardado: se usa para tu próxima sesión'); });
       let head = card.querySelector('table') || card.firstChild; while (head && head.parentNode !== card) head = head.parentNode; card.insertBefore(box, head || null);
-      if (!tg.first) for (let s = 1; s <= ex.sets; s++) { const w = $(`w_${dk}_${i}_${s}`), r = $(`r_${dk}_${i}_${s}`); if (w && !w.value) w.placeholder = tg.w + ' kg'; if (r && !r.value) r.placeholder = tg.reps + ' reps'; }
+      if (!tg.first) for (let s = 1; s <= ex.sets; s++) { const w = $(`w_${dk}_${i}_${s}`), r = $(`r_${dk}_${i}_${s}`); if (w && !w.value) w.placeholder = String(tg.w); if (r && !r.value) r.placeholder = String(tg.reps); }
       if (rd && rd.f.sets < 0) for (let s = sets + 1; s <= ex.sets; s++) { const row = $(`row_${dk}_${i}_${s}`); if (row) row.classList.add('rd-skip'); }
       window._apTargets = window._apTargets || {}; window._apTargets[dk + '_' + i] = { name: ex.name, ...tg };
       const hits = Object.entries(INJ).filter(([k, v]) => inj[k] && v[1].test(ex.name + ' ' + (ex.origName || '')));
@@ -263,7 +263,8 @@
     const msg = [];
     if (motOn() && tg && tg.w && tg.prevW && tg.w > tg.prevW && !prSaid[ls.dk + ls.i]) { prSaid[ls.dk + ls.i] = 1; msg.push(pick('pr')); }
     if (motOn() && sets && ls.s === sets - 1) msg.push(pick('lastSet'));
-    msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, tg.w) : P().go);
+    const nw = document.getElementById(`w_${ls.dk}_${ls.i}_${ls.s + 1}`); const nkg = (nw && parseFloat(nw.value) > 0) ? parseFloat(nw.value) : (tg && tg.w); // el peso que vas a usar (el que arrastraste) antes que la sugerencia
+    msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, nkg) : P().go);
     return { last: false, lastEx: false, msg, curName, nextName };
   }
   const origST = window.startTimer;
