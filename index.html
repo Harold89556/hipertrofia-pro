@@ -15,8 +15,20 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Arranque a prueba de fallos: los avisos (alert/confirm) esperan a que la página termine de cargar
+    // (en la app de Android un aviso antes de la primera pintura deja la pantalla de inicio trabada).
+    window.hpLoaded = document.readyState === 'complete' ? Promise.resolve() : new Promise(function (r) { window.addEventListener('load', function () { r(); }, { once: true }); setTimeout(r, 6000); });
+    window.hpAfterLoad = function () { return window.hpLoaded.then(function () { return new Promise(function (r) { setTimeout(r, 400); }); }); };
+    window.addEventListener('error', function (e) { try { console.error('HP error', e.message, e.filename, e.lineno); } catch (x) {} });
+    window.addEventListener('unhandledrejection', function (e) { try { console.error('HP rejection', e.reason); } catch (x) {} });
+  </script>
+  <script src="vendor/supabase-2.119.2.js"></script>
+  <script>if (!window.supabase) document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js"><\/script>');</script>
   <script>
     // ====== CONFIGURACIÓN SUPABASE (pegar los datos de tu proyecto) ======
     const SUPABASE_URL = 'https://ovvdxsrjvbewqrzxxabe.supabase.co';
@@ -26,7 +38,6 @@
   </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     :root {
       --bg: #09090b;
@@ -5610,25 +5621,46 @@ ${timedSecs ? `
     }
 
     // GESTIÓN DE SESIÓN
+    // Límite de espera para la nube al abrir: si la red se cuelga, la app igual se muestra con un aviso para reintentar
+    function hpTO(p, ms) { return Promise.race([p, new Promise((_, ko) => setTimeout(() => ko(new Error('timeout')), ms || 15000))]); }
+    const HP_BOOT_FAIL = {
+      es: ['No pudimos conectar con tu cuenta. Revisá tu conexión a internet.', 'Reintentar'],
+      en: ["We couldn't connect to your account. Check your internet connection.", 'Try again'],
+      pt: ['Não conseguimos conectar à sua conta. Verifique sua conexão com a internet.', 'Tentar de novo']
+    };
+    async function hpBootFail(err) {
+      try { console.warn('boot', err); } catch (e) { }
+      await hpAfterLoad();
+      if (document.getElementById('hp-boot-fail')) return;
+      const L = HP_BOOT_FAIL[(typeof LANG !== 'undefined' && LANG) || 'es'] || HP_BOOT_FAIL.es;
+      const d = document.createElement('div'); d.id = 'hp-boot-fail'; d.setAttribute('role', 'alert');
+      d.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:99999;background:#1c1c22;color:#f4f4f5;border:1px solid rgba(255,107,26,.5);border-radius:14px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);font:500 .92rem/1.4 system-ui,sans-serif;display:flex;gap:12px;align-items:center';
+      const p = document.createElement('span'); p.style.flex = '1'; p.textContent = L[0];
+      const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = L[1];
+      btn.style.cssText = 'background:#ff6b1a;color:#fff;border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer';
+      btn.onclick = () => location.reload();
+      d.append(p, btn); document.body.appendChild(d);
+    }
     async function checkActiveUserSession() {
-      const { data: { session } } = await sb.auth.getSession();
+      let session = null;
+      try { ({ data: { session } } = await hpTO(sb.auth.getSession(), 12000)); } catch (e) { hpBootFail(e); return; }
       if (session && !window._inRecovery) {
         try {
           cloudUserId = session.user.id;
           const email = session.user.email.toLowerCase();
-          const { data: prof, error } = await sb.from('profiles').select('*').eq('id', cloudUserId).maybeSingle();
+          const { data: prof, error } = await hpTO(sb.from('profiles').select('*').eq('id', cloudUserId).maybeSingle());
           if (error) throw error;
           if (!prof) {
             const ok = await completePendingProfile(session.user);
             if (!ok) { await sb.auth.signOut(); return checkActiveUserSession(); }
             return checkActiveUserSession();
           }
-          const { data: acc, error: accErr } = await sb.rpc('my_access');
+          const { data: acc, error: accErr } = await hpTO(sb.rpc('my_access'));
           if (accErr) throw accErr;
           // Clave desactivada y sin suscripción: se cierra la sesión como antes
           if (acc && !acc.has_access && acc.key_revoked && !acc.subscription) {
             await sb.auth.signOut();
-            alert(t('alert.revoked'));
+            await hpAfterLoad(); alert(t('alert.revoked'));
             return checkActiveUserSession();
           }
           window._access = acc || { has_access: false };
@@ -5636,13 +5668,13 @@ ${timedSecs ? `
           document.getElementById('admin-tab-btn').style.display = window._isAdmin ? '' : 'none';
           profileCache = profileFromRow(prof, email);
           currentUser = email;
-          await loadCloudData();
-          await loadDietRules();
-          syncLangFromCloud(session.user);
+          await hpTO(loadCloudData());
+          await hpTO(loadDietRules());
+          try { syncLangFromCloud(session.user); } catch (e) { console.error(e); }
           await offerLocalMigration(email);
         } catch (err) {
           console.error(err);
-          alert(t('alert.cloudErr', { m: err.message || err }));
+          hpBootFail(err);
           return;
         }
         document.getElementById('auth-modal').style.display = 'none';
@@ -5674,13 +5706,13 @@ ${timedSecs ? `
     // Crea el perfil y canjea la clave (solo una vez, tras confirmar el correo si aplica)
     async function completePendingProfile(user) {
       const pending = user.user_metadata && user.user_metadata.pending_profile;
-      if (!pending) { alert(t('alert.noProfile')); return false; }
+      if (!pending) { await hpAfterLoad(); alert(t('alert.noProfile')); return false; }
       const { error } = await sb.rpc('redeem_activation_key', {
         p_key: pending.accessKey || '', p_first_name: pending.firstname, p_last_name: pending.lastname,
         p_gender: pending.gender, p_birth_date: pending.birthdate || null,
         p_weight: pending.weight, p_height: pending.height, p_goal: pending.goal
       });
-      if (error) { alert(error.message ? '❌ ' + error.message : t('alert.keyInvalid')); return false; }
+      if (error) { await hpAfterLoad(); alert(error.message ? '❌ ' + error.message : t('alert.keyInvalid')); return false; }
       return true;
     }
 
@@ -5689,11 +5721,13 @@ ${timedSecs ? `
       const flag = 'cloud_migrated_' + email;
       if (localStorage.getItem(flag)) return;
       const oldKeys = [];
+      // hp_mealalarm_ / hp_dietlog_ son copias locales de este teléfono (no datos viejos para subir)
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && k !== flag && k.endsWith('_' + email)) oldKeys.push(k);
+        if (k && k !== flag && k.endsWith('_' + email) && !/^(hp_mealalarm_|hp_dietlog_|cloud_migrated_)/.test(k)) oldKeys.push(k);
       }
-      if (!oldKeys.length) return;
+      if (!oldKeys.length) { localStorage.setItem(flag, 'none'); return; }
+      await hpAfterLoad();
       if (!confirm(t('confirm.migrate', { email }))) {
         localStorage.setItem(flag, 'skipped'); return;
       }

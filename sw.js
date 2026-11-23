@@ -1,20 +1,52 @@
-/* Hipertrofia Pro service worker: offline shell, always network-first so updates show immediately. */
-const CACHE = 'hp-shell-v51';
+/* Hipertrofia Pro service worker: offline shell, network-first with a time limit so a bad connection never leaves the app stuck on the splash screen. */
+const CACHE = 'hp-shell-v52';
 const VCACHE = 'hp-voice-v1';
-const SHELL = ['./', './index.html', './manifest.json', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
+const SHELL = ['./', './index.html', './manifest.json', './vendor/supabase-2.119.2.js', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // Cada archivo por separado: si uno falla, el resto se guarda igual y la instalación no se traba.
+  // Los clips de voz NO van acá: se guardan solos (hp-voice) cuando suenan.
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => Promise.all(SHELL.map((u) => fetch(new Request(u, { cache: 'reload' })).then((r) => (r && r.ok ? c.put(u, r) : null)).catch(() => null))))
+      .catch(() => null)
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && !k.startsWith('hp-voice')).map((k) => caches.delete(k))))
+      .catch(() => null)
       .then(() => self.clients.claim())
   );
 });
+
+// Red con límite de tiempo: si no responde a tiempo se usa lo guardado (y la respuesta de red, si llega, actualiza la caché)
+function fromCache(req) {
+  return caches.match(req).then((h) => h || caches.match(req, { ignoreSearch: true }))
+    .then((hit) => hit || (req.mode === 'navigate' ? caches.match('./index.html').then((h) => h || caches.match('./')) : undefined))
+    .catch(() => undefined);
+}
+function netFirst(req, ms) {
+  const net = (req.mode === 'navigate' ? fetch(req, { cache: 'no-cache' }) : fetch(req)).then((res) => {
+    if (res && res.ok && res.type === 'basic') {
+      const copy = res.clone();
+      caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+    }
+    return res;
+  });
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (r) => { if (!done && r) { done = true; resolve(r); } };
+    const timer = setTimeout(() => { fromCache(req).then((hit) => finish(hit)); }, ms);
+    net.then((res) => { clearTimeout(timer); finish(res); })
+      .catch(() => { clearTimeout(timer); fromCache(req).then((hit) => finish(hit || new Response('', { status: 504, statusText: 'Offline' }))); });
+    // sin caché y sin red a tiempo: se espera a la red (no hay otra opción)
+  });
+}
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
@@ -24,26 +56,20 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin || !url.pathname.startsWith('/hipertrofia-pro/')) return;
   // Clips de voz: nombre = hash del texto, así que cache-first en una caché propia que sobrevive a cada versión.
   if (/\/voice\/(es|en|pt)\/[0-9a-f]{8}\.mp3$/.test(url.pathname)) {
-    e.respondWith(caches.open(VCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res && res.ok) c.put(req, res.clone()); return res; }))));
+    e.respondWith(caches.open(VCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res && res.ok) c.put(req, res.clone()).catch(() => {}); return res; }))).catch(() => fetch(req)));
     return;
   }
-  // Páginas: revalidar siempre con el servidor (ignora la caché HTTP de 10 min de GitHub Pages)
-  const net = req.mode === 'navigate' ? fetch(req, { cache: 'no-cache' }) : fetch(req);
-  e.respondWith(
-    net
-      .then((res) => {
-        if (res && res.ok && res.type === 'basic') {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      })
-      .catch(() =>
-        caches.match(req, { ignoreSearch: req.mode === 'navigate' })
-          .then((hit) => hit || (req.mode === 'navigate' ? caches.match('./index.html') : undefined))
-          .then((hit) => hit || new Response('', { status: 504, statusText: 'Offline' }))
-      )
-  );
+  // Páginas: revalidar con el servidor (ignora la caché HTTP de 10 min de GitHub Pages), pero sin esperar más de 3 s
+  if (req.mode === 'navigate') { e.respondWith(netFirst(req, 3000)); return; }
+  // Scripts e imágenes: lo guardado al instante (los scripts llevan ?v= en la URL, así que una versión nueva es otra URL)
+  // y se actualiza en segundo plano; si no está guardado, red con límite de tiempo.
+  e.respondWith(caches.match(req).then((hit) => {
+    if (hit) {
+      e.waitUntil(fetch(req).then((res) => { if (res && res.ok && res.type === 'basic') return caches.open(CACHE).then((c) => c.put(req, res)); }).catch(() => {}));
+      return hit;
+    }
+    return netFirst(req, 4000);
+  }).catch(() => netFirst(req, 4000)));
 });
 
 // Cola de tomas de agua marcadas desde la notificación (la app la aplica al abrirse)
