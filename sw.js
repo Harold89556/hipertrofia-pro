@@ -1,7 +1,7 @@
 /* Hipertrofia Pro service worker: offline shell, network-first with a time limit so a bad connection never leaves the app stuck on the splash screen. */
-const CACHE = 'hp-shell-v53';
+const CACHE = 'hp-shell-v54';
 const VCACHE = 'hp-voice-v1';
-const SHELL = ['./', './index.html', './manifest.json', './vendor/supabase-2.119.2.js', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
+const SHELL = ['./', './index.html', './manifest.json', './vendor/supabase-2.119.2.js', './pro.js', './data/prices.json', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];
 
 self.addEventListener('install', (e) => {
@@ -59,6 +59,8 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(caches.open(VCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res && res.ok) c.put(req, res.clone()).catch(() => {}); return res; }))).catch(() => fetch(req)));
     return;
   }
+  // Precios de los súper: red primero con límite corto; si no llega, lo guardado (la app tiene una tabla de respaldo igual)
+  if (url.pathname.endsWith('/data/prices.json')) { e.respondWith(netFirst(req, 2500)); return; }
   // Páginas: revalidar con el servidor (ignora la caché HTTP de 10 min de GitHub Pages), pero sin esperar más de 3 s
   if (req.mode === 'navigate') { e.respondWith(netFirst(req, 3000)); return; }
   // Scripts e imágenes: lo guardado al instante (los scripts llevan ?v= en la URL, así que una versión nueva es otra URL)

@@ -254,10 +254,42 @@
   };
   const PORTION = { chipa: '1 chipa mediana (60 g)', sopa: '1 porción (150 g)', chipaguasu: '1 porción (150 g)', mbeju: '1 mbeju (100 g)', vacio: '1 porción (200 g)', costilla: '1 porción (200 g)', cuadril: '1 porción (200 g)', locro: '1 plato (300 g)', kiveve: '1 porción (200 g)', pirapire: '1 plato (300 ml)', quesopy: '1 feta (30 g)', mandiocaf: '1 porción (150 g)' };
   const PG = { chipa: 60, sopa: 150, chipaguasu: 150, mbeju: 100, vacio: 200, costilla: 200, cuadril: 200, locro: 300, kiveve: 200, pirapire: 300, quesopy: 30, mandiocaf: 150 };
-  // precio ₲/kg (o ₲/u) aproximado y factor cocido→crudo
-  const PRICE = { pollo: [30000, 1.35], carne: [55000, 1.35], pescado: [45000, 1.3], cerdo: [40000, 1.35], atun: [70000, 1], huevo: [1000, 1, 'u'], claras: [1000, 1, 'u'], yogur: [12000, 1], leche: [7000, 1], queso: [40000, 1], whey: [225000, 1],
-    arroz: [8000, 0.37], mandioca: [5000, 1.1], fideos: [9000, 0.43], papa: [7000, 1.05], batata: [6000, 1.1], poroto: [15000, 0.4], avena: [20000, 1], pan: [20000, 1], galleta: [40000, 1], banana: [6000, 1.4], manzana: [15000, 1.1], naranja: [4000, 1.5], mamon: [6000, 1.3],
-    aceite: [18000, 1], palta: [15000, 1.4], mani: [35000, 1], ensalada: [10000, 1.2], verduras: [9000, 1.2], chipa: [3000, 1, 'u'], sopa: [40000, 1], chipaguasu: [40000, 1], mbeju: [30000, 1], vacio: [50000, 1.4], costilla: [45000, 1.5], cuadril: [60000, 1.35], locro: [12000, 0.4], kiveve: [8000, 1], pirapire: [35000, 0.3], quesopy: [45000, 1], mandiocaf: [5000, 1.3] };
+  // precio ₲/kg (o ₲/u) de respaldo y factor cocido→crudo. El precio real sale de data/prices.json (webs de los súper);
+  // esta tabla solo se usa si ese archivo no carga. Chipa va por kg (así se vende en panadería).
+  const PRICE = { pollo: [30000, 1.35], carne: [45500, 1.35], pescado: [72800, 1.3], cerdo: [43000, 1.35], atun: [44118, 1], huevo: [890, 1, 'u'], claras: [890, 1, 'u'], yogur: [12714, 1], leche: [6000, 1], queso: [37350, 1], whey: [328000, 1],
+    arroz: [4710, 0.37], mandioca: [3650, 1.1], fideos: [13250, 0.43], papa: [10150, 1.05], batata: [9250, 1.1], poroto: [23400, 0.4], avena: [24000, 1], pan: [13500, 1], galleta: [110000, 1], banana: [6500, 1.4], manzana: [21850, 1.1], naranja: [7150, 1.5], mamon: [19950, 1.3],
+    aceite: [14000, 1], palta: [15200, 1.4], mani: [40000, 1], ensalada: [12400, 1.2], verduras: [28750, 1.2], chipa: [35500, 1], sopa: [33200, 1], chipaguasu: [41515, 1], mbeju: [41875, 1], vacio: [55950, 1.4], costilla: [34950, 1.5], cuadril: [69950, 1.35], locro: [16000, 0.4], kiveve: [6450, 1], pirapire: [32900, 0.3], quesopy: [39000, 1], mandiocaf: [3650, 1.3],
+    yogur_sl: [14857, 1], leche_sl: [8100, 1], prot_sl: [319351, 1] };
+  const PYT = {
+    es: { title: '🇵🇾 Comida local y lista de compras', local: 'Incluir comidas típicas en mi dieta (chipa, sopa paraguaya, asado, locro…)', budget: 'Modo presupuesto: priorizar los alimentos más baratos', typ: '📖 Tabla de comidas típicas (macros por porción)', dish: 'Comida', portion: 'Porción', listH: '🛒 Lista de compras semanal', weekly: 'Presupuesto semanal ₲', total: 'Total estimado', over: '⚠️ te pasás por {x}', overTip: '. Activá el modo presupuesto', within: '✅ dentro del presupuesto', cheap: 'Si comprás todo en el súper más barato: {x}', save: 'ahorrás {x}', food: 'Alimento', qty: 'Cant.', price: 'Precio', sub: 'Subtotal', incl: 'Incluir', approx: 'Precio aprox. · más barato en {s} ({p})', approxMix: 'Precio aprox. · desde {p} según el súper', mine: 'Tu precio · súper: {p}', reset: '↺ Usar precio del súper', note: 'Precios tomados de las webs de los supermercados de Gran Asunción (actualizado el {d}). Podés editarlos según dónde comprás. Cantidades en crudo para 7 días.', noteOld: 'Precios aproximados de supermercados de Gran Asunción. Podés editarlos según dónde comprás. Cantidades en crudo para 7 días.', where: '🏪 Dónde comprar', whereIntro: 'Cada alimento aparece en el súper donde estaba más barato en su web. El precio de la lista es el del medio entre los súper, así sirve vayas donde vayas. Puede cambiar según la sucursal y las ofertas.', mix: 'Varios súper o verdulería', mixTip: 'promedio de varias verduras', see: 'ver', offer: 'oferta', subtot: 'Subtotal acá: {x}', copy: '📋 Copiar lista', copied: 'Lista copiada ✅', copyFail: 'No se pudo copiar' },
+    en: { title: '🇵🇾 Local food & shopping list', local: 'Include typical Paraguayan dishes in my diet (chipa, sopa paraguaya, asado, locro…)', budget: 'Budget mode: prioritize the cheapest foods', typ: '📖 Typical dishes (macros per serving)', dish: 'Dish', portion: 'Serving', listH: '🛒 Weekly shopping list', weekly: 'Weekly budget ₲', total: 'Estimated total', over: '⚠️ over budget by {x}', overTip: '. Turn on budget mode', within: '✅ within budget', cheap: 'If you buy everything at the cheapest store: {x}', save: 'you save {x}', food: 'Food', qty: 'Qty', price: 'Price', sub: 'Subtotal', incl: 'Include', approx: 'Approx. price · cheapest at {s} ({p})', approxMix: 'Approx. price · from {p} depending on the store', mine: 'Your price · store: {p}', reset: '↺ Use store price', note: 'Prices taken from Greater Asunción supermarket websites (updated {d}). You can edit them to match where you shop. Raw amounts for 7 days.', noteOld: 'Approximate prices from Greater Asunción supermarkets. You can edit them to match where you shop. Raw amounts for 7 days.', where: '🏪 Where to buy', whereIntro: 'Each food is listed under the store where it was cheapest on its website. The list price is the middle value across stores, so it works wherever you shop. Prices can vary by branch and with sales.', mix: 'Several stores or greengrocer', mixTip: 'average of several vegetables', see: 'view', offer: 'sale', subtot: 'Subtotal here: {x}', copy: '📋 Copy list', copied: 'List copied ✅', copyFail: "Couldn't copy" },
+    pt: { title: '🇵🇾 Comida local e lista de compras', local: 'Incluir comidas típicas paraguaias na minha dieta (chipa, sopa paraguaia, asado, locro…)', budget: 'Modo econômico: priorizar os alimentos mais baratos', typ: '📖 Tabela de comidas típicas (macros por porção)', dish: 'Comida', portion: 'Porção', listH: '🛒 Lista de compras semanal', weekly: 'Orçamento semanal ₲', total: 'Total estimado', over: '⚠️ passa do orçamento em {x}', overTip: '. Ative o modo econômico', within: '✅ dentro do orçamento', cheap: 'Se você comprar tudo no mercado mais barato: {x}', save: 'economia de {x}', food: 'Alimento', qty: 'Qtd.', price: 'Preço', sub: 'Subtotal', incl: 'Incluir', approx: 'Preço aprox. · mais barato no {s} ({p})', approxMix: 'Preço aprox. · a partir de {p} conforme o mercado', mine: 'Seu preço · mercado: {p}', reset: '↺ Usar preço do mercado', note: 'Preços tirados dos sites dos supermercados da Grande Assunção (atualizado em {d}). Você pode editá-los conforme onde compra. Quantidades cruas para 7 dias.', noteOld: 'Preços aproximados de supermercados da Grande Assunção. Você pode editá-los conforme onde compra. Quantidades cruas para 7 dias.', where: '🏪 Onde comprar', whereIntro: 'Cada alimento aparece no mercado onde estava mais barato no site. O preço da lista é o valor do meio entre os mercados, então serve onde você for. Pode mudar conforme a filial e as ofertas.', mix: 'Vários mercados ou sacolão', mixTip: 'média de várias verduras', see: 'ver', offer: 'oferta', subtot: 'Subtotal aqui: {x}', copy: '📋 Copiar lista', copied: 'Lista copiada ✅', copyFail: 'Não foi possível copiar' }
+  };
+  const pt_ = (k, v) => { let s = (PYT[L()] || PYT.es)[k] || PYT.es[k]; if (v) Object.keys(v).forEach(n => { s = s.split('{' + n + '}').join(v[n]); }); return s; };
+  const STORE_N = { Arete: 'Areté' };
+  const storeN = s => STORE_N[s] || s;
+  // Precios de los súper (data/prices.json): se cargan después del arranque y nunca lo bloquean; sin archivo se usa PRICE.
+  let PDATA = null;
+  function loadPrices() {
+    try {
+      const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+      const timer = setTimeout(() => { try { ctl && ctl.abort(); } catch (e) { } }, 6000);
+      fetch('data/prices.json', { cache: 'no-cache', signal: ctl ? ctl.signal : undefined })
+        .then(r => (r && r.ok ? r.json() : null))
+        .then(j => { clearTimeout(timer); if (j && j.items && typeof j.items === 'object') { PDATA = j; try { if ($('diet-py') && pro()) renderLocalCard(); } catch (e) { console.warn(e); } } })
+        .catch(() => clearTimeout(timer));
+    } catch (e) { }
+  }
+  if (document.readyState === 'complete') setTimeout(loadPrices, 0); else window.addEventListener('load', () => setTimeout(loadPrices, 0));
+  // dato del súper para un alimento, solo si la unidad coincide con la de la lista (u = por unidad; kg/L = por peso)
+  function refP(k) {
+    const d = PDATA && PDATA.items && PDATA.items[k]; const P = PRICE[k];
+    if (!d || !(d.p > 0) || !P) return null;
+    return ((d.u === 'u') === (P[2] === 'u')) ? d : null;
+  }
+  const basePrice = k => (refP(k)?.p ?? PRICE[k]?.[0] ?? 30000);
+  // precio que el usuario editó (gana siempre); la chipa antes iba por unidad, un valor viejo por unidad se ignora
+  function userPrice(cfg, k) { const v = cfg.prices && cfg.prices[k]; if (v == null || !(v >= 0)) return null; if (k === 'chipa' && v < 10000) return null; return v; }
   let ORIG = null;
   function dietCfg() { return store.get('hp_dietpy', { local: false, budget: false, weekly: 500000, prices: {}, removed: {} }); }
   function applyDietCfg() {
@@ -272,7 +304,7 @@
       add('almuerzo', 'carb', ['sopa', 'chipaguasu', 'locro']); add('desayuno', 'prot', ['quesopy']);
     }
     if (cfg.budget) {
-      const cost = k => { const pr = (cfg.prices[k] ?? PRICE[k]?.[0] ?? 50000); const fd = FOODS[k]; const per = PRICE[k]?.[2] === 'u' ? pr / (fd.unit || 50) * 1000 : pr * (PRICE[k]?.[1] || 1); return per / Math.max(1, fd.p * 4 + fd.c * 4 + fd.f * 9); };
+      const cost = k => { const pr = (userPrice(cfg, k) ?? basePrice(k)); const fd = FOODS[k]; const per = PRICE[k]?.[2] === 'u' ? pr / (fd.unit || 50) * 1000 : pr * (PRICE[k]?.[1] || 1); return per / Math.max(1, fd.p * 4 + fd.c * 4 + fd.f * 9); };
       Object.keys(MEAL_TPL).forEach(mk => ['prot', 'carb', 'fat'].forEach(s => MEAL_TPL[mk][s].sort((a, b) => cost(a) - cost(b))));
     }
   }
@@ -281,36 +313,74 @@
     const d = buildDiet(tg, getDietPrefs()); const cfg = dietCfg(); const g = {};
     d.meals.forEach(m => m.items.forEach(it => { g[it.key] = (g[it.key] || 0) + it.g * 7; }));
     return Object.entries(g).map(([k, grams]) => {
-      const P = PRICE[k] || [30000, 1]; const fd = FOODS[k]; const price = cfg.prices[k] ?? P[0];
-      if (P[2] === 'u') { const n = Math.ceil(grams / (fd.unit || 50)); return { k, n: fd.n, qty: `${n} u`, unitLbl: '₲/u', price, cost: n * price, removed: !!cfg.removed[k] }; }
-      const kg = grams * P[1] / 1000; return { k, n: fd.n, qty: kg >= 1 ? kg.toFixed(1) + ' kg' : Math.round(kg * 1000) + ' g', unitLbl: fd.ml ? '₲/L' : '₲/kg', price, cost: kg * price, removed: !!cfg.removed[k] };
+      const P = PRICE[k] || [30000, 1]; const fd = FOODS[k] || { n: k }; const ref = refP(k); const base = basePrice(k);
+      const mine = userPrice(cfg, k); const price = mine ?? base; const edited = mine != null && mine !== base;
+      const low = edited ? price : (ref && ref.min > 0 ? Math.min(ref.min, price) : price);
+      const o = { k, n: fd.n, ref, base, price, edited, removed: !!cfg.removed[k] };
+      if (P[2] === 'u') { const n = Math.ceil(grams / (fd.unit || 50)); return Object.assign(o, { qty: `${n} u`, unitLbl: '₲/u', amt: n, cost: n * price, low: n * low }); }
+      const kg = grams * P[1] / 1000; const U = fd.ml ? ['L', 'ml'] : ['kg', 'g'];
+      return Object.assign(o, { qty: kg >= 1 ? kg.toFixed(1) + ' ' + U[0] : Math.round(kg * 1000) + ' ' + U[1], unitLbl: '₲/' + U[0], amt: kg, cost: kg * price, low: kg * low });
     }).sort((a, b) => b.cost - a.cost);
+  }
+  function srcLine(x) {
+    const unit = x.unitLbl.replace('₲', ''); const gs = n => '₲\u00a0' + Math.round(n).toLocaleString('es-PY');
+    if (x.edited) return pt_('mine', { p: gs(x.base) + unit });
+    if (!x.ref) return '';
+    if (!x.ref.store) return pt_('approxMix', { p: gs(x.ref.min) + unit });
+    return pt_('approx', { s: E(storeN(x.ref.store)), p: gs(x.ref.min) + unit });
+  }
+  function whereHTML(list) {
+    const groups = {};
+    list.filter(x => !x.removed && x.ref).forEach(x => { const s = (!x.edited && x.ref.store) || (x.edited ? null : '_mix'); if (!s) return; (groups[s] = groups[s] || []).push(x); });
+    const keys = Object.keys(groups).sort((a, b) => (a === '_mix') - (b === '_mix') || groups[b].length - groups[a].length);
+    if (!keys.length) return '';
+    const home = PDATA && PDATA.stores || {};
+    const body = keys.map(s => {
+      const items = groups[s]; const sub = items.reduce((a, x) => a + x.low, 0);
+      const head = s === '_mix' ? E(pt_('mix')) : (home[s] ? `<a href="${E(home[s])}" target="_blank" rel="noopener">${E(storeN(s))} ↗</a>` : E(storeN(s)));
+      const rows = items.map(x => {
+        const unit = x.unitLbl.replace('₲', '');
+        const prod = s === '_mix' ? pt_('mixTip') : (x.ref.prod || '');
+        const link = x.ref.url && s !== '_mix' ? ` · <a href="${E(x.ref.url)}" target="_blank" rel="noopener">${pt_('see')} ↗</a>` : '';
+        return `<li><b>${E(tc(x.n))}</b> · ${x.qty}<small>${E(prod)}${prod ? ' · ' : ''}${gs(x.ref.min)}${unit}${x.ref.offer ? ' · ' + pt_('offer') : ''}${link}</small></li>`;
+      }).join('');
+      return `<div class="pw-store"><h4>${head}</h4><ul>${rows}</ul><p class="pw-sub">${pt_('subtot', { x: gs(sub) })}</p></div>`;
+    }).join('');
+    return `<details class="phy-h py-where" id="py-where"><summary>${pt_('where')}</summary><p class="pc-note">${pt_('whereIntro')}</p>${body}</details>`;
   }
   function renderLocalCard() {
     let card = $('diet-py'); const tab = $('diet-tab'); if (!tab) return;
     if (!card) { card = document.createElement('div'); card.className = 'exercise-card'; card.id = 'diet-py'; tab.insertBefore(card, tab.children[1] || null); }
-    if (!pro()) { card.innerHTML = `<h2 class="pc-title">🇵🇾 Comida local y lista de compras</h2>${lockHTML()}`; return; }
-    const cfg = dietCfg(); const list = shoppingList() || []; const tot = list.filter(x => !x.removed).reduce((a, x) => a + x.cost, 0);
-    card.innerHTML = `<h2 class="pc-title">🇵🇾 Comida local y lista de compras</h2>
-      <label class="pro-sw"><input type="checkbox" id="py-local" ${cfg.local ? 'checked' : ''}> Incluir comidas típicas en mi dieta (chipa, sopa paraguaya, asado, locro…)</label>
-      <label class="pro-sw"><input type="checkbox" id="py-budget" ${cfg.budget ? 'checked' : ''}> Modo presupuesto: priorizar los alimentos más baratos</label>
-      <details class="phy-h"><summary>📖 Tabla de comidas típicas (macros por porción)</summary><table class="cp-tbl"><tr><th>Comida</th><th>Porción</th><th>kcal</th><th>P/C/G</th></tr>
-      ${Object.entries(LOCAL).map(([k, f]) => { const m = PG[k] / 100; return `<tr><td>${f.n}</td><td>${PORTION[k]}</td><td>${Math.round((f.p * 4 + f.c * 4 + f.f * 9) * m)}</td><td>${Math.round(f.p * m)}/${Math.round(f.c * m)}/${Math.round(f.f * m)}</td></tr>`; }).join('')}
-      <tr><td>Mandioca hervida</td><td>1 porción (200 g)</td><td>${Math.round(1.4 * 8 + 38 * 8 + 0.3 * 18)}</td><td>3/76/1</td></tr><tr><td>Poroto cocido</td><td>1 taza (180 g)</td><td>${Math.round((8.7 * 4 + 22.8 * 4 + 0.5 * 9) * 1.8)}</td><td>16/41/1</td></tr></table></details>
-      <h3 class="adm-h">🛒 Lista de compras semanal</h3>
-      <div class="py-budget"><label for="py-w">Presupuesto semanal ₲</label><input id="py-w" type="number" inputmode="numeric" step="10000" value="${cfg.weekly}"></div>
-      <div class="py-tot ${cfg.weekly && tot > cfg.weekly ? 'over' : ''}">Total estimado: <b>${gs(tot)}</b>${cfg.weekly ? ` · ${tot > cfg.weekly ? '⚠️ te pasás por ' + gs(tot - cfg.weekly) + (cfg.budget ? '' : '. Activá el modo presupuesto') : '✅ dentro del presupuesto'}` : ''}</div>
-      <table class="cp-tbl py-list"><tr><th></th><th>Alimento</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>
-      ${list.map(x => `<tr class="${x.removed ? 'off' : ''}"><td><input type="checkbox" data-rm="${x.k}" ${x.removed ? '' : 'checked'} aria-label="Incluir"></td><td>${E(tc(x.n))}</td><td>${x.qty}</td><td><input type="number" class="py-pr" data-pr="${x.k}" value="${x.price}" step="500" aria-label="${x.unitLbl}"><small>${x.unitLbl}</small></td><td>${gs(x.cost)}</td></tr>`).join('')}</table>
-      <p class="pc-note">Precios aproximados de supermercados de Asunción y Gran Asunción (2026). Podés editarlos según dónde comprás. Cantidades en crudo para 7 días.</p>
-      <button class="btn-3d btn-small btn-secondary" id="py-copy">📋 Copiar lista</button>`;
-    const upd = fn => { const c = dietCfg(); fn(c); store.set('hp_dietpy', c); applyDietCfg(); renderDiet(); };
+    if (!pro()) { card.innerHTML = `<h2 class="pc-title">${pt_('title')}</h2>${lockHTML()}`; return; }
+    const openWhere = !!($('py-where') && $('py-where').open), openTyp = !!card.querySelector('details.py-typ[open]');
+    const cfg = dietCfg(); const list = shoppingList() || []; const on = list.filter(x => !x.removed);
+    const tot = on.reduce((a, x) => a + x.cost, 0), low = on.reduce((a, x) => a + x.low, 0);
+    const loc = { es: 'es-PY', en: 'en-US', pt: 'pt-BR' }[L()] || 'es-PY';
+    const upd8 = PDATA && PDATA.updated ? new Date(PDATA.updated + 'T12:00:00').toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    card.innerHTML = `<h2 class="pc-title">${pt_('title')}</h2>
+      <label class="pro-sw"><input type="checkbox" id="py-local" ${cfg.local ? 'checked' : ''}> ${pt_('local')}</label>
+      <label class="pro-sw"><input type="checkbox" id="py-budget" ${cfg.budget ? 'checked' : ''}> ${pt_('budget')}</label>
+      <details class="phy-h py-typ" ${openTyp ? 'open' : ''}><summary>${pt_('typ')}</summary><table class="cp-tbl"><tr><th>${pt_('dish')}</th><th>${pt_('portion')}</th><th>kcal</th><th>P/C/G</th></tr>
+      ${Object.entries(LOCAL).map(([k, f]) => { const m = PG[k] / 100; return `<tr><td>${E(tc(f.n))}</td><td>${E(tc(PORTION[k]))}</td><td>${Math.round((f.p * 4 + f.c * 4 + f.f * 9) * m)}</td><td>${Math.round(f.p * m)}/${Math.round(f.c * m)}/${Math.round(f.f * m)}</td></tr>`; }).join('')}
+      <tr><td>${E(tc('Mandioca hervida'))}</td><td>${E(tc('1 porción (200 g)'))}</td><td>${Math.round(1.4 * 8 + 38 * 8 + 0.3 * 18)}</td><td>3/76/1</td></tr><tr><td>${E(tc('Poroto cocido'))}</td><td>${E(tc('1 taza (180 g)'))}</td><td>${Math.round((8.7 * 4 + 22.8 * 4 + 0.5 * 9) * 1.8)}</td><td>16/41/1</td></tr></table></details>
+      <h3 class="adm-h">${pt_('listH')}</h3>
+      <div class="py-budget"><label for="py-w">${pt_('weekly')}</label><input id="py-w" type="number" inputmode="numeric" step="10000" value="${cfg.weekly}"></div>
+      <div class="py-tot ${cfg.weekly && tot > cfg.weekly ? 'over' : ''}">${pt_('total')}: <b>${gs(tot)}</b>${cfg.weekly ? ` · ${tot > cfg.weekly ? pt_('over', { x: gs(tot - cfg.weekly) }) + (cfg.budget ? '' : pt_('overTip')) : pt_('within')}` : ''}</div>
+      ${PDATA && low < tot - 500 ? `<p class="py-cheap">${pt_('cheap', { x: `<b>${gs(low)}</b>` })} <small>(${pt_('save', { x: gs(tot - low) })})</small></p>` : ''}
+      <table class="cp-tbl py-list"><tr><th></th><th>${pt_('food')} · ${pt_('qty')}</th><th>${pt_('price')}</th><th>${pt_('sub')}</th></tr>
+      ${list.map(x => { const sl = srcLine(x); return `<tr class="${x.removed ? 'off' : ''}"><td><input type="checkbox" data-rm="${x.k}" ${x.removed ? '' : 'checked'} aria-label="${pt_('incl')}"></td><td>${E(tc(x.n))}<span class="py-qty">${x.qty}</span>${sl ? `<small class="py-src">${sl}</small>` : ''}</td><td><input type="number" class="py-pr" data-pr="${x.k}" value="${Math.round(x.price)}" step="500" aria-label="${x.unitLbl}"><small>${x.unitLbl}</small>${x.edited ? `<button type="button" class="py-reset" data-rs="${x.k}">${pt_('reset')}</button>` : ''}</td><td>${gs(x.cost)}</td></tr>`; }).join('')}</table>
+      ${PDATA ? whereHTML(list) : ''}
+      <p class="pc-note">${PDATA && upd8 ? pt_('note', { d: upd8 }) : pt_('noteOld')}</p>
+      <button class="btn-3d btn-small btn-secondary" id="py-copy">${pt_('copy')}</button>`;
+    if (openWhere && $('py-where')) $('py-where').open = true;
+    const upd = fn => { const c = dietCfg(); c.prices = c.prices || {}; c.removed = c.removed || {}; fn(c); store.set('hp_dietpy', c); applyDietCfg(); renderDiet(); };
     $('py-local').onchange = e => upd(c => c.local = e.target.checked);
     $('py-budget').onchange = e => upd(c => { c.budget = e.target.checked; if (c.budget) cloudStore.setItem(dietKey(), '{}'); });
     $('py-w').onchange = e => upd(c => c.weekly = Math.max(0, +e.target.value || 0));
     card.querySelectorAll('[data-rm]').forEach(i => i.onchange = () => upd(c => { c.removed[i.dataset.rm] = !i.checked; }));
-    card.querySelectorAll('[data-pr]').forEach(i => i.onchange = () => upd(c => { c.prices[i.dataset.pr] = Math.max(0, +i.value || 0); }));
-    $('py-copy').onclick = () => { const txt = '🛒 Lista Hipertrofia Pro\n' + list.filter(x => !x.removed).map(x => `- ${tc(x.n)}: ${x.qty} (~${gs(x.cost)})`).join('\n') + `\nTotal ≈ ${gs(tot)}`; navigator.clipboard?.writeText(txt).then(() => toast('Lista copiada ✅'), () => toast('No se pudo copiar')); };
+    card.querySelectorAll('[data-pr]').forEach(i => i.onchange = () => upd(c => { const k = i.dataset.pr, v = Math.max(0, +i.value || 0); if (v === basePrice(k)) delete c.prices[k]; else c.prices[k] = v; }));
+    card.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => upd(c => { delete c.prices[b.dataset.rs]; }));
+    $('py-copy').onclick = () => { const txt = '🛒 Hipertrofia Pro\n' + on.map(x => `- ${tc(x.n)}: ${x.qty} (~${gs(x.cost)})${x.ref && x.ref.store && !x.edited ? ' · ' + storeN(x.ref.store) : ''}`).join('\n') + `\nTotal ≈ ${gs(tot)}`; navigator.clipboard?.writeText(txt).then(() => toast(pt_('copied')), () => toast(pt_('copyFail'))); };
   }
   const origRD = window.renderDiet;
   if (typeof origRD === 'function') window.renderDiet = function () { applyDietCfg(); const r = origRD.apply(this, arguments); try { renderLocalCard(); } catch (e) { console.warn(e); } return r; };
