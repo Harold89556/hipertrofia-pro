@@ -1,5 +1,5 @@
 /* Hipertrofia Pro service worker: offline shell, network-first with a time limit so a bad connection never leaves the app stuck on the splash screen. */
-const CACHE = 'hp-shell-v52';
+const CACHE = 'hp-shell-v53';
 const VCACHE = 'hp-voice-v1';
 const SHELL = ['./', './index.html', './manifest.json', './vendor/supabase-2.119.2.js', './pro.js', './pro2.js', './cues.js', './superset.js', './features.js', './anim.js', './guide.js', './img/guide/arnold.webp', './img/guide/anatomy.webp', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   ...['open','classic','mens_physique','ganar_masa','wellness','bikini','mujer_gluteos','mujer_tonificar','figure','womens_physique'].map((k) => './img/cat/' + k + '.webp')];

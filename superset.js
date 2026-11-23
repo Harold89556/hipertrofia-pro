@@ -59,7 +59,7 @@
     if (pend !== undefined) { // falta otro ejercicio de esta ronda: NO hay descanso
       try { resetTimer(); } catch (e) {}
       const ex = exs[pend], tg = target(dk, pend, s, ex), n = nm(ex.name);
-      const msg = [T().noRest(n, tg.reps, tg.kg)]; if (techOn() && coach().oneCue) msg.push(coach().oneCue(ex.origName || ex.name));
+      const msg = [T().noRest(n, tg.reps, tg.kg)];
       if (window.hpSay) window.hpSay(msg);
       if (typeof showToast === 'function') showToast(T().toast(n));
       focusRow(dk, pend, s); return true;
@@ -78,11 +78,11 @@
     if (nx) {
       const ex = exs[nx.j], tg = target(ls.dk, nx.j, nx.r, ex);
       const msg = []; if (motOn() && nx.r === G.rounds) msg.push(T().lastRound);
-      msg.push(T().nextRound(nx.r, nm(ex.name), tg.reps, tg.kg)); if (techOn() && coach().oneCue) msg.push(coach().oneCue(ex.origName || ex.name));
+      msg.push(T().nextRound(nx.r, nm(ex.name), tg.reps, tg.kg));
       return { last: false, first: T().roundDone(ls.s), msg };
     }
     const after = exs[G.end + 1];
-    const msg = [after ? T().nextEx(nm(after.name)) : T().go]; if (after && techOn() && coach().fullCues) msg.push(...coach().fullCues(after.origName || after.name));
+    const msg = [after ? T().nextEx(nm(after.name)) : T().go];
     return { last: true, lastEx: !after, first: after ? (G.g.kind === 'bis' ? T().bisDone : T().ssDone) : T().sess, msg };
   };
 

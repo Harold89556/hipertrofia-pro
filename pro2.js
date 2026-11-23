@@ -258,14 +258,12 @@
     const nm = n => { try { return exName(n); } catch (e) { return n; } };
     if (sets && ls.s >= sets) {
       const msg = [nextName ? P().nextEx(nm(nextName)) : P().go];
-      if (nextName && techOn()) msg.push(...fullCues(nextName));
       return { last: true, lastEx, msg, curName, nextName };
     }
     const msg = [];
     if (motOn() && tg && tg.w && tg.prevW && tg.w > tg.prevW && !prSaid[ls.dk + ls.i]) { prSaid[ls.dk + ls.i] = 1; msg.push(pick('pr')); }
     if (motOn() && sets && ls.s === sets - 1) msg.push(pick('lastSet'));
     msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, tg.w) : P().go);
-    if (techOn() && curName) msg.push(oneCue(curName));
     return { last: false, lastEx: false, msg, curName, nextName };
   }
   const origST = window.startTimer;
@@ -320,11 +318,11 @@
       const c = document.createElement('div'); c.className = 'exercise-card voice-card'; c.id = 'voice-card'; c.dataset.lang = VL();
       const T = { es: ['🎙️ Coach de voz', 'Te habla durante el descanso: cuenta regresiva y tu siguiente serie.', '▶️ Probar voz'], en: ['🎙️ Voice coach', 'Talks to you during rest: countdown and your next set.', '▶️ Test voice'], pt: ['🎙️ Coach de voz', 'Fala com você no descanso: contagem regressiva e sua próxima série.', '▶️ Testar voz'] }[VL()];
       c.innerHTML = `<div class="vc-row"><div><b>${T[0]}</b><div class="vc-sub">${T[1]}</div></div><div class="vc-btns"><button type="button" id="voice-set-tg" class="btn-3d btn-small"></button><button type="button" id="voice-test" class="btn-3d btn-small">${T[2]}</button></div></div>`;
-      const T2 = { es: ['🎯 Decir técnica', '💪 Frases de ánimo'], en: ['🎯 Say technique', '💪 Encouragement'], pt: ['🎯 Dizer técnica', '💪 Frases de ânimo'] }[VL()];
-      c.innerHTML += `<div class="vc-opts"><label class="pro-sw"><input type="checkbox" id="vc-tech" ${techOn() ? 'checked' : ''}> ${T2[0]}</label><label class="pro-sw"><input type="checkbox" id="vc-mot" ${motOn() ? 'checked' : ''}> ${T2[1]}</label></div>`;
+      const T2 = { es: ['🎯 Botón «Escuchar técnica»', '💪 Frases de ánimo', 'La técnica suena solo cuando tocás ▶️ en el ejercicio.'], en: ['🎯 «Listen to technique» button', '💪 Encouragement', 'Technique plays only when you tap ▶️ on the exercise.'], pt: ['🎯 Botão «Ouvir técnica»', '💪 Frases de ânimo', 'A técnica só toca quando você aperta ▶️ no exercício.'] }[VL()];
+      c.innerHTML += `<div class="vc-opts"><label class="pro-sw"><input type="checkbox" id="vc-tech" ${techOn() ? 'checked' : ''}> ${T2[0]}</label><label class="pro-sw"><input type="checkbox" id="vc-mot" ${motOn() ? 'checked' : ''}> ${T2[1]}</label></div><div class="vc-sub vc-tech-hint">${T2[2]}</div>`;
       c.innerHTML += `<div class="vc-opts"><label>${{ es: '🗣️ Voz', en: '🗣️ Voice', pt: '🗣️ Voz' }[VL()]} <select id="vc-voice" style="max-width:230px;font-size:16px"></select></label></div>`;
       wt.insertBefore(c, wt.firstChild);
-      $('vc-tech').onchange = e => localStorage.setItem('hp_vtech', e.target.checked ? '1' : '0');
+      $('vc-tech').onchange = e => { localStorage.setItem('hp_vtech', e.target.checked ? '1' : '0'); techStop(); try { techCards(); } catch (x) {} };
       $('vc-mot').onchange = e => localStorage.setItem('hp_vmot', e.target.checked ? '1' : '0');
       fillVoices($('vc-voice')); $('vc-voice').onchange = e => { if (e.target.value === '__neural') localStorage.setItem('hp_vneural', '1'); else { localStorage.setItem('hp_vneural', '0'); localStorage.setItem('hp_vname_' + VL(), e.target.value); } unlock(); say(P().test, true); };
       $('voice-set-tg').onclick = () => setVoice(!voiceOn());
@@ -333,8 +331,26 @@
     }
   }
   voiceToggle();
-  // 🎯 Técnica en cada tarjeta + claves habladas al empezar un ejercicio
-  const spokenStart = {};
+  // 🎯 Técnica en cada tarjeta: suena SOLO al tocar ▶️ «Escuchar técnica» (nunca sola al deslizar o abrir un ejercicio)
+  const TB = { es: ['▶️ Escuchar técnica', '⏹️ Detener'], en: ['▶️ Listen to technique', '⏹️ Stop'], pt: ['▶️ Ouvir técnica', '⏹️ Parar'] };
+  let techPlay = null; // { id, btn, card }
+  let techObs = null;
+  function techLabel(btn, on) { const L = TB[VL()] || TB.es; btn.textContent = on ? L[1] : L[0]; btn.classList.toggle('on', !!on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  function techStop() {
+    if (!techPlay) return; const tp = techPlay; techPlay = null;
+    if (tp.id === playId) window.hpHush();
+    if (tp.btn) techLabel(tp.btn, false);
+    if (techObs) techObs.disconnect();
+  }
+  window.hpTechStop = techStop;
+  function techPlayToggle(btn, card, n) {
+    if (techPlay && techPlay.btn === btn) { techStop(); return; }
+    techStop(); unlock(); say(fullCues(n), true);
+    const id = playId; techPlay = { id, btn, card }; techLabel(btn, true);
+    // al deslizar a otro ejercicio (la tarjeta sale de la pantalla) se corta
+    try { if ('IntersectionObserver' in window) { techObs = techObs || new IntersectionObserver(es => es.forEach(en => { if (techPlay && en.target === techPlay.card && en.intersectionRatio < 0.15) techStop(); }), { threshold: [0, 0.15] }); techObs.disconnect(); techObs.observe(card); } } catch (e) {}
+    const chk = setInterval(() => { if (!techPlay || techPlay.id !== id) { clearInterval(chk); if (btn.classList.contains('on') && (!techPlay || techPlay.btn !== btn)) techLabel(btn, false); return; } if (playId !== id || !busy) { clearInterval(chk); techPlay = null; techLabel(btn, false); if (techObs) techObs.disconnect(); } }, 300);
+  }
   function techCards() {
     const vc = $('voice-card'); if (vc && vc.dataset.lang !== VL()) { vc.remove(); voiceToggle(); }
     if (!currentUser) return; let prog; try { prog = getProgramForUser(getUsersDB()[currentUser] || {}); } catch (e) { return; }
@@ -343,20 +359,14 @@
       const m = card.id.match(/^card_(.+)_(\d+)$/); if (!m) return; const ex = prog[m[1]] && prog[m[1]].exercises[+m[2]]; if (!ex) return;
       const n = ex.origName || ex.name; const c = cuesOf(n); if (!c.length) return;
       let b = card.querySelector('.tech-box'); if (!b) { b = document.createElement('div'); b.className = 'tech-box'; const note = card.querySelector('.exercise-note'); note ? note.after(b) : card.appendChild(b); }
-      b.innerHTML = `<div class="tech-h"><b>${H}</b><button type="button" class="tech-say" aria-label="${H}">🔊</button></div><ul>${c.map((x, j) => `<li${j === c.length - 1 ? ' class="tech-safe"' : ''}>${j === c.length - 1 ? '⚠️ ' : ''}${x}</li>`).join('')}</ul>`;
-      b.querySelector('.tech-say').onclick = ev => { ev.stopPropagation(); unlock(); say(fullCues(n), true); };
+      b.innerHTML = `<div class="tech-h"><b>${H}</b></div><ul>${c.map((x, j) => `<li${j === c.length - 1 ? ' class="tech-safe"' : ''}>${j === c.length - 1 ? '⚠️ ' : ''}${x}</li>`).join('')}</ul>${techOn() ? '<button type="button" class="tech-say"></button>' : ''}`;
+      const btn = b.querySelector('.tech-say');
+      if (btn) { techLabel(btn, false); btn.onclick = ev => { ev.stopPropagation(); techPlayToggle(btn, card, n); }; }
       card.dataset.techName = n;
     });
   }
-  document.addEventListener('pointerdown', ev => {
-    if (!voiceOn() || !techOn()) return; const card = ev.target.closest && ev.target.closest('#exercises-container .exercise-card[id^="card_"]'); if (!card || !card.dataset.techName || ev.target.closest('.tech-say')) return;
-    if (card.querySelector('.btn-complete') || card.classList.contains('card-completed')) return; // ya empezó
-    const k = today() + card.id; if (spokenStart[k]) return; spokenStart[k] = 1;
-    if (ev.target.closest('button[id^="btn_"]')) return; // al marcar serie habla el flujo del descanso
-    say(fullCues(card.dataset.techName));
-  }, { capture: true });
   const origLWD2 = window.loadWorkoutDay;
-  if (typeof origLWD2 === 'function') window.loadWorkoutDay = function () { const r = origLWD2.apply(this, arguments); try { techCards(); } catch (e) { console.warn(e); } return r; };
+  if (typeof origLWD2 === 'function') window.loadWorkoutDay = function () { try { techStop(); } catch (e) {} const r = origLWD2.apply(this, arguments); try { techCards(); } catch (e) { console.warn(e); } return r; };
   setTimeout(() => { try { techCards(); } catch (e) {} }, 500);
   if (voiceOn()) setTimeout(() => prefetch(fixed()), 3000);
 
