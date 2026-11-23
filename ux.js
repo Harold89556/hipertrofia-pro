@@ -384,7 +384,7 @@
   function exMeta(c) {
     const mt = txt(c.querySelector('.exercise-meta')); const parts = [];
     const m = /(\d+)\s*\S*\s*x\s*([\d\-–]+)/i.exec(mt); if (m) parts.push(`${m[1]}×${m[2]}`);
-    const rir = /RIR\s*[\d\-–]+/.exec(mt); const rb = txt(c.querySelector('.rec-box strong')); const kg = /^([\d.,]+\s*kg)/.exec(rb);
+    const rir = /RIR\s*[\d\-–]+/.exec(mt); const ap = /@\s*([\d.,]+\s*kg)/i.exec(txt(c.querySelector('.ap-box'))); const rb = txt(c.querySelector('.rec-box strong')); const kg = ap ? [0, ap[1]] : /^([\d.,]+\s*kg)/.exec(rb);
     if (kg) parts.push('🎯 ' + kg[1]); if (rir) parts.push(rir[0]);
     return parts.join(' · ');
   }
@@ -462,17 +462,43 @@
   // ---------- Peso que arrastra: lo que pusiste a mano en una serie pasa a las siguientes del mismo ejercicio ----------
   // (normales y biseries/superseries, cada ejercicio por separado). Nunca pisa una serie ya hecha ni un peso que escribiste vos.
   const WRX = /^w_(.+)_(\d+)_(\d+)$/;
+  // W_max (carga pico) = máx(tu carga más alta registrada en el historial, la sugerida por la progresión).
+  function baseKg(dk, j) {
+    let b = 0; const tg = window._apTargets && window._apTargets[dk + '_' + j]; if (tg && !tg.first && +tg.w > 0) b = +tg.w;
+    let nm = tg && tg.name;
+    if (!nm) { try { nm = getProgramForUser(getUsersDB()[currentUser] || {})[dk].exercises[+j].name; } catch (e) {} }
+    if (nm && window.hpMaxKg) b = Math.max(b, window.hpMaxKg(nm) || 0);
+    return b;
+  }
+  const fmtKg = v => String(Math.round(v * 100) / 100);
+  // Rampa ascendente: la serie 1 más liviana y la última serie activa llega a la carga pico (W_max)
+  const RAMP = { 1: [1], 2: [0.85, 1], 3: [0.8, 0.9, 1], 4: [0.75, 0.85, 0.925, 1], 5: [0.7, 0.8, 0.875, 0.95, 1] };
+  function rampW(i, n, W) { // i = 0..n-1
+    if (!(W > 0)) return 0; if (i >= n - 1) return W;
+    const f = RAMP[n] ? RAMP[n][i] : 0.7 + 0.3 * i / (n - 1);
+    const v = f * W; let r = W >= 10 ? Math.round(v / 2.5) * 2.5 : Math.round(v);
+    if (W >= 2.5) r = Math.max(r, Math.min(2.5, W)); return Math.min(W, Math.max(r, 0));
+  }
+  // Peso de cada serie sin hacer = máx(rampa hacia W_max, el más alto de las series anteriores de hoy).
+  // W_max = máx(tu carga más alta registrada, la sugerida). Una serie más liviana nunca baja las siguientes.
   function carry(dk, j) {
-    let c = '';
+    const W = baseKg(dk, j); const items = [];
     for (let s = 1; s < 60; s++) {
       const w = document.getElementById(`w_${dk}_${j}_${s}`); if (!w) break;
       if (w.type === 'hidden') continue;
-      const row = document.getElementById(`row_${dk}_${j}_${s}`); const done = row && row.classList.contains('completed-row');
-      const v = parseFloat(String(w.value).replace(',', '.'));
-      if (done || w.dataset.uxMan === '1') { if (v > 0) c = String(w.value); continue; }
-      if (c && w.value !== c) { w.value = c; w.dataset.uxAuto = '1'; }
-      else if (!c && w.dataset.uxAuto === '1' && w.value !== '') { w.value = ''; w.dataset.uxAuto = ''; }
+      const row = document.getElementById(`row_${dk}_${j}_${s}`);
+      items.push({ w, done: !!(row && row.classList.contains('completed-row')), skip: !!(row && row.classList.contains('rd-skip')) });
     }
+    const n = items.filter(x => !x.skip).length || items.length; let k = 0, hi = 0;
+    items.forEach(x => {
+      const idx = x.skip ? n - 1 : k++; // series apagadas por «¿Cómo llegás hoy?» quedan en W_max
+      const v = parseFloat(String(x.w.value).replace(',', '.'));
+      if (x.done || x.w.dataset.uxMan === '1') { if (v > 0 && v < 1000) hi = Math.max(hi, v); return; }
+      const tgt = Math.max(rampW(Math.min(idx, n - 1), n, W), hi);
+      const want = tgt > 0 ? fmtKg(tgt) : '';
+      if (want && x.w.value !== want) { x.w.value = want; x.w.dataset.uxAuto = '1'; }
+      else if (!want && x.w.dataset.uxAuto === '1' && x.w.value !== '') { x.w.value = ''; x.w.dataset.uxAuto = ''; }
+    });
   }
   window.uxCarry = carry;
   document.addEventListener('input', e => {

@@ -2303,6 +2303,7 @@
   "timer.done": "¡DESCANSO COMPLETADO!",
   "rec.up": "{w} kg (Progresión: +2,5 kg por superar reps)",
   "rec.keep": "{w} kg (Mantener carga anterior)",
+  "rec.max": "{w} kg (Tu carga más alta registrada: seguí con ella hasta superarla)",
   "rec.init": "{w} kg (Estimado inicial conservador: ajústalo para llegar al RIR indicado)",
   "set.prevSecs": "Anterior: {v} s",
   "set.noPrev": "Sin registro previo",
@@ -2913,6 +2914,7 @@
   "timer.done": "REST COMPLETE!",
   "rec.up": "{w} kg (Progression: +2.5 kg for beating your reps)",
   "rec.keep": "{w} kg (Keep your previous load)",
+  "rec.max": "{w} kg (Your heaviest logged load: stay with it until you beat it)",
   "rec.init": "{w} kg (Conservative starting estimate: adjust it to reach the target RIR)",
   "set.prevSecs": "Previous: {v} s",
   "set.noPrev": "No previous record",
@@ -3767,6 +3769,7 @@
   "timer.done": "DESCANSO CONCLUÍDO!",
   "rec.up": "{w} kg (Progressão: +2,5 kg por superar as reps)",
   "rec.keep": "{w} kg (Manter a carga anterior)",
+  "rec.max": "{w} kg (Sua carga mais alta registrada: siga com ela até superá-la)",
   "rec.init": "{w} kg (Estimativa inicial conservadora: ajuste para chegar ao RIR indicado)",
   "set.prevSecs": "Anterior: {v} s",
   "set.noPrev": "Sem registro anterior",
@@ -5253,6 +5256,18 @@
       if (setNum < 2) startTimer(30, 'timer.warmupRest');
     }
 
+    // Carga más alta registrada para un ejercicio (todas las sesiones). La sugerencia nunca baja de esto hasta que levantes más.
+    function hpMaxKg(exName) {
+      if (!currentUser || !exName) return 0;
+      const raw = cloudStore.getItem(`gym_workout_history_${currentUser}`) || '[]';
+      if (hpMaxKg._raw !== raw) { // se recalcula solo cuando cambia el historial
+        let h = []; try { h = JSON.parse(raw); } catch (e) { h = []; }
+        const m = {}; (Array.isArray(h) ? h : []).forEach(it => { const w = parseFloat(String(it.weight).replace(',', '.')); if (it && it.exercise && w > 0 && w < 1000) m[it.exercise] = Math.max(m[it.exercise] || 0, w); });
+        hpMaxKg._raw = raw; hpMaxKg._m = m;
+      }
+      return hpMaxKg._m[exName] || 0;
+    }
+    window.hpMaxKg = hpMaxKg;
     // OBTENER RECOMENDACIÓN DE CARGA
     function getRecommendedWeight(exName, multiplier, userWeight) {
       if (!currentUser) return 20;
@@ -5260,15 +5275,18 @@
       const history = JSON.parse(cloudStore.getItem(historyKey) || '[]');
       
       const records = history
-        .filter(item => item.exercise === exName && item.weight && parseFloat(item.weight) > 0)
+        .filter(item => item.exercise === exName && item.weight && parseFloat(item.weight) > 0 && item.date !== getTodayISO()) // hoy no cuenta como «la última vez»
         .sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (!records.length && hpMaxKg(exName) > 0) return t('rec.max', { w: fmtN(hpMaxKg(exName)) });
 
       if (records.length > 0) {
         const lastWeight = parseFloat(records[0].weight);
         const lastReps = parseInt(records[0].reps || 8);
-        if (lastReps >= 10) {
+        const maxW = hpMaxKg(exName);
+        if (lastReps >= 10 && lastWeight + 2.5 >= maxW) {
           return t('rec.up', { w: fmtN(lastWeight + 2.5) });
         }
+        if (maxW > lastWeight) return t('rec.max', { w: fmtN(maxW) }); // la última vez levantaste menos: seguimos con tu carga más alta
         return t('rec.keep', { w: fmtN(lastWeight) });
       }
 
@@ -8580,10 +8598,10 @@ ${timedSecs ? `
   <script src="anim.js?v=3"></script>
   <script src="pro.js?v=8"></script>
   <script src="cues.js?v=2"></script>
-  <script src="pro2.js?v=18"></script>
+  <script src="pro2.js?v=19"></script>
   <script src="superset.js?v=7"></script>
   <script src="features.js?v=3"></script>
   <script src="guide.js?v=5"></script>
-  <script src="ux.js?v=2"></script>
+  <script src="ux.js?v=3"></script>
 </body>
 </html>

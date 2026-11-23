@@ -34,8 +34,10 @@
   function rirLog() { return store.get('hp_rir', {}); }
   function nextTarget(ex) {
     const m = String(ex.target || '').match(/(\d+)\s*[-–]\s*(\d+)/); const lo = m ? +m[1] : 8, hi = m ? +m[2] : 12;
-    const H = hist().filter(h => h.exercise === ex.name && +h.weight > 0 && +h.reps > 0);
-    if (!H.length) return { first: true, lo, hi };
+    const HA = hist().filter(h => h.exercise === ex.name && +h.weight > 0 && +h.reps > 0);
+    const mx0 = Math.max(0, ...HA.map(h => +h.weight).filter(v => v > 0 && v < 1000));
+    const H = HA.filter(h => String(h.date).slice(0, 10) !== today()); // la sesión de hoy no cuenta como «la última vez» (no progresa a mitad del entreno)
+    if (!H.length) return mx0 ? { w: mx0, reps: lo, lo, hi, why: '', last: today(), prevW: mx0, maxW: mx0 } : { first: true, lo, hi };
     const last = H.map(h => String(h.date).slice(0, 10)).sort().pop(); const S = H.filter(h => String(h.date).slice(0, 10) === last);
     const w = Math.max(...S.map(s => +s.weight)), top = S.filter(s => +s.weight === w), minR = Math.min(...top.map(s => +s.reps)), maxR = Math.max(...top.map(s => +s.reps));
     const rir = rirLog()[last + '|' + ex.name];
@@ -45,7 +47,10 @@
     else if (minR < lo && rir === 0) { nw = r25(w * 0.95, step); nr = lo; why = 'llegaste al fallo por debajo del rango: bajá un poco la carga'; }
     else { nr = Math.min(hi, maxR + 1); why = `sumá 1 rep (doble progresión, rango ${lo}-${hi})`; }
     const rd = readiness(); if (rd && rd.f.load < 1) { nw = r25(nw * rd.f.load, step); why += ' · ajustado por tu readiness'; }
-    return { w: nw, reps: nr, lo, hi, why, last, prevW: w };
+    // nunca por debajo de la carga más alta que registraste: se mantiene hasta que levantes más
+    const mx = mx0;
+    if (mx > nw) { nw = mx; why = ({ es: `tu carga más alta registrada es ${mx} kg: mantenela hasta superarla`, en: `your heaviest logged load is ${mx} kg: keep it until you beat it`, pt: `sua carga mais alta registrada é ${mx} kg: mantenha até superá-la` })[(typeof LANG !== 'undefined' && (LANG === 'en' || LANG === 'pt')) ? LANG : 'es']; }
+    return { w: nw, maxW: mx, reps: nr, lo, hi, why, last, prevW: w };
   }
   const INJ = {
     hombro: ['🦾 Hombro', /press (militar|de hombro|arnold)|overhead|elevaciones? laterales|fondos|dips|press (de )?banca|press inclinado|remo al ment[oó]n|upright|tras nuca/i, 'Rotaciones externas con banda 2×15, wall slides 2×10, movilidad torácica en banco.'],
