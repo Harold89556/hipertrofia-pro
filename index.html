@@ -1297,7 +1297,10 @@
     @media (max-width: 360px) {
       .dl-ai-fields, .dl-ai-btns { grid-template-columns: 1fr; }
     }
-</style>
+    .hp-rot{margin:0 0 14px;padding:14px;border-radius:14px;border:1px solid rgba(255,107,26,.55);background:rgba(255,107,26,.10)}
+    .hp-rot p{margin:6px 0 10px;font-size:.9rem;opacity:.9}
+    .hp-rot .btn-3d{margin:4px 6px 0 0}
+  </style>
   <script>
     // PWA: registrar service worker (necesario para instalar y para la app de Android)
     if ('serviceWorker' in navigator) {
@@ -5118,6 +5121,7 @@
       if (error) throw error;
       dataCache.clear();
       (data || []).forEach(r => dataCache.set(r.key, typeof r.value === 'string' ? r.value : JSON.stringify(r.value)));
+      window._hpCloudLoaded = true;
     }
 
     function profileFromRow(r, email) {
@@ -5262,7 +5266,9 @@
       const raw = cloudStore.getItem(`gym_workout_history_${currentUser}`) || '[]';
       if (hpMaxKg._raw !== raw) { // se recalcula solo cuando cambia el historial
         let h = []; try { h = JSON.parse(raw); } catch (e) { h = []; }
-        const m = {}; (Array.isArray(h) ? h : []).forEach(it => { const w = parseFloat(String(it.weight).replace(',', '.')); if (it && it.exercise && w > 0 && w < 1000) m[it.exercise] = Math.max(m[it.exercise] || 0, w); });
+        // solo series reales (reps > 0) y sin errores de tipeo (p. ej. 808 en vez de 80: más de 2,5× la mediana del ejercicio)
+        const L = {}; (Array.isArray(h) ? h : []).forEach(it => { const w = parseFloat(String(it && it.weight).replace(',', '.')), r = parseInt(it && it.reps, 10); if (it && it.exercise && w > 0 && w < 1000 && r > 0) (L[it.exercise] = L[it.exercise] || []).push(w); });
+        const m = {}; Object.keys(L).forEach(k => { const a = L[k].slice().sort((x, y) => x - y), med = a[Math.floor((a.length - 1) / 2)]; m[k] = Math.max(...a.filter(w => w <= med * 2.5)); });
         hpMaxKg._raw = raw; hpMaxKg._m = m;
       }
       return hpMaxKg._m[exName] || 0;
@@ -8178,6 +8184,7 @@ ${timedSecs ? `
           'cyc.deload': 'Semana de descarga recomendada: hacé la mitad de las series con las mismas cargas (RIR 3-4). Después seguí el ciclo.',
           'cyc.rotate': 'Es buen momento para rotar los accesorios (aislamientos) con «Cambiar ejercicio». Mantené los básicos si siguen progresando.',
           'cyc.end': 'Terminó el ciclo: hacé una descarga y empezá uno nuevo. Podés cambiar básicos que se hayan estancado.',
+          'lock.meta': 'Ciclo actual: semana {w} de {y} · ejercicios fijos hasta cambio de ciclo', 'lock.end': 'Ciclo terminado · ejercicios fijos hasta que elijas el cambio', 'lock.rotT': '🔄 Ya tocó cambio de ciclo', 'lock.rotP': 'Terminaron las {y} semanas del ciclo. Podés actualizar los accesorios (los básicos se quedan) o seguir con los mismos ejercicios otro ciclo.', 'lock.rotBtn': '🔄 Ya tocó cambio de ciclo: actualizar ejercicios', 'lock.keep': 'Mantener ciclo actual', 'lock.done': '✅ Ejercicios actualizados para el nuevo ciclo', 'lock.kept': '✅ Seguís con los mismos ejercicios otro ciclo',
           'cyc.stall': 'Si un ejercicio no progresa 2-3 semanas seguidas, cambialo antes aunque no sea la fecha.' },
         en: { 'swap.btn': '🔄 Swap exercise', 'swap.title': 'Swap exercise', 'swap.sub': 'Alternatives for the same muscle and angle. Sets and reps stay the same.', 'swap.orig': '↩️ Back to original', 'swap.current': 'Current', 'swap.close': 'Close', 'swap.swapped': 'Swapped · original: {o}', 'swap.none': 'No alternatives for this exercise.',
           'bis.title': '🔗 {g} · Mentzer', 'bis.note': 'No rest (0 s) between the isolation and the compound. Rest after the biset.', 'ss.note': 'No rest between both exercises.', 'bis.rest': '0 s → next exercise',
@@ -8186,6 +8193,7 @@ ${timedSecs ? `
           'cyc.deload': 'Deload week recommended: do half the sets with the same loads (RIR 3-4), then continue the cycle.',
           'cyc.rotate': 'Good time to rotate accessories (isolations) with «Swap exercise». Keep the main lifts while they progress.',
           'cyc.end': 'Cycle finished: deload and start a new one. You can change main lifts that have stalled.',
+          'lock.meta': 'Current cycle: week {w} of {y} · exercises fixed until the cycle change', 'lock.end': 'Cycle finished · exercises fixed until you choose to change', 'lock.rotT': '🔄 Cycle change is due', 'lock.rotP': 'The {y} weeks of the cycle are over. You can update the accessories (main lifts stay) or keep the same exercises for another cycle.', 'lock.rotBtn': '🔄 Cycle change is due: update exercises', 'lock.keep': 'Keep current cycle', 'lock.done': '✅ Exercises updated for the new cycle', 'lock.kept': '✅ Same exercises for another cycle',
           'cyc.stall': 'If an exercise stops progressing for 2-3 weeks in a row, swap it earlier.' },
         pt: { 'swap.btn': '🔄 Trocar exercício', 'swap.title': 'Trocar exercício', 'swap.sub': 'Alternativas para o mesmo músculo e ângulo. Séries e repetições continuam iguais.', 'swap.orig': '↩️ Voltar ao original', 'swap.current': 'Atual', 'swap.close': 'Fechar', 'swap.swapped': 'Trocado · original: {o}', 'swap.none': 'Sem alternativas para este exercício.',
           'bis.title': '🔗 {g} · Mentzer', 'bis.note': 'Sem descanso (0 s) entre o isolado e o composto. Descanse ao terminar o bi-set.', 'ss.note': 'Sem descanso entre os dois exercícios.', 'bis.rest': '0 s → próximo exercício',
@@ -8194,6 +8202,7 @@ ${timedSecs ? `
           'cyc.deload': 'Semana de deload recomendada: faça metade das séries com as mesmas cargas (RIR 3-4) e depois siga o ciclo.',
           'cyc.rotate': 'Bom momento para trocar os acessórios (isolados) com «Trocar exercício». Mantenha os básicos enquanto progridem.',
           'cyc.end': 'Ciclo terminado: faça um deload e comece outro. Pode trocar básicos que estagnaram.',
+          'lock.meta': 'Ciclo atual: semana {w} de {y} · exercícios fixos até a troca de ciclo', 'lock.end': 'Ciclo terminado · exercícios fixos até você escolher a troca', 'lock.rotT': '🔄 Chegou a troca de ciclo', 'lock.rotP': 'As {y} semanas do ciclo terminaram. Você pode atualizar os acessórios (os básicos ficam) ou manter os mesmos exercícios por mais um ciclo.', 'lock.rotBtn': '🔄 Chegou a troca de ciclo: atualizar exercícios', 'lock.keep': 'Manter ciclo atual', 'lock.done': '✅ Exercícios atualizados para o novo ciclo', 'lock.kept': '✅ Mesmos exercícios por mais um ciclo',
           'cyc.stall': 'Se um exercício não progride por 2-3 semanas seguidas, troque antes.' }
       };
       Object.keys(UI).forEach(L => Object.assign(I18N[L], UI[L]));
@@ -8294,14 +8303,19 @@ ${timedSecs ? `
       if (!currentUser) return program;
       let sw = getSwaps(); const out = {};
       // migración 5 días (SW v25): Open5 pasó Upper viernes→jueves y Lower sábado→viernes
-      if (!sw._m5 && program.jueves && !program.sabado && /Upper/.test(program.jueves.short + program.jueves.title)) {
+      if (!sw._m5 && window._hpCloudLoaded && program.jueves && !program.sabado && /Upper/.test(program.jueves.short + program.jueves.title)) {
         const n = { _m5: 1 }; Object.keys(sw).forEach(k => { const m = k.match(/^(viernes|sabado|jueves)\|(.*)$/); n[m ? ({ viernes: 'jueves', sabado: 'viernes', jueves: 'x_jueves' })[m[1]] + '|' + m[2] : k] = sw[k]; });
         sw = n; saveSwaps(sw);
       }
+      const lock = hpDayLock(program, sw); // v59: ejercicios fijos por día durante el ciclo
       Object.keys(program).forEach(dk => {
-        const day = program[dk];
+        let day = program[dk];
+        const ld = lock && lock.days && lock.days[dk];
+        if (ld && Array.isArray(ld.raw) && ld.raw.length && !hpSameNames(day.exercises, ld.raw)) day = Object.assign({}, day, { exercises: ld.raw });
         out[dk] = Object.assign({}, day, { exercises: day.exercises.map((ex, i) => {
-          const to = sw[slotKey(dk, i, ex.name)];
+          let to = sw[slotKey(dk, i, ex.name)];
+          const le = ld && ld.ex && ld.ex[i] && ld.ex[i].o === ex.name ? ld.ex[i] : null;
+          if (le) to = le.n;
           const base = Object.assign({}, ex, { origName: ex.name });
           if (!to || to === ex.name) return base;
           return Object.assign(base, { name: to, baseMultiplier: hpMult(to), swapped: true });
@@ -8339,23 +8353,124 @@ ${timedSecs ? `
     function chooseSwap(name) {
       if (!_swapCtx) return; const sw = getSwaps(); const k = slotKey(_swapCtx.dk, _swapCtx.i, _swapCtx.orig);
       if (!name || name === _swapCtx.orig) delete sw[k]; else sw[k] = name;
-      saveSwaps(sw); closeSwap(); loadWorkoutDay(_swapCtx.dk);
+      saveSwaps(sw);
+      const lk = getDayLock(), ld = lk.days && lk.days[_swapCtx.dk]; // v59: el cambio manual pasa a ser el ejercicio fijo de ahora en adelante
+      if (ld && ld.ex && ld.ex[_swapCtx.i] && ld.ex[_swapCtx.i].o === _swapCtx.orig) { ld.ex[_swapCtx.i].n = name || _swapCtx.orig; saveDayLock(lk); } closeSwap(); loadWorkoutDay(_swapCtx.dk);
       const c = document.getElementById(`card_${_swapCtx.dk}_${_swapCtx.i}`); if (c && window.uxReveal) uxReveal(c.querySelector('.ux-b, .exercise-meta') || c); if (c) c.scrollIntoView({ block: 'center' });
     }
+
+
+    // ---- v59: ejercicios fijos por día durante el ciclo (hp_daylock_<email>) ----
+    // Cada día repite exactamente los ejercicios (y el orden) de la última vez; solo cambian con «Cambiar ejercicio»
+    // o cuando termina el ciclo y vos elegís actualizar. Puntos a mejorar, check-in o cambios de plantilla no los tocan.
+    function dayLockKey() { return `hp_daylock_${currentUser}`; }
+    function getDayLock() { try { return JSON.parse(cloudStore.getItem(dayLockKey()) || '{}') || {}; } catch (e) { return {}; } }
+    function saveDayLock(l) { if (!window._hpCloudLoaded || !currentUser) return; l.at = new Date().toISOString(); cloudStore.setItem(dayLockKey(), JSON.stringify(l)); }
+    function hpSameNames(a, b) { return a.length === b.length && a.every((e, i) => b[i] && e.name === b[i].name); }
+    function hpLockSig() { const s = getSettings(), u = getUsersDB()[currentUser] || {}; return [planKey(u.goal), s.frequency, s.phase].join('|'); }
+    function hpNormDay(x) { return String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); }
+    function hpLatOk(exs, n) { return exs.every((e, i) => hpGroupMates(exs, i).every(j => hpUni(n[j]) === hpUni(n[i]))); }
+    // primera vez (o cambio de frecuencia/fase/objetivo): toma lo último que hiciste ese día, ejercicio por ejercicio
+    function hpSeedDay(dk, exs, sw) {
+      const cur = exs.map((e, i) => { const to = sw[slotKey(dk, i, e.name)]; return to && to !== e.name ? to : e.name; });
+      const n = cur.slice();
+      let H = []; try { H = JSON.parse(cloudStore.getItem(`gym_workout_history_${currentUser}`) || '[]') || []; } catch (e) {}
+      const by = {}; H.forEach(r => { if (r && r.date && hpNormDay(r.dayName) === dk) (by[r.date] = by[r.date] || new Set()).add(r.exercise); });
+      const dates = Object.keys(by).sort().reverse().slice(0, 8), reserved = new Set(cur), used = new Set();
+      exs.forEach((e, i) => {
+        const g = HP_EX2ALT[e.name], cands = new Set([e.name, cur[i]].concat(g ? HP_ALT[g].slice(1) : []));
+        for (const d of dates) {
+          const hit = [...by[d]].filter(x => cands.has(x) && !used.has(x) && (x === cur[i] || x === e.name || !reserved.has(x)));
+          if (hit.length) { n[i] = hit.includes(cur[i]) ? cur[i] : hit[0]; break; }
+        }
+        used.add(n[i]);
+      });
+      for (let k = 0; k < 2; k++) exs.forEach((e, i) => { if (n[i] !== cur[i] && hpGroupMates(exs, i).some(j => hpUni(n[j]) !== hpUni(n[i]))) n[i] = cur[i]; });
+      return { ex: exs.map((e, i) => ({ o: e.name, n: n[i] })), raw: JSON.parse(JSON.stringify(exs)) };
+    }
+    function hpDayLock(program, sw) {
+      if (!window._hpCloudLoaded || !currentUser) return null;
+      const lk = getDayLock(), sig = hpLockSig(); let ch = false;
+      if (!lk.days || lk.sig !== sig) { lk.days = {}; lk.sig = sig; ch = true; }
+      if (!lk.cycle) { lk.cycle = getCycle().start; ch = true; }
+      Object.keys(program).forEach(dk => { const d = program[dk]; if (!lk.days[dk] && d && !d.recovery && d.exercises && d.exercises.length) { lk.days[dk] = hpSeedDay(dk, d.exercises, sw); ch = true; } });
+      if (ch) saveDayLock(lk);
+      return lk;
+    }
+    // fin de ciclo: los básicos (compuestos) se quedan; los accesorios pasan a la siguiente variante del mismo músculo y ángulo
+    function hpRotateDay(dk, exs, prev) {
+      const pn = exs.map((e, i) => (prev && prev.ex && prev.ex[i] && prev.ex[i].o === e.name) ? prev.ex[i].n : e.name);
+      const n = pn.slice(); // los básicos (y lo que elegiste) se quedan
+      exs.forEach((e, i) => {
+        if ((e.group && e.group.pos === 2) || !(hpMult(e.name) < 0.35 || (e.group && e.group.kind === 'bis' && e.group.pos === 1))) return; // solo aislamientos/preagotamiento
+        const g = HP_EX2ALT[e.name]; const list = g ? HP_ALT[g].slice(1) : []; if (list.length < 2) return;
+        const lat = hpGroupMates(exs, i).length ? hpUni(e.name) : null;
+        const start = Math.max(0, list.indexOf(pn[i]));
+        for (let k = 1; k <= list.length; k++) {
+          const c = list[(start + k) % list.length];
+          if (c === pn[i] || (lat != null && hpUni(c) !== lat) || n.some((x, j) => j !== i && x === c)) continue;
+          n[i] = c; break;
+        }
+      });
+      return { ex: exs.map((e, i) => ({ o: e.name, n: n[i] })), raw: JSON.parse(JSON.stringify(exs)) };
+    }
+    function hpCycleInfo() {
+      if (!currentUser) return null;
+      const c = getCycle(), cfg = CYCLE[c.level];
+      const days = Math.max(0, Math.floor((new Date(getTodayISO() + 'T12:00:00') - new Date(c.start + 'T12:00:00')) / 864e5));
+      return { c, cfg, w: Math.floor(days / 7) + 1 };
+    }
+    function hpCycleMeta() { const x = hpCycleInfo(); if (!x) return ''; return x.w > x.cfg.len ? t('lock.end') : t('lock.meta', { w: x.w, y: x.cfg.len }); }
+    window.hpCycleMeta = hpCycleMeta;
+    function hpRotBanner(show, len) {
+      const tab = document.getElementById('workout-tab'); if (!tab) return;
+      let b = document.getElementById('hp-rot');
+      if (!show) { if (b) b.remove(); return; }
+      if (!b) { b = document.createElement('div'); b.id = 'hp-rot'; b.className = 'hp-rot'; b.setAttribute('role', 'status'); const ds = tab.querySelector('.day-selector'); if (ds && ds.parentNode) ds.parentNode.insertBefore(b, ds); else tab.insertBefore(b, tab.firstChild); }
+      b.innerHTML = `<b>${t('lock.rotT')}</b><p>${t('lock.rotP', { y: len })}</p>
+        <button type="button" class="btn-3d btn-small" onclick="hpRotateCycle()">${t('lock.rotBtn')}</button>
+        <button type="button" class="btn-3d btn-secondary btn-small" onclick="hpKeepCycle()">${t('lock.keep')}</button>`;
+    }
+    function hpRotDone(msg) { const sel = document.getElementById('select-day'); renderCycle(); if (sel && sel.value) loadWorkoutDay(sel.value); if (typeof showToast === 'function') showToast(msg); }
+    function hpRotateCycle() {
+      const lk = getDayLock(), prev = lk.days || {};
+      const c = getCycle(); c.start = getTodayISO(); cloudStore.setItem(cycleKey(), JSON.stringify(c));
+      saveSwaps({ _m5: 1 });
+      _programCache = null; const prog = getPlan().program, days = {};
+      Object.keys(prog).forEach(dk => { const d = prog[dk]; if (d && !d.recovery && d.exercises && d.exercises.length) days[dk] = hpRotateDay(dk, d.exercises, prev[dk]); });
+      saveDayLock({ sig: hpLockSig(), cycle: c.start, days });
+      hpRotDone(t('lock.done'));
+    }
+    function hpKeepCycle() {
+      const c = getCycle(); c.start = getTodayISO(); cloudStore.setItem(cycleKey(), JSON.stringify(c));
+      const lk = getDayLock(); if (lk.days) { lk.cycle = c.start; saveDayLock(lk); }
+      hpRotDone(t('lock.kept'));
+    }
+    // otra pestaña/dispositivo pudo cambiar ejercicios o ciclo: al volver a la app se releen (evita pisar con datos viejos)
+    document.addEventListener('visibilitychange', async () => {
+      if (document.hidden || !window._hpCloudLoaded || !currentUser || typeof cloudUserId === 'undefined' || !cloudUserId) return;
+      try {
+        const { data, error } = await sb.from('user_data').select('key,value').eq('user_id', cloudUserId).in('key', [swapsKey(), dayLockKey(), cycleKey()]);
+        if (error || !data) return;
+        data.forEach(r => dataCache.set(r.key, typeof r.value === 'string' ? r.value : JSON.stringify(r.value)));
+      } catch (e) {}
+    });
 
     // ---- Ciclo / mesociclo (hp_cycle_<email>) ----
     const CYCLE = { beg: { len: 12, deload: 0, rotate: 0, master: 6 }, int: { len: 8, deload: 6, rotate: 5, master: 3 }, adv: { len: 6, deload: 5, rotate: 4, master: 2 } };
     function cycleKey() { return `hp_cycle_${currentUser}`; }
     function getCycle() {
       let c = {}; try { c = JSON.parse(cloudStore.getItem(cycleKey()) || '{}') || {}; } catch (e) {}
-      if (!c.start) { c.start = getTodayISO(); c.level = c.level || 'int'; cloudStore.setItem(cycleKey(), JSON.stringify(c)); }
+      if (!c.start) { c.start = getTodayISO(); c.level = c.level || 'int'; if (window._hpCloudLoaded) cloudStore.setItem(cycleKey(), JSON.stringify(c)); }
       if (!CYCLE[c.level]) c.level = 'int';
       return c;
     }
     function setCycleLevel(l) { const c = getCycle(); c.level = l; cloudStore.setItem(cycleKey(), JSON.stringify(c)); renderCycle(); }
-    function resetCycle() { const c = getCycle(); c.start = getTodayISO(); cloudStore.setItem(cycleKey(), JSON.stringify(c)); renderCycle(); }
+    function resetCycle() { const c = getCycle(); c.start = getTodayISO(); cloudStore.setItem(cycleKey(), JSON.stringify(c)); const lk = getDayLock(); if (lk.days) { lk.cycle = c.start; saveDayLock(lk); } renderCycle(); }
     function renderCycle() {
-      const box = document.getElementById('cycle-card'); if (!box || !currentUser) return;
+      if (!currentUser) return;
+      try { const x = hpCycleInfo(); hpRotBanner(x.w > x.cfg.len, x.cfg.len); } catch (e) { console.warn(e); }
+      const box = document.getElementById('cycle-card'); if (!box) return;
       const c = getCycle(), cfg = CYCLE[c.level];
       const days = Math.max(0, Math.floor((new Date(getTodayISO() + 'T12:00:00') - new Date(c.start + 'T12:00:00')) / 864e5));
       const w = Math.floor(days / 7) + 1;
@@ -8598,10 +8713,10 @@ ${timedSecs ? `
   <script src="anim.js?v=3"></script>
   <script src="pro.js?v=8"></script>
   <script src="cues.js?v=2"></script>
-  <script src="pro2.js?v=19"></script>
+  <script src="pro2.js?v=20"></script>
   <script src="superset.js?v=7"></script>
-  <script src="features.js?v=3"></script>
+  <script src="features.js?v=4"></script>
   <script src="guide.js?v=5"></script>
-  <script src="ux.js?v=3"></script>
+  <script src="ux.js?v=4"></script>
 </body>
 </html>

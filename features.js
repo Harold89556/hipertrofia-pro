@@ -58,9 +58,9 @@
   };
   function renderCycleCard() {
     const ec = $('exercises-container'); if (!ec || !currentUser) return;
-    let c = $('cycle-card');
+    let c = $('mcycle-card');
     if (!female()) { if (c) c.remove(); return; }
-    if (!c) { c = document.createElement('div'); c.className = 'exercise-card'; c.id = 'cycle-card'; const rc = $('ready-card'); ec.parentNode.insertBefore(c, rc || $('warmup-section') || ec); }
+    if (!c) { c = document.createElement('div'); c.className = 'exercise-card'; c.id = 'mcycle-card'; const rc = $('ready-card'); ec.parentNode.insertBefore(c, rc || $('warmup-section') || ec); }
     const cf = cyc(), p = cyclePhase();
     const ttl = T({ es: '🌸 Ciclo menstrual', en: '🌸 Menstrual cycle', pt: '🌸 Ciclo menstrual' });
     if (!pro()) { c.innerHTML = `<h2 class="pc-title">${ttl} <small class="rd-sub">Pro</small></h2><p class="pc-note">${T({ es: 'Con Pro, tu entrenamiento y dieta se adaptan a cada fase de tu ciclo.', en: 'With Pro, training and diet adapt to each phase of your cycle.', pt: 'Com Pro, treino e dieta se adaptam a cada fase do seu ciclo.' })}</p>`; return; }

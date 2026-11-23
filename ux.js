@@ -81,6 +81,7 @@
   #exercises-container .set-row td{padding-left:4px!important;padding-right:4px!important}
   #exercises-container .set-row input[id^="w_"],#exercises-container .set-row input[id^="r_"]{min-width:60px;padding-left:6px!important;padding-right:6px!important;text-align:center;box-sizing:border-box}
   #exercises-container .set-row button[id^="btn_"]{white-space:nowrap;padding-left:10px!important;padding-right:10px!important;min-width:0}
+  #workout-tab > .plan-card > .ux-h small{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25}
   #ux-top{margin:0 0 14px}
   #ux-top > .ux-b{padding:0 10px 12px}
   #ux-top .nutrition-banner{margin:0 0 12px}
@@ -350,7 +351,7 @@
     if (c.id === 'fuel-card') { const n = c.querySelector('#fuel-note'); return { title: '🍌 ' + txt(c.querySelector('.fuel-head b, .fuel-head strong, .fuel-head h3') || c.querySelector('.fuel-head')).split(/(?<=entreno|workout|treino)/i)[0], meta: n ? txt(n).split(/[.!]/)[0] : '' }; }
     if (c.id === 'ready-card') { const r = c.querySelector('.rd-res'); const m = r ? /^([^:.]+)/.exec(txt(r)) : null; return { meta: m ? m[1] : '' }; }
     if (c.id === 'warmup-section') { const n = c.querySelectorAll('.warmup-phase-card').length; return { title: '⚡ ' + txt(c.querySelector('.warmup-header-title')), meta: n ? L('phases', { n }) : '' }; }
-    if (c.classList.contains('plan-card') && c.querySelector('#plan-controls')) { const ch = c.querySelector('.chips .on, .chips .active, .chips [aria-pressed="true"]'); const ps = c.querySelector('#phase-select'); return { meta: [ch ? txt(ch) : '', ps && ps.selectedOptions[0] ? txt(ps.selectedOptions[0]) : ''].filter(Boolean).join(' · ') }; }
+    if (c.classList.contains('plan-card') && c.querySelector('#plan-controls')) { const ch = c.querySelector('.chips .on, .chips .active, .chips [aria-pressed="true"]'); const ps = c.querySelector('#phase-select'); const cy = typeof window.hpCycleMeta === 'function' ? window.hpCycleMeta() : ''; return { meta: cy || [ch ? txt(ch) : '', ps && ps.selectedOptions[0] ? txt(ps.selectedOptions[0]) : ''].filter(Boolean).join(' · ') }; }
     return {};
   }
   // tarjeta existente → botón plegable (sin mover nada: lo de adentro se oculta con CSS)

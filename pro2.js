@@ -35,7 +35,8 @@
   function nextTarget(ex) {
     const m = String(ex.target || '').match(/(\d+)\s*[-–]\s*(\d+)/); const lo = m ? +m[1] : 8, hi = m ? +m[2] : 12;
     const HA = hist().filter(h => h.exercise === ex.name && +h.weight > 0 && +h.reps > 0);
-    const mx0 = Math.max(0, ...HA.map(h => +h.weight).filter(v => v > 0 && v < 1000));
+    const HW = HA.map(h => +h.weight).filter(v => v > 0 && v < 1000).sort((x, y) => x - y), hmed = HW[Math.floor((HW.length - 1) / 2)] || 0;
+    const mx0 = Math.max(0, ...HW.filter(v => v <= hmed * 2.5)); // ignora errores de tipeo (808 por 80)
     const H = HA.filter(h => String(h.date).slice(0, 10) !== today()); // la sesión de hoy no cuenta como «la última vez» (no progresa a mitad del entreno)
     if (!H.length) return mx0 ? { w: mx0, reps: lo, lo, hi, why: '', last: today(), prevW: mx0, maxW: mx0 } : { first: true, lo, hi };
     const last = H.map(h => String(h.date).slice(0, 10)).sort().pop(); const S = H.filter(h => String(h.date).slice(0, 10) === last);
