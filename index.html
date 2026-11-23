@@ -1092,7 +1092,7 @@
     .more-card button.danger { color:#fca5a5; border-color:#7f1d1d; }
 
 
-    #science-tab { display:flex; flex-direction:column; gap:14px; }
+    #science-tab.active { display:flex; flex-direction:column; gap:14px; }
     #science-tab .exercise-card { line-height:1.55; font-size:0.9rem; }
     .sci-hero .pc-title { margin-bottom:8px; }
     .sci-audio-bar { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 0; }
@@ -1660,23 +1660,7 @@
         <label for="filter-exercise" class="field-label" data-i18n="wh.search">Buscar ejercicio</label>
         <input type="search" id="filter-exercise" data-i18n-ph="ph.search" placeholder="Ej: Press banca" oninput="renderWorkoutHistory()">
       </div>
-      <div class="sets-table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th data-i18n="th.date">Fecha</th>
-              <th data-i18n="th.day">Día</th>
-              <th data-i18n="th.exercise">Ejercicio</th>
-              <th data-i18n="th.set">Serie</th>
-              <th data-i18n="th.weight">Peso</th>
-              <th>Reps</th>
-            </tr>
-          </thead>
-          <tbody id="workout-history-body">
-            <tr><td colspan="6" style="color: var(--text-muted); text-align:center;" data-i18n="empty.saved">Sin registros guardados.</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="workout-history-body" class="wh-list"><p class="wh-empty" data-i18n="empty.saved">Sin registros guardados.</p></div>
       <div class="danger-zone">
         <button class="btn-3d btn-danger-outline" onclick="clearWorkoutHistory()" data-i18n="wh.clear">🗑 Borrar historial de cargas</button>
       </div>
@@ -5537,20 +5521,22 @@ ${timedSecs ? `
       if (filterText) {
         history = history.filter(item => item.exercise.toLowerCase().includes(filterText) || exName(item.exercise).toLowerCase().includes(filterText));
       }
-      if (history.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted); text-align:center;">${t('empty.saved')}</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = history.map(item => `
-          <tr>
-            <td>${formatDateES(item.date)}</td>
-            <td style="color: var(--accent); font-weight: 700;">${catEsc(tc(item.dayName))}</td>
-            <td>${catEsc(exName(item.exercise))}</td>
-            <td>${t('hist.set', { n: item.setNum })}</td>
-            <td style="color: var(--orange-light); font-weight: 700;">${fmtN(item.weight)} kg</td>
-            <td style="color: var(--success); font-weight: 700;">${item.reps} reps</td>
-          </tr>
-        `).join('');
+      if (!tbody) return;
+      if (history.length === 0) { tbody.innerHTML = `<p class="wh-empty">${t('empty.saved')}</p>`; return; }
+      // v56: un botón por ejercicio (último registro + cantidad de series); al tocarlo se abren sus fechas y series
+      const U = (k, o) => (window.uxT ? window.uxT(k, o) : k), isOpen = k => !!(window.uxIsOpen && window.uxIsOpen('wh', k));
+      const groups = new Map();
+      history.forEach(it => { const k = exName(it.exercise); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(it); });
+      const arr = [...groups.entries()].map(([k, rows]) => {
+        rows.sort((a, b) => String(b.date).localeCompare(String(a.date)) || (a.setNum - b.setNum));
+        return { k, rows, last: String(rows[0].date) };
+      }).sort((a, b) => b.last.localeCompare(a.last) || a.k.localeCompare(b.k));
+      tbody.innerHTML = arr.map(g => {
+        const days = new Map(); g.rows.forEach(r => { const d = r.date + '|' + (r.dayName || ''); if (!days.has(d)) days.set(d, []); days.get(d).push(r); });
+        const lastDay = g.rows.filter(r => r.date === g.rows[0].date), top = lastDay.reduce((a, r) => (parseFloat(r.weight) || 0) >= (parseFloat(a.weight) || 0) ? r : a, lastDay[0]);
+        const op = isOpen(g.k);
+        return `<div class="wh-ex ux-sec ${op ? 'ux-open' : 'ux-closed'}" data-uxg="wh" data-uxk="${catEsc(g.k)}"><button type="button" class="ux-h" aria-expanded="${op}"><span class="ux-tt"><b>${catEsc(g.k)}</b><small>${U('last', { d: formatDateES(top.date).slice(0, 5), w: fmtN(top.weight), r: catEsc(top.reps) })} · ${U('series', { n: g.rows.length })}</small></span><span class="ux-cv" aria-hidden="true">▸</span></button><div class="ux-b">${[...days.entries()].map(([d, rs]) => `<div class="wh-day"><b>${formatDateES(d.split('|')[0])} · ${catEsc(tc(d.split('|')[1]))}</b>${rs.sort((a, b) => a.setNum - b.setNum).map(r => `<span class="wh-set"><em>${t('hist.set', { n: r.setNum })}</em>${fmtN(r.weight)} kg × ${catEsc(r.reps)}</span>`).join('')}</div>`).join('')}</div></div>`;
+      }).join('');
     }
 
     function clearWorkoutHistory() {
@@ -6152,7 +6138,7 @@ ${timedSecs ? `
       const btn = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`); if (btn) switchTab(tab, btn);
       setTimeout(() => {
         if (go === 'train') { const el = document.getElementById('workout-tab'); el && el.scrollIntoView({ behavior: 'smooth' }); }
-        if (go === 'food') { const ta = document.getElementById('dl-ai-text'); if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus(); } }
+        if (go === 'food') { const ta = document.getElementById('dl-ai-text'); if (ta && window.uxReveal) uxReveal(ta); if (ta) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus(); } }
       }, 400);
     }
     // NAVEGACIÓN
@@ -8336,7 +8322,7 @@ ${timedSecs ? `
       if (!_swapCtx) return; const sw = getSwaps(); const k = slotKey(_swapCtx.dk, _swapCtx.i, _swapCtx.orig);
       if (!name || name === _swapCtx.orig) delete sw[k]; else sw[k] = name;
       saveSwaps(sw); closeSwap(); loadWorkoutDay(_swapCtx.dk);
-      const c = document.getElementById(`card_${_swapCtx.dk}_${_swapCtx.i}`); if (c) c.scrollIntoView({ block: 'center' });
+      const c = document.getElementById(`card_${_swapCtx.dk}_${_swapCtx.i}`); if (c && window.uxReveal) uxReveal(c.querySelector('.ux-b, .exercise-meta') || c); if (c) c.scrollIntoView({ block: 'center' });
     }
 
     // ---- Ciclo / mesociclo (hp_cycle_<email>) ----
@@ -8598,5 +8584,6 @@ ${timedSecs ? `
   <script src="superset.js?v=6"></script>
   <script src="features.js?v=3"></script>
   <script src="guide.js?v=5"></script>
+  <script src="ux.js?v=1"></script>
 </body>
 </html>
