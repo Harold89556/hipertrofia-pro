@@ -494,15 +494,16 @@
     draw();
   }
 
-  function weekKey(d = new Date()) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - x.getDay()); return x.toISOString().slice(0, 10); } // domingo
+  function weekKey(d = new Date()) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - x.getDay()); return window.hpLocalISO ? window.hpLocalISO(x) : x.toISOString().slice(0, 10); } // domingo (fecha local)
   function weekStats() {
     const ws = weekKey(); const from = new Date(Date.parse(ws) - 7 * 864e5).toISOString().slice(0, 10);
     const H = hist().filter(h => String(h.date).slice(0, 10) >= from && String(h.date).slice(0, 10) < ws);
     const byEx = {}; H.forEach(h => { const k = h.exercise; byEx[k] = byEx[k] || { sets: 0, best: 0 }; byEx[k].sets++; byEx[k].best = Math.max(byEx[k].best, (+h.weight || 0) * (1 + (+h.reps || 0) / 30)); });
     const days = new Set(H.map(h => String(h.date).slice(0, 10))).size; const s = getSettings(); const tr = weightTrend(); const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u);
     const rd = store.get('hp_ready', {}); const rv = Object.entries(rd).filter(([d]) => d >= from && d < ws).map(([, v]) => v);
+    const da = Object.entries(store.get('hp_dadh', {})).filter(([d]) => d >= from && d < ws).map(([, v]) => +v || 0); // v61: adherencia a la dieta por fecha real (incluye días cargados después)
     return { semana: `${from} a ${ws}`, categoria: typeof goalLabel === 'function' ? goalLabel(u.goal) : u.goal, fase: s.phase, dias_planificados: s.frequency, dias_entrenados: days, series_totales: H.length,
-      ejercicios: Object.entries(byEx).slice(0, 25).map(([k, v]) => window.hpBW && window.hpBW(k) ? `${k}: ${v.sets} series, peso corporal (${window.hpBW(k) === 'full' ? 'completo' : 'parcial'})` : `${k}: ${v.sets} series, e1RM ${Math.round(v.best)} kg`), tendencia_peso: tr && !tr.insufficient ? `${tr.kgWeek} kg/sem` : 'sin datos', kcal: tg && tg.kcal, objetivo_ritmo: tg && tg.rate, readiness_promedio: rv.length ? (rv.reduce((a, r) => a + ((r.sleep || 3) + (r.sore || 3) + (r.stress || 3) + (r.energy || 3)) / 4, 0) / rv.length).toFixed(1) : 'sin datos', molestias: Object.keys(injuries()).filter(k => injuries()[k]) };
+      ejercicios: Object.entries(byEx).slice(0, 25).map(([k, v]) => window.hpBW && window.hpBW(k) ? `${k}: ${v.sets} series, peso corporal (${window.hpBW(k) === 'full' ? 'completo' : 'parcial'})` : `${k}: ${v.sets} series, e1RM ${Math.round(v.best)} kg`), tendencia_peso: tr && !tr.insufficient ? `${tr.kgWeek} kg/sem` : 'sin datos', kcal: tg && tg.kcal, objetivo_ritmo: tg && tg.rate, readiness_promedio: rv.length ? (rv.reduce((a, r) => a + ((r.sleep || 3) + (r.sore || 3) + (r.stress || 3) + (r.energy || 3)) / 4, 0) / rv.length).toFixed(1) : 'sin datos', molestias: Object.keys(injuries()).filter(k => injuries()[k]), adherencia_dieta: da.length ? `${Math.round(da.reduce((a, b) => a + b, 0) / da.length * 100)}% (${da.length} días registrados)` : 'sin datos' };
   }
   async function renderReport(force) {
     const box = $('report-tab-body'); if (!pro()) { box.innerHTML = lockHTML(); return; }

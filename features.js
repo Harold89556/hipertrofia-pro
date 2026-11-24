@@ -124,7 +124,7 @@
   function metrics() { try { return JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]').filter(x => parseFloat(x.weight) > 0 && /^\d{4}-\d{2}-\d{2}/.test(x.date)).sort((a, b) => a.date < b.date ? -1 : 1); } catch (e) { return []; } }
   function workoutAdh() {
     let H = []; try { H = JSON.parse(cloudStore.getItem(`gym_workout_history_${currentUser}`) || '[]'); } catch (e) {}
-    const from = new Date(Date.now() - 28 * 864e5).toISOString().slice(0, 10);
+    const from = window.hpLocalISO ? window.hpLocalISO(new Date(Date.now() - 28 * 864e5)) : new Date(Date.now() - 28 * 864e5).toISOString().slice(0, 10);
     const days = new Set(H.map(h => String(h.date).slice(0, 10)).filter(d => d >= from)).size;
     const f = (typeof getSettings === 'function' ? getSettings().frequency : 5) || 5;
     return Math.min(1, days / (f * 4));
@@ -132,8 +132,8 @@
   function dietAdh() {
     const a = store.get('hp_dadh', {}); const v = Object.values(a); return v.length ? v.reduce((x, y) => x + y, 0) / v.length : null;
   }
-  function logDietAdh() {
-    try { const o = JSON.parse(cloudStore.getItem(`hp_dietlog_${currentUser}`) || 'null'); if (!o || !o.meals) return; const vals = Object.values(o.meals); if (!vals.length) return;
+  function logDietAdh() { // v61: guarda la adherencia del día que se está viendo (hoy o uno pasado)
+    try { const o = typeof getDietLog === 'function' ? getDietLog() : JSON.parse(cloudStore.getItem(`hp_dietlog_${currentUser}`) || 'null'); if (!o || !o.meals) return; const vals = Object.values(o.meals); if (!vals.length) return;
       const done = vals.filter(v => v === 'done' || v === 'ate').length; const tot = document.querySelectorAll('#diet-tab [data-mk], #diet-tab .dl-meal').length || Math.max(vals.length, 4);
       const a = store.get('hp_dadh', {}); a[o.date] = Math.min(1, done / tot); Object.keys(a).sort().slice(0, -28).forEach(k => delete a[k]); store.set('hp_dadh', a); } catch (e) {}
   }

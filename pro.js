@@ -228,11 +228,11 @@
         <p class="pro-err">⚠️ <b>Salud primero:</b> NO cortes el agua, NO uses diuréticos ni elimines el sodio de golpe. Esas prácticas causan calambres, desmayos, arritmias e insuficiencia renal, y hubo muertes por eso. Cualquier ajuste fuerte hacelo solo con un profesional de la salud y un coach con experiencia. Esta guía es educativa.</p></details>` : ''}
       <h3 class="adm-h">🕺 Práctica de poses obligatorias</h3>
       <div class="cp-timer"><select id="cp-secs"><option>10</option><option selected>20</option><option>30</option><option>60</option></select> s por pose <button class="btn-3d btn-small" id="cp-start">▶️ Practicar rutina</button><b id="cp-clock"></b></div>
-      <ul class="cp-poses">${poses.map((p, i) => { const [n, d] = p.split('|'); return `<li id="cp-p${i}"><label><input type="checkbox" data-i="${i}" ${c.done && c.done[c.cat + i] === new Date().toISOString().slice(0, 10) ? 'checked' : ''}> <b>${n}</b></label><small>${d}</small></li>`; }).join('')}</ul>
+      <ul class="cp-poses">${poses.map((p, i) => { const [n, d] = p.split('|'); return `<li id="cp-p${i}"><label><input type="checkbox" data-i="${i}" ${c.done && c.done[c.cat + i] === (window.hpLocalISO ? window.hpLocalISO() : new Date().toISOString().slice(0, 10)) ? 'checked' : ''}> <b>${n}</b></label><small>${d}</small></li>`; }).join('')}</ul>
       <p class="pc-note">Marcá las poses que practicaste hoy. Practicá frente al espejo y filmate una vez por semana.</p>`;
     const save = () => { c.date = $('cp-date').value; c.cat = $('cp-cat').value; store.set('hp_comp', c); renderComp(); };
     $('cp-date').onchange = save; $('cp-cat').onchange = save;
-    box.querySelectorAll('.cp-poses input').forEach(ch => ch.onchange = () => { c.done = c.done || {}; c.done[c.cat + ch.dataset.i] = ch.checked ? new Date().toISOString().slice(0, 10) : null; store.set('hp_comp', c); });
+    box.querySelectorAll('.cp-poses input').forEach(ch => ch.onchange = () => { c.done = c.done || {}; c.done[c.cat + ch.dataset.i] = ch.checked ? (window.hpLocalISO ? window.hpLocalISO() : new Date().toISOString().slice(0, 10)) : null; store.set('hp_comp', c); });
     $('cp-start').onclick = () => {
       if (poseTimer) { clearInterval(poseTimer); poseTimer = null; $('cp-clock').textContent = ''; $('cp-start').textContent = '▶️ Practicar rutina'; box.querySelectorAll('.cp-poses li').forEach(l => l.classList.remove('now')); return; }
       const secs = +$('cp-secs').value; let i = 0, left = secs; $('cp-start').textContent = '⏹️ Parar';

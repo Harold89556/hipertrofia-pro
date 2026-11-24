@@ -884,6 +884,21 @@
     .ms-chip { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--text); border-radius: 999px; padding: 6px 10px; font-size: .78rem; cursor: pointer; text-align: left; }
     .ms-chip small { color: var(--text-muted); margin-left: 4px; }
     .ms-chip.on { border-color: var(--accent); background: rgba(76,175,80,.15); }
+    /* v61: elegir el día en Dieta (hoy / ayer / hasta 7 días atrás) */
+    .dl-daybar{margin:0 0 10px}
+    .dlb-row{display:flex;align-items:center;gap:5px}
+    .dlb-arr{flex:0 0 34px;width:34px;height:40px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:inherit;font-size:1.35rem;line-height:1;padding:0;cursor:pointer}
+    .dlb-arr:disabled{opacity:.3;cursor:default}
+    .dlb-chip,.dlb-cal{flex:1 1 0;min-width:0;height:40px;display:flex;align-items:center;justify-content:center;gap:3px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:inherit;font-size:.86rem;font-weight:700;padding:0 4px;cursor:pointer;white-space:nowrap;overflow:hidden;position:relative;box-sizing:border-box}
+    .dlb-chip.on,.dlb-cal.on{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.5);color:#86efac}
+    .dlb-cal span{display:inline;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+    .dlb-cal input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer;font-size:16px}
+    .dlb-ban,.dlb-rem{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:8px;padding:8px 10px;border-radius:12px;font-size:.88rem;line-height:1.3}
+    .dlb-ban{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.4);color:#fde68a}
+    .dlb-rem{background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.35)}
+    .dlb-ban>span,.dlb-rem>span{display:block;flex:1 1 150px;min-width:0}
+    .dlb-ban>.dl-btn,.dlb-rem>.dl-btn{flex:0 0 auto;width:auto;min-height:36px;padding:6px 12px;font-size:.82rem;white-space:nowrap}
+    .dlb-rem>.dlr-x{flex:0 0 32px;width:32px;height:32px;background:transparent;color:inherit;opacity:.7}
     .rest-badge { display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; vertical-align: middle; background: rgba(129,140,248,.16); color: #c7d2fe; border: 1px solid rgba(129,140,248,.35); }
     .rest-note { margin: 0 0 6px; font-size: .78rem; color: var(--text-muted); }
     .wt-box { margin: 14px 0 6px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -2429,6 +2444,19 @@
   "diet.restDay": "Día de descanso",
   "diet.restNote": "Hoy te movés menos: −{p} % de kcal (menos carbohidratos; proteína y grasa iguales). Día de entrenamiento: {tr} kcal.",
   "diet.restTip": "En la semana comés lo mismo: los días de entrenamiento llevan un poco más. Día de entrenamiento: {tr} kcal.",
+  "dd.today": "Hoy",
+  "dd.yest": "Ayer",
+  "dd.other": "Otro día",
+  "dd.pick": "Elegí el día que querés cargar",
+  "dd.prev": "Día anterior",
+  "dd.next": "Día siguiente",
+  "dd.editing": "Editando: {d}",
+  "dd.back": "Volver a hoy",
+  "dd.remQ": "¿Te olvidaste de cargar lo de ayer?",
+  "dd.remGo": "Cargar ayer",
+  "dd.close": "Cerrar",
+  "dd.prog": "Progreso del {d}",
+  "dd.for": "para el {d}",
   "swap.latB": "🦵 Es un bloque sin descanso con ejercicios bilaterales: solo se muestran opciones bilaterales, para que ningún lado llegue descansado.",
   "swap.latU": "🦵 Es un bloque sin descanso con ejercicios unilaterales: solo se muestran opciones unilaterales.",
   "dr.reset": "Volver a los valores originales",
@@ -3054,6 +3082,19 @@
   "diet.restDay": "Rest day",
   "diet.restNote": "You move less today: −{p} % kcal (fewer carbs; protein and fat unchanged). Training day: {tr} kcal.",
   "diet.restTip": "Your weekly intake stays the same: training days get a bit more. Training day: {tr} kcal.",
+  "dd.today": "Today",
+  "dd.yest": "Yesterday",
+  "dd.other": "Other day",
+  "dd.pick": "Pick the day you want to log",
+  "dd.prev": "Previous day",
+  "dd.next": "Next day",
+  "dd.editing": "Editing: {d}",
+  "dd.back": "Back to today",
+  "dd.remQ": "Forgot to log yesterday?",
+  "dd.remGo": "Log yesterday",
+  "dd.close": "Close",
+  "dd.prog": "Progress for {d}",
+  "dd.for": "for {d}",
   "swap.latB": "🦵 This is a no-rest block of two-sided exercises: only two-sided options are shown, so neither side arrives rested.",
   "swap.latU": "🦵 This is a no-rest block of single-side exercises: only single-side options are shown.",
   "dr.reset": "Restore original values",
@@ -3923,6 +3964,19 @@
   "diet.restDay": "Dia de descanso",
   "diet.restNote": "Hoje você se movimenta menos: −{p} % de kcal (menos carboidratos; proteína e gordura iguais). Dia de treino: {tr} kcal.",
   "diet.restTip": "Na semana você come o mesmo: os dias de treino levam um pouco mais. Dia de treino: {tr} kcal.",
+  "dd.today": "Hoje",
+  "dd.yest": "Ontem",
+  "dd.other": "Outro dia",
+  "dd.pick": "Escolha o dia que você quer registrar",
+  "dd.prev": "Dia anterior",
+  "dd.next": "Dia seguinte",
+  "dd.editing": "Editando: {d}",
+  "dd.back": "Voltar para hoje",
+  "dd.remQ": "Esqueceu de registrar o de ontem?",
+  "dd.remGo": "Registrar ontem",
+  "dd.close": "Fechar",
+  "dd.prog": "Progresso de {d}",
+  "dd.for": "para {d}",
   "swap.latB": "🦵 É um bloco sem descanso com exercícios bilaterais: só aparecem opções bilaterais, para nenhum lado chegar descansado.",
   "swap.latU": "🦵 É um bloco sem descanso com exercícios unilaterais: só aparecem opções unilaterais.",
   "dr.reset": "Voltar aos valores originais",
@@ -5205,8 +5259,11 @@
       return age;
     }
 
+    // v61: fecha LOCAL del teléfono (antes era UTC y después de las 21:00 en Paraguay guardaba en el día siguiente)
+    function hpLocalISO(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    window.hpLocalISO = hpLocalISO;
     function getTodayISO() {
-      return new Date().toISOString().slice(0, 10);
+      return hpLocalISO(new Date());
     }
 
     function getISOWeek(date = new Date()) {
@@ -6188,7 +6245,7 @@ ${timedSecs ? `
       const sy = parseInt(document.getElementById('hl-sys').value, 10), di = parseInt(document.getElementById('hl-dia').value, 10), pu = parseInt(document.getElementById('hl-pulse').value, 10);
       if (!(sy >= 70 && sy <= 260 && di >= 40 && di <= 160 && sy > di)) { alert(t('hl.bp.invalid')); return; }
       const o = getHealth(); o.bp = o.bp || [];
-      o.bp.unshift({ d: new Date().toISOString().slice(0, 10), s: sy, di, p: pu >= 30 && pu <= 220 ? pu : '' });
+      o.bp.unshift({ d: getTodayISO(), s: sy, di, p: pu >= 30 && pu <= 220 ? pu : '' });
       o.bp = o.bp.slice(0, 60); saveHealth(o);
     }
     function hlDelBp(i) { const o = getHealth(); (o.bp || []).splice(i, 1); saveHealth(o); }
@@ -6839,7 +6896,7 @@ ${timedSecs ? `
     function bodyComp(user) {
       if (!currentUser) return null;
       let h = []; try { h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]'); } catch (e) { }
-      const lim = new Date(); lim.setDate(lim.getDate() - 60); const ls = lim.toISOString().slice(0, 10);
+      const lim = new Date(); lim.setDate(lim.getDate() - 60); const ls = hpLocalISO(lim);
       const r = h.filter(x => x && x.date >= ls && (parseFloat(x.bf) > 0 || parseFloat(x.lean) > 0)).sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
       if (!r) return null;
       const w = parseFloat(user.weight) || parseFloat(r.weight); let bf = parseFloat(r.bf), lean = parseFloat(r.lean);
@@ -7026,7 +7083,7 @@ ${timedSecs ? `
       const u = getUsersDB()[currentUser]; updateNutritionAndHero(u); renderPlanControls();
       showToast(t('toast.kcal', { d: (delta > 0 ? '+' : '') + fmtN(delta) }));
     }
-    function snoozeAlert() { const s = getSettings(); const d = new Date(); d.setDate(d.getDate() + 7); s.alertSnoozeUntil = d.toISOString().slice(0, 10); saveSettings(s); checkWeightAlert(); }
+    function snoozeAlert() { const s = getSettings(); const d = new Date(); d.setDate(d.getDate() + 7); s.alertSnoozeUntil = hpLocalISO(d); saveSettings(s); checkWeightAlert(); }
 
     // ===== MI DIETA (alimentos comunes en Paraguay; valores por 100 g) =====
     const FOODS = {
@@ -7102,17 +7159,94 @@ ${timedSecs ? `
       return `${fmtN(g)} ${fd.ml ? 'ml' : 'g'}`;
     }
     // ===== Registro diario de comidas (cumplido / no comido + redistribución) =====
-    function dlKey() { return `hp_dietlog_${currentUser}`; }
-    function dlToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-    function getDietLog() {
-      let o = null; try { o = JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { }
-      if (!o || o.date !== dlToday()) o = { date: dlToday(), meals: {}, items: {}, extra: [], undo: [], times: {} };
+    // hp_dietlog_<usuario> = registro del día en curso (como siempre); v61: los días anteriores quedan en hp_dietlog_<usuario>_<AAAA-MM-DD>
+    function dlKey(date) { return `hp_dietlog_${currentUser}` + (date ? '_' + date : ''); }
+    function dlToday() { return hpLocalISO(new Date()); }
+    const DL_BACK = 7; // se puede cargar hasta 7 días atrás (nunca días futuros)
+    let dlSel = null, dlSelBase = null, _dlHiddenAt = 0; // día elegido en Dieta (null = hoy); vuelve a hoy al reabrir la app o cuando cambia el día
+    function dlShift(ds, n) { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return hpLocalISO(d); }
+    function dlMinDate() { return dlShift(dlToday(), -DL_BACK); }
+    function dlDate() {
+      if (dlSel && (dlSelBase !== dlToday() || dlSel >= dlToday() || dlSel < dlMinDate())) { dlSel = null; dlSelBase = null; }
+      return dlSel || dlToday();
+    }
+    function dlIsPast() { return dlDate() !== dlToday(); }
+    function dlRolling() { try { return JSON.parse(cloudStore.getItem(dlKey()) || localStorage.getItem(dlKey()) || 'null'); } catch (e) { return null; } }
+    function dlEmpty(date) { return { date, meals: {}, items: {}, extra: [], undo: [], times: {} }; }
+    function dlHasData(o) { return !!o && (Object.keys(o.meals || {}).length || Object.keys(o.items || {}).length || (o.extra || []).length || (o.water || []).length || Object.keys(o.supp || {}).length); }
+    function getDietLog(date) {
+      date = date || dlDate();
+      let o = dlRolling();
+      if (!o || o.date !== date) { o = null; try { o = JSON.parse(cloudStore.getItem(dlKey(date)) || 'null'); } catch (e) { } }
+      if (!o || o.date !== date) o = dlEmpty(date);
       o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; o.supp = o.supp || {}; o.water = Array.isArray(o.water) ? o.water : []; return o;
     }
-    function saveDietLog(o) { const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { } }
+    function saveDietLog(o) {
+      const date = o.date || dlToday(), R = dlRolling();
+      if (date === dlToday() || (R && R.date === date)) {
+        // al empezar un día nuevo, el registro del día anterior se guarda aparte (así se puede ver y completar después)
+        if (R && R.date && R.date !== date && dlHasData(R)) { try { cloudStore.setItem(dlKey(R.date), JSON.stringify(Object.assign({}, R, { undo: [] }))); } catch (e) { } }
+        const v = JSON.stringify(o); try { localStorage.setItem(dlKey(), v); } catch (e) { } try { cloudStore.setItem(dlKey(), v); } catch (e) { }
+      } else { try { cloudStore.setItem(dlKey(date), JSON.stringify(o)); } catch (e) { } }
+    }
+    function dlAt() { return dlIsPast() ? undefined : dlNow(); } // en un día pasado no se inventa la hora
+    function dlFmtDay(ds) { const d = new Date(ds + 'T12:00:00'); const wd = d.toLocaleDateString(locale(), { weekday: 'short' }).replace('.', ''); return `${wd} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`; }
+    function dlDayName(ds) { const td = dlToday(); return ds === td ? t('dd.today') : ds === dlShift(td, -1) ? t('dd.yest') : dlFmtDay(ds); }
+    function dlGoDay(ds) {
+      const td = dlToday(); if (!ds || ds >= td) ds = null; else if (ds < dlMinDate()) ds = dlMinDate();
+      dlSel = ds; dlSelBase = ds ? td : null; dlDraft = null; _wtForm = false; renderDiet();
+      const bar = document.getElementById('dl-daybar'); if (bar && bar.scrollIntoView) bar.scrollIntoView({ block: 'nearest' });
+    }
+    function dlStep(n) { dlGoDay(dlShift(dlDate(), n)); }
+    // recordatorio suave: al día siguiente, si lo de ayer quedó vacío o muy incompleto (1 vez por día, se puede cerrar)
+    let _dlRemSess = null;
+    function dlRemKey() { return 'hp_dlrem_' + currentUser; }
+    function dlYesterdayGap(u) {
+      const y = dlShift(dlToday(), -1); const o = getDietLog(y);
+      if (Object.values(o.meals || {}).some(v => v === 'done' || v === 'ate')) return null;
+      const tg = computeTargets(u, { day: hpIsRestDay(new Date(y + 'T12:00:00')) ? 'rest' : 'train' }); if (!tg) return null;
+      const k = (o.extra || []).reduce((a, e) => a + (Number(e.kcal) || 0), 0);
+      return k < tg.kcal * 0.5 ? y : null;
+    }
+    function dlUsedBefore() {
+      const R = dlRolling(); if (R && dlHasData(R)) return true;
+      try { const a = JSON.parse(cloudStore.getItem(`hp_dadh_${currentUser}`) || 'null'); if (a && Object.keys(a).length) return true; } catch (e) { }
+      return (cloudStore.keys ? cloudStore.keys() : []).some(k => k.indexOf(dlKey() + '_') === 0);
+    }
+    function dlShowRem(u) {
+      const td = dlToday(); if (dlIsPast()) return false;
+      if (_dlRemSess === td) return true;
+      let seen = ''; try { seen = localStorage.getItem(dlRemKey()) || ''; } catch (e) { }
+      if (seen === td || _dlRemSess === 'x' + td) return false;
+      if (!dlUsedBefore() || !dlYesterdayGap(u)) return false;
+      _dlRemSess = td; try { localStorage.setItem(dlRemKey(), td); } catch (e) { } return true;
+    }
+    function dlRemClose() { _dlRemSess = 'x' + dlToday(); renderDiet(); }
+    function dlRemGo() { _dlRemSess = 'x' + dlToday(); dlGoDay(dlShift(dlToday(), -1)); }
+    function dlDayBar(u) {
+      const tab = document.getElementById('diet-tab'); if (!tab) return;
+      let bar = document.getElementById('dl-daybar');
+      if (!bar) { bar = document.createElement('div'); bar.id = 'dl-daybar'; bar.className = 'dl-daybar'; tab.insertBefore(bar, tab.firstChild); }
+      else if (tab.firstChild !== bar) tab.insertBefore(bar, tab.firstChild);
+      const ds = dlDate(), td = dlToday(), past = ds !== td, min = dlMinDate();
+      bar.innerHTML = `<div class="dlb-row" role="group" aria-label="${t('dd.pick')}">
+          <button type="button" class="dlb-arr" onclick="dlStep(-1)" ${ds <= min ? 'disabled' : ''} aria-label="${t('dd.prev')}">‹</button>
+          <button type="button" class="dlb-chip${!past ? ' on' : ''}" onclick="dlGoDay(null)">${t('dd.today')}</button>
+          <button type="button" class="dlb-chip${ds === dlShift(td, -1) ? ' on' : ''}" onclick="dlGoDay('${dlShift(td, -1)}')">${t('dd.yest')}</button>
+          <label class="dlb-cal${past && ds !== dlShift(td, -1) ? ' on' : ''}" title="${t('dd.pick')}">📅<span>${past && ds !== dlShift(td, -1) ? dlFmtDay(ds) : t('dd.other')}</span><input type="date" min="${min}" max="${td}" value="${ds}" aria-label="${t('dd.pick')}" onchange="dlGoDay(this.value)"></label>
+          <button type="button" class="dlb-arr" onclick="dlStep(1)" ${!past ? 'disabled' : ''} aria-label="${t('dd.next')}">›</button>
+        </div>
+        ${past ? `<div class="dlb-ban"><span>📅 ${t('dd.editing', { d: (ds === dlShift(td, -1) ? t('dd.yest').toLowerCase() + ' (' + dlFmtDay(ds) + ')' : dlFmtDay(ds)) })}</span><button type="button" class="dl-btn" onclick="dlGoDay(null)">${t('dd.back')}</button></div>` : ''}
+        ${!past && dlShowRem(u) ? `<div class="dlb-rem"><span>🤔 ${t('dd.remQ')}</span><button type="button" class="dl-btn dl-ok" onclick="dlRemGo()">${t('dd.remGo')}</button><button type="button" class="dlr-x" aria-label="${t('dd.close')}" onclick="dlRemClose()">✕</button></div>` : ''}`;
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { _dlHiddenAt = Date.now(); return; }
+      // volver a la app después de un rato (o en otro día) = vuelve a «Hoy»
+      if (dlSel && (dlSelBase !== dlToday() || (_dlHiddenAt && Date.now() - _dlHiddenAt > 30 * 60e3))) { dlSel = null; dlSelBase = null; const tb = document.getElementById('diet-tab'); if (tb && tb.classList.contains('active')) renderDiet(); }
+    });
     function dlAct(kind, mk, idx) {
       const o = getDietLog(); dlSnap(o);
-      if (kind === 'meal') { if (o.meals[mk] === 'ate') o.extra.forEach(e => { if (e.mk === mk) e.mk = 'extra'; }); o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; if (o.meals[mk] === 'done' && !o.times[mk]) o.times[mk] = dlNow(); }
+      if (kind === 'meal') { if (o.meals[mk] === 'ate') o.extra.forEach(e => { if (e.mk === mk) e.mk = 'extra'; }); o.meals[mk] = o.meals[mk] === idx ? undefined : idx; if (!o.meals[mk]) delete o.meals[mk]; if (o.meals[mk] === 'done' && !o.times[mk] && !dlIsPast()) o.times[mk] = dlNow(); }
       else { const k = mk + '_' + idx; if (o.items[k]) delete o.items[k]; else o.items[k] = 1; }
       saveDietLog(o); renderDiet(); if (typeof hpRefreshFuel === 'function') hpRefreshFuel();
       if (kind === 'meal' && o.meals[mk]) showToast(o.meals[mk] === 'done' ? '✅ Comida cumplida' : '⏭️ Marcada como no comida: se reparte en las siguientes');
@@ -7173,7 +7307,7 @@ ${timedSecs ? `
     function dlDraftAdd() {
       if (!dlDraft || !dlDraft.items.length) return;
       const o = getDietLog(); dlSnap(o); const mk = (document.getElementById('dl-ai-meal') || {}).value || dlDraft.mk;
-      const at = (document.getElementById('dl-ai-time') || {}).value || dlDraft.at || dlNow();
+      const at = (document.getElementById('dl-ai-time') || {}).value || dlDraft.at || dlAt();
       dlDraft.items.forEach(it => { const x = dlDraftScale(it); if (it.grams > 0) o.extra.push(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), mk, name: it.name, grams: Math.round(it.grams), unit: it.unit, kcal: x.kcal, p: x.p, c: x.c, f: x.f, at }, x.liq > 0 ? { liq: x.liq } : {})); });
       if (mk !== 'extra') { if (!o.meals[mk]) o.meals[mk] = 'ate'; if (!o.times[mk]) o.times[mk] = at; }
       dlLastAdd = dlDraft.items.reduce((a, it) => a + (it.grams > 0 ? dlDraftScale(it).kcal : 0), 0);
@@ -7243,7 +7377,7 @@ ${timedSecs ? `
       return d < 0 ? null : d;
     }
     function hpCollectEvents() {
-      const log = getDietLog();
+      const log = getDietLog(dlToday());
       const events = [];
       (log.extra || []).forEach(e => {
         const at = e.at || (log.times && e.mk && log.times[e.mk]);
@@ -7256,7 +7390,7 @@ ${timedSecs ? `
         const tg = computeTargets(u);
         if (tg) {
           const d = buildDiet(tg, getDietPrefs());
-          applyDietLog(d, tg, log);
+          applyDietLog(d, tg, JSON.parse(JSON.stringify(log)));
           d.meals.forEach(m => {
             if (m.state !== 'done') return;
             if ((log.extra || []).some(e => e.mk === m.mk)) return;
@@ -7403,16 +7537,18 @@ ${timedSecs ? `
     }
     function renderDiet() {
       const box = document.getElementById('diet-content'); if (!box || !currentUser) return;
-      const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u);
-      if (!tg) { box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
+      const u = getUsersDB()[currentUser] || {}; const dSel = dlDate(), past = dSel !== dlToday();
+      const tg = computeTargets(u, past ? { day: hpIsRestDay(new Date(dSel + 'T12:00:00')) ? 'rest' : 'train' } : undefined); // v61: calorías del día elegido (descanso o entrenamiento)
+      if (!tg) { const b0 = document.getElementById('dl-daybar'); if (b0) b0.remove(); box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
+      dlDayBar(u);
       const d = buildDiet(tg, getDietPrefs()); const ph = PHASES[tg.phase];
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
       const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo); const sbm = suppByMeal(d.meals, Object.assign({}, sug, dlo.times || {}), u, getSettings(), tg);
       box.innerHTML = `
-        <div class="dl-progress"><h3>📊 Progreso de hoy${tg.restDay ? ` <span class="rest-badge" title="${t('diet.restTip', { p: Math.round(tg.restPct * 100), tr: fmtN(tg.kcalTrain) })}">😴 ${t('diet.restDay')}</span>` : ''}</h3>
+        <div class="dl-progress"><h3>📊 ${past ? t('dd.prog', { d: dlFmtDay(dSel) }) : 'Progreso de hoy'}${tg.restDay ? ` <span class="rest-badge" title="${t('diet.restTip', { p: Math.round(tg.restPct * 100), tr: fmtN(tg.kcalTrain) })}">😴 ${t('diet.restDay')}</span>` : ''}</h3>
           ${tg.restDay ? `<p class="rest-note">${t('diet.restNote', { p: Math.round((1 - tg.kcalRest / tg.kcalTrain) * 100), tr: fmtN(tg.kcalTrain) })}</p>` : ''}
           ${dlBar('Calorías', lg.eaten.kcal, tg.kcal, 'kcal')}${dlBar('Proteína', lg.eaten.p, tg.protein, 'g')}${dlBar('Carbohidratos', lg.eaten.c, tg.carbs, 'g')}${dlBar('Grasas', lg.eaten.f, tg.fat, 'g')}
-          <p class="dl-sum">${dlT('left')} <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> ${dlT('for')}${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}</p><div class="dlr-ch">${dlChips(Math.max(0, tg.protein - lg.eaten.p), Math.max(0, tg.carbs - lg.eaten.c), Math.max(0, tg.fat - lg.eaten.f))}</div>
+          <p class="dl-sum">${dlT('left')} <b>${fmtN(Math.max(0, tg.kcal - lg.eaten.kcal))} kcal</b> ${past ? t('dd.for', { d: dlFmtDay(dSel) }) : dlT('for')}${lg.pendN ? ` — repartido en ${lg.pendN} comida${lg.pendN > 1 ? 's' : ''} pendiente${lg.pendN > 1 ? 's' : ''}` : ''}</p><div class="dlr-ch">${dlChips(Math.max(0, tg.protein - lg.eaten.p), Math.max(0, tg.carbs - lg.eaten.c), Math.max(0, tg.fat - lg.eaten.f))}</div>
           <div class="dl-tools">${lg.canUndo ? `<button type="button" class="dl-btn" onclick="dlUndo()">↩️ Deshacer</button>` : ''}${lg.any ? `<button type="button" class="dl-btn" onclick="dlReset()">🔄 Reiniciar día</button>` : ''}</div>
           ${dlWaterBox(u, d, dlo, sug)}
           ${!lg.pendN && lg.any ? '<p class="pc-note">🎉 ¡Terminaste las comidas del día!</p>' : ''}
@@ -7430,7 +7566,7 @@ ${timedSecs ? `
           <div class="dl-actions">${m.state === 'pend' ? `<button type="button" class="dl-btn dl-ok" onclick="dlAct('meal','${m.mk}','done')">✅ Cumplida</button><button type="button" class="dl-btn dl-no" onclick="dlAct('meal','${m.mk}','skip')">⏭️ No la comí</button>` : `<button type="button" class="dl-btn" onclick="dlAct('meal','${m.mk}','${m.state}')">↩️ Desmarcar</button>`}</div></div>`).join('')}
         <p class="pc-note">${t('diet.total', { k: fmtN(d.tot.kcal), P, C, F, p: d.tot.p, c: d.tot.c, f: d.tot.f, w: calculateNutrition(u).water })}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-3d btn-small" onclick="regenerateDiet()">${t('diet.regen')}</button></div>`;
-      if (mrOn() || mrWater()) mrQueue(d.meals, dlo, sug, sbm);
+      if (!past && (mrOn() || mrWater())) mrQueue(d.meals, dlo, sug, sbm); // las alarmas se calculan solo con el día de hoy
     }
     // ===== Agua: vasos tomados vs meta (también se marca desde la notificación «Ya tomé») =====
     // Hidratación del día = registros manuales/avisos + bebidas de «Registrar lo que comí» + líquidos de comidas cumplidas + batidos de suplementos
@@ -7489,7 +7625,7 @@ ${timedSecs ? `
           : `<li class="wt-auto" title="${t('wt.src.' + x.src)}"><span>${x.at || ''}</span><span>${{ food: '🍽️', meal: '📋', supp: '💊' }[x.src]} ${dlEsc(x.name || '')}</span><b>${fmtN(x.ml)} ml</b><span></span></li>`).join('')}</ul>${hy.some(x => x.src !== 'man') ? `<small class="wt-hint">${t('wt.autoNote')}</small>` : ''}</details>` : ''}</div>`;
     }
     function dlWaterSave(o) { saveDietLog(o); renderDiet(); }
-    function dlWaterAdd(ml, ty) { const o = getDietLog(); o.water.push(Object.assign({ ml, at: dlNow() }, ty && ty !== 'agua' ? { ty } : {})); dlWaterSave(o); showToast(t('wt.toast', { ml: fmtN(ml) })); }
+    function dlWaterAdd(ml, ty) { const o = getDietLog(); o.water.push(Object.assign({ ml, at: dlAt() }, ty && ty !== 'agua' ? { ty } : {})); dlWaterSave(o); showToast(t('wt.toast', { ml: fmtN(ml) })); }
     function dlWaterUndo() { const o = getDietLog(); o.water.pop(); dlWaterSave(o); }
     function dlWaterDel(i) { const o = getDietLog(); o.water.splice(i, 1); saveDietLog(o); const op = document.querySelector('.wt-log') && document.querySelector('.wt-log').open; renderDiet(); const d = document.querySelector('.wt-log'); if (d && op) d.open = true; }
     function dlWaterForm() { _wtForm = !_wtForm; renderDiet(); if (_wtForm) setTimeout(() => { const i = document.getElementById('wt-ml'); if (i) i.focus(); }, 50); }
@@ -7512,7 +7648,7 @@ ${timedSecs ? `
         const db = await new Promise((ok, ko) => { const r = indexedDB.open('hp-sw', 1); r.onupgradeneeded = () => r.result.createObjectStore('water', { keyPath: 'id' }); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
         const all = await new Promise((ok, ko) => { const r = db.transaction('water').objectStore('water').getAll(); r.onsuccess = () => ok(r.result || []); r.onerror = () => ko(r.error); });
         const today = dlToday(), mine = all.filter(w => !w.uid || !uid || w.uid === uid);
-        const o = getDietLog(); let added = 0;
+        const o = getDietLog(today); let added = 0;
         mine.forEach(w => { if (w.date && w.date !== today) return; if (w.slot && o.water.some(x => x.slot === w.slot)) return; const at = new Date(w.at || Date.now()); o.water.push({ ml: Number(w.ml) || 0, slot: w.slot || undefined, at: String(at.getHours()).padStart(2, '0') + ':' + String(at.getMinutes()).padStart(2, '0'), n: 1 }); added += Number(w.ml) || 0; });
         // Se borra lo aplicado y lo de otros días; lo de otra cuenta queda para cuando entre
         const drop = all.filter(w => mine.includes(w) || (w.date && w.date < today));
@@ -8779,12 +8915,12 @@ ${timedSecs ? `
   })();
   </script>
   <script src="anim.js?v=3"></script>
-  <script src="pro.js?v=8"></script>
+  <script src="pro.js?v=9"></script>
   <script src="cues.js?v=2"></script>
-  <script src="pro2.js?v=21"></script>
+  <script src="pro2.js?v=22"></script>
   <script src="superset.js?v=8"></script>
-  <script src="features.js?v=4"></script>
+  <script src="features.js?v=5"></script>
   <script src="guide.js?v=5"></script>
-  <script src="ux.js?v=5"></script>
+  <script src="ux.js?v=6"></script>
 </body>
 </html>

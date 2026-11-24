@@ -6,15 +6,15 @@
     es: { sum: 'Resumen del día', water: 'Agua', meals: 'Comidas del día', left: 'Te faltan {k} kcal', over: 'Pasaste {k} kcal', done: '{d}/{n} cumplidas',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Grasa', w: 'Agua', det: 'Tocá para ver gramos', hide: 'Tocá para ocultar', items: '{n} registrados', series: '{n} series',
       last: 'Último: {d} · {w} kg × {r}', lastBw: 'Último: {d} · {x}', wuBw: 'peso corporal: sin lastre, reps fáciles', wuB1: 'Sin lastre · 8-10 reps fáciles', wuB2: 'Sin lastre · 4-5 reps, rango completo', coach: 'Coach de voz', on: 'Activado', off: 'Desactivado', warm: 'Calentamiento', phases: '{n} fases', block: 'Bloque combinado',
-      goals: 'Objetivos de hoy', wuEx: 'Ejercicio:', wuWork: 'carga de trabajo {w} kg', wuFirst: 'Hacelas con el primer ejercicio del día', wuPct: '{p}% de tu carga', topT: 'Tus objetivos y categoría', next: 'Próxima: {m}', noHist: 'Sin registros guardados.', rest: 'Descanso', open: 'Abrir', close: 'Cerrar' },
-    en: { sum: "Today's summary", water: 'Water', meals: "Today's meals", left: '{k} kcal to go', over: '{k} kcal over', done: '{d}/{n} done',
+      goals: 'Objetivos del día', wuEx: 'Ejercicio:', wuWork: 'carga de trabajo {w} kg', wuFirst: 'Hacelas con el primer ejercicio del día', wuPct: '{p}% de tu carga', topT: 'Tus objetivos y categoría', next: 'Próxima: {m}', noHist: 'Sin registros guardados.', rest: 'Descanso', open: 'Abrir', close: 'Cerrar' },
+    en: { sum: 'Day summary', water: 'Water', meals: "Day's meals", left: '{k} kcal to go', over: '{k} kcal over', done: '{d}/{n} done',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Fat', w: 'Water', det: 'Tap to see grams', hide: 'Tap to hide', items: '{n} logged', series: '{n} sets',
       last: 'Last: {d} · {w} kg × {r}', lastBw: 'Last: {d} · {x}', wuBw: 'bodyweight: no added weight, easy reps', wuB1: 'No added weight · 8-10 easy reps', wuB2: 'No added weight · 4-5 reps, full range', coach: 'Voice coach', on: 'On', off: 'Off', warm: 'Warm-up', phases: '{n} phases', block: 'Combined block',
-      goals: "Today's goals", wuEx: 'Exercise:', wuWork: 'working load {w} kg', wuFirst: "Do them on the day's first exercise", wuPct: '{p}% of your load', topT: 'Your targets and category', next: 'Next: {m}', noHist: 'No saved records.', rest: 'Rest', open: 'Open', close: 'Close' },
+      goals: 'Daily goals', wuEx: 'Exercise:', wuWork: 'working load {w} kg', wuFirst: "Do them on the day's first exercise", wuPct: '{p}% of your load', topT: 'Your targets and category', next: 'Next: {m}', noHist: 'No saved records.', rest: 'Rest', open: 'Open', close: 'Close' },
     pt: { sum: 'Resumo do dia', water: 'Água', meals: 'Refeições do dia', left: 'Faltam {k} kcal', over: 'Passou {k} kcal', done: '{d}/{n} feitas',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Gord', w: 'Água', det: 'Toque para ver gramas', hide: 'Toque para ocultar', items: '{n} registrados', series: '{n} séries',
       last: 'Último: {d} · {w} kg × {r}', lastBw: 'Último: {d} · {x}', wuBw: 'peso corporal: sem carga extra, reps fáceis', wuB1: 'Sem carga extra · 8-10 reps fáceis', wuB2: 'Sem carga extra · 4-5 reps, amplitude completa', coach: 'Coach de voz', on: 'Ativado', off: 'Desativado', warm: 'Aquecimento', phases: '{n} fases', block: 'Bloco combinado',
-      goals: 'Metas de hoje', wuEx: 'Exercício:', wuWork: 'carga de trabalho {w} kg', wuFirst: 'Faça no primeiro exercício do dia', wuPct: '{p}% da sua carga', topT: 'Suas metas e categoria', next: 'Próxima: {m}', noHist: 'Sem registros salvos.', rest: 'Descanso', open: 'Abrir', close: 'Fechar' }
+      goals: 'Metas do dia', wuEx: 'Exercício:', wuWork: 'carga de trabalho {w} kg', wuFirst: 'Faça no primeiro exercício do dia', wuPct: '{p}% da sua carga', topT: 'Suas metas e categoria', next: 'Próxima: {m}', noHist: 'Sem registros salvos.', rest: 'Descanso', open: 'Abrir', close: 'Fechar' }
   };
   const lang = () => (typeof LANG !== 'undefined' && LT[LANG]) ? LANG : 'es';
   const L = (k, o) => { let s = LT[lang()][k] || LT.es[k] || k; if (o) Object.keys(o).forEach(x => { s = s.split('{' + x + '}').join(o[x]); }); return s; };
@@ -235,6 +235,7 @@
     if (!lastGoals) return;
     let g = $('#ux-goals');
     if (!g) { g = document.createElement('div'); g.id = 'ux-goals'; g.className = 'ux-goals'; g.setAttribute('role', 'button'); g.tabIndex = 0; tab.insertBefore(g, tab.firstChild); }
+    const dbar = $('#dl-daybar'); if (dbar && dbar.parentNode === tab && dbar.nextSibling !== g) tab.insertBefore(g, dbar.nextSibling); // v61: el selector de día va arriba de los objetivos
     const det = (function () { try { return !!localStorage.getItem('hp_ux_goaldet'); } catch (e) { return false; } })();
     const cells = [['kcal', '🔥', lastGoals.mac[0], 'kcal'], ['p', '🥩', lastGoals.mac[1], 'g'], ['c', '🍚', lastGoals.mac[2], 'g'], ['f', '🥑', lastGoals.mac[3], 'g']];
     if (lastGoals.wat) cells.push(['w', '💧', lastGoals.wat, 'ml']);
