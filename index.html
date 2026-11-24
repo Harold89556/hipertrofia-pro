@@ -899,6 +899,17 @@
     .dlb-ban>span,.dlb-rem>span{display:block;flex:1 1 150px;min-width:0}
     .dlb-ban>.dl-btn,.dlb-rem>.dl-btn{flex:0 0 auto;width:auto;min-height:36px;padding:6px 12px;font-size:.82rem;white-space:nowrap}
     .dlb-rem>.dlr-x{flex:0 0 32px;width:32px;height:32px;background:transparent;color:inherit;opacity:.7}
+    /* v62: compensación de excesos */
+    .cp-card{margin-top:8px;border-radius:12px;border:1px solid rgba(56,189,248,.35);background:rgba(56,189,248,.08);font-size:.86rem;line-height:1.35}
+    .cp-card>summary{list-style:none;cursor:pointer;padding:8px 10px;display:flex;gap:6px;align-items:flex-start}
+    .cp-card>summary::-webkit-details-marker{display:none}
+    .cp-card>summary::after{content:'▸';margin-left:auto;opacity:.6;transition:transform .2s}
+    .cp-card[open]>summary::after{transform:rotate(90deg)}
+    .cp-body{padding:0 10px 10px}
+    .cp-src{margin:4px 0 2px;font-weight:600}
+    .cp-days{list-style:none;margin:0 0 6px;padding:0}
+    .cp-days li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+    .cp-body small{display:block;opacity:.75;margin-top:4px}
     .rest-badge { display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; vertical-align: middle; background: rgba(129,140,248,.16); color: #c7d2fe; border: 1px solid rgba(129,140,248,.35); }
     .rest-note { margin: 0 0 6px; font-size: .78rem; color: var(--text-muted); }
     .wt-box { margin: 14px 0 6px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -2457,6 +2468,23 @@
   "dd.close": "Cerrar",
   "dd.prog": "Progreso del {d}",
   "dd.for": "para el {d}",
+  "cp.fromY": "de ayer",
+  "cp.fromD": "del {d}",
+  "cp.fromM": "de días anteriores",
+  "cp.today": "hoy",
+  "cp.thatDay": "ese día",
+  "cp.head": "Compensando exceso {from}: −{k} kcal {when} (−{f} g grasa, −{c} g carbo).",
+  "cp.swap": "Equilibrando grasa {from}: −{f} g grasa, +{c} g carbo {when} (mismas kcal).",
+  "cp.prot": "Proteína igual.",
+  "cp.fat": "grasa",
+  "cp.src": "Exceso del {d}: +{k} kcal (+{f} g grasa). Reparto:",
+  "cp.srcFat": "Grasa de más el {d}: +{f} g. Reparto:",
+  "cp.drop": "{k} kcal no entran en los topes y se descartan (no se arrastran).",
+  "cp.rules": "Topes: −10 % en días pesados (piernas/espalda), −20 % en otros días de entrenamiento y −25 % en descanso, nunca por debajo de tu metabolismo basal. Baja primero la grasa y después los carbohidratos. Si un día comés menos, se descuenta. Lo podés desactivar en Alarmas y preferencias.",
+  "comp.on": "⚖️ Compensar excesos solo: activado",
+  "comp.off": "⚖️ Compensar excesos solo: desactivado",
+  "compOff.okOn": "Compensación desactivada: tus objetivos vuelven a los de siempre",
+  "compOff.okOff": "Compensación activada: si un día te pasás, se reparte sola en los días siguientes",
   "swap.latB": "🦵 Es un bloque sin descanso con ejercicios bilaterales: solo se muestran opciones bilaterales, para que ningún lado llegue descansado.",
   "swap.latU": "🦵 Es un bloque sin descanso con ejercicios unilaterales: solo se muestran opciones unilaterales.",
   "dr.reset": "Volver a los valores originales",
@@ -3095,6 +3123,23 @@
   "dd.close": "Close",
   "dd.prog": "Progress for {d}",
   "dd.for": "for {d}",
+  "cp.fromY": "from yesterday",
+  "cp.fromD": "from {d}",
+  "cp.fromM": "from previous days",
+  "cp.today": "today",
+  "cp.thatDay": "that day",
+  "cp.head": "Balancing surplus {from}: −{k} kcal {when} (−{f} g fat, −{c} g carbs).",
+  "cp.swap": "Balancing fat {from}: −{f} g fat, +{c} g carbs {when} (same kcal).",
+  "cp.prot": "Protein unchanged.",
+  "cp.fat": "fat",
+  "cp.src": "Surplus on {d}: +{k} kcal (+{f} g fat). Spread:",
+  "cp.srcFat": "Extra fat on {d}: +{f} g. Spread:",
+  "cp.drop": "{k} kcal don't fit the caps and are dropped (not carried over).",
+  "cp.rules": "Caps: −10 % on heavy days (legs/back), −20 % on other training days and −25 % on rest days, never below your basal metabolism. Fat goes down first, then carbs. If you eat less on a day, it counts. You can turn it off in Alarms and preferences.",
+  "comp.on": "⚖️ Auto-balance surpluses: on",
+  "comp.off": "⚖️ Auto-balance surpluses: off",
+  "compOff.okOn": "Balancing off: your targets are back to normal",
+  "compOff.okOff": "Balancing on: if you go over one day, it is spread over the next days automatically",
   "swap.latB": "🦵 This is a no-rest block of two-sided exercises: only two-sided options are shown, so neither side arrives rested.",
   "swap.latU": "🦵 This is a no-rest block of single-side exercises: only single-side options are shown.",
   "dr.reset": "Restore original values",
@@ -3977,6 +4022,23 @@
   "dd.close": "Fechar",
   "dd.prog": "Progresso de {d}",
   "dd.for": "para {d}",
+  "cp.fromY": "de ontem",
+  "cp.fromD": "de {d}",
+  "cp.fromM": "de dias anteriores",
+  "cp.today": "hoje",
+  "cp.thatDay": "nesse dia",
+  "cp.head": "Compensando excesso {from}: −{k} kcal {when} (−{f} g gordura, −{c} g carbo).",
+  "cp.swap": "Equilibrando gordura {from}: −{f} g gordura, +{c} g carbo {when} (mesmas kcal).",
+  "cp.prot": "Proteína igual.",
+  "cp.fat": "gordura",
+  "cp.src": "Excesso em {d}: +{k} kcal (+{f} g gordura). Divisão:",
+  "cp.srcFat": "Gordura a mais em {d}: +{f} g. Divisão:",
+  "cp.drop": "{k} kcal não cabem nos limites e são descartadas (não se acumulam).",
+  "cp.rules": "Limites: −10 % em dias pesados (pernas/costas), −20 % em outros dias de treino e −25 % no descanso, nunca abaixo do seu metabolismo basal. Primeiro baixa a gordura, depois os carboidratos. Se num dia você come menos, é descontado. Dá para desativar em Alarmes e preferências.",
+  "comp.on": "⚖️ Compensar excessos sozinho: ativado",
+  "comp.off": "⚖️ Compensar excessos sozinho: desativado",
+  "compOff.okOn": "Compensação desativada: suas metas voltam ao normal",
+  "compOff.okOff": "Compensação ativada: se num dia você passar, é dividido sozinho nos dias seguintes",
   "swap.latB": "🦵 É um bloco sem descanso com exercícios bilaterais: só aparecem opções bilaterais, para nenhum lado chegar descansado.",
   "swap.latU": "🦵 É um bloco sem descanso com exercícios unilaterais: só aparecem opções unilaterais.",
   "dr.reset": "Voltar aos valores originais",
@@ -6153,7 +6215,10 @@ ${timedSecs ? `
 
     function playBeep() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // v62: un solo AudioContext que se suspende al terminar (Web Audio no pausa la música de otras apps)
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); return; }
+        const ctx = window._hpBeepCtx || (window._hpBeepCtx = new AC()); if (ctx.state !== 'running') ctx.resume().catch(() => {});
+        clearTimeout(window._hpBeepT); window._hpBeepT = setTimeout(() => { try { ctx.suspend(); } catch (e) {} }, 1500);
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.frequency.value = 850;
@@ -6949,7 +7014,100 @@ ${timedSecs ? `
       const protein = Math.round(rw * prot);
       let fat = Math.round(kcalAvg * fatPct / 9); fat = Math.max(fat, Math.round(rw * DR.minFatKg)); // grasa igual todos los días
       const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-      return { kcal, kcalAvg, kcalTrain, kcalRest, restDay: rest && kcalRest < kcalTrain, restPct: rp, tdee: Math.round(tdee), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw, bc };
+      const out = { kcal, kcalAvg, kcalTrain, kcalRest, restDay: rest && kcalRest < kcalTrain, restPct: rp, tdee: Math.round(tdee), bmr: Math.round(bmr), protein, fat, carbs, cardio, rate, factor, phase: s.phase, freq: s.frequency, adjust: s.kcalAdjust, refW: rw, bc };
+      // v62: compensación de excesos de días anteriores (opts.raw = objetivo base, sin compensar)
+      if (opts && opts.raw) return out;
+      return hpCompFor(user, (opts && opts.date) || dlToday(), out);
+    }
+    // ===== v62: compensación automática de excesos =====
+    // Si un día comiste bastante más que tu objetivo, el exceso se reparte solo en los 2-3 días siguientes:
+    // máx. −10 % en días pesados (piernas/espalda), −20 % en otros días de entrenamiento y −25 % en descanso; nunca por debajo del metabolismo basal.
+    // Proteína igual; primero se baja la grasa (hasta 0,5 g/kg) y después los carbohidratos. Lo que no entra en esos topes se descarta.
+    const COMP = { look: 6, minAbs: 300, minPct: 0.10, big: 0.35, cap: { heavy: 0.10, train: 0.20, rest: 0.25 }, w: { heavy: 0.5, train: 1, rest: 1.6 }, fatKg: 0.5, carbKg: { heavy: 2, train: 1.5, rest: 1 }, fatMin: 25, fatPct: 0.30 };
+    let _compVer = 0, _compMemo = null, _compSaved = '';
+    function hpCompOn() { try { return !getDietPrefs().compOff; } catch (e) { return true; } }
+    function hpDayKind(ds) {
+      const d = new Date(ds + 'T12:00:00'); if (hpIsRestDay(d)) return 'rest';
+      try { const dk = WEEKDAYS[(d.getDay() + 6) % 7], day = getPlan().program[dk] || {}, ttl = hpNormDay(day.title || '');
+        // pesado = piernas o espalda según el título del día (si no hay título: por los primeros ejercicios)
+        if (ttl ? /\b(legs?|lower|piernas?|cuadriceps|femorales?|gluteos?|pull|espalda|back)\b/.test(ttl.replace(/^[a-z]+:\s*/, '')) : /sentadilla|peso muerto|prensa|remo |jalon/.test(hpNormDay((day.exercises || []).slice(0, 3).map(e => e.name).join(' ')))) return 'heavy'; } catch (e) { }
+      return 'train';
+    }
+    function hpRawTg(u, ds) { return computeTargets(u, { day: hpDayKind(ds) === 'rest' ? 'rest' : 'train', raw: true }); }
+    // aplica un recorte {kcal, swap} a los objetivos: grasa primero, después carbohidratos; proteína nunca
+    function hpApplyCut(tg, c, kind) {
+      if (!tg || !c || (!c.kcal && !c.swap)) return tg;
+      const o = Object.assign({}, tg), fatFloor = Math.max(35, Math.round((tg.refW || 70) * COMP.fatKg)), carbFloor = Math.round((tg.refW || 70) * COMP.carbKg[kind || 'train']);
+      let fatCut = Math.min(Math.max(0, tg.fat - fatFloor), Math.floor((c.kcal || 0) / 9));
+      let carbCut = Math.max(0, Math.min(tg.carbs - carbFloor, Math.round(((c.kcal || 0) - fatCut * 9) / 4)));
+      let swap = Math.min(c.swap || 0, Math.max(0, tg.fat - fatFloor - fatCut)); // exceso solo de grasa: menos grasa, mismos kcal con carbohidratos
+      o.fat = tg.fat - fatCut - swap; o.carbs = tg.carbs - carbCut + Math.round(swap * 9 / 4);
+      const cut = Math.round((fatCut * 9 + carbCut * 4) / 10) * 10; o.kcal = Math.round(tg.kcal - cut);
+      o.comp = { kcal: cut, fat: fatCut + swap, carbs: carbCut - Math.round(swap * 9 / 4), swap, kind: kind || 'train', src: c.src || [], raw: { kcal: tg.kcal, fat: tg.fat, carbs: tg.carbs } };
+      return o;
+    }
+    function hpCompPlan(u) {
+      const td = dlToday(), on = hpCompOn(), s = getSettings();
+      const key = [td, _compVer, on, s.phase, s.frequency, s.kcalAdjust, u.weight, u.goal].join('|');
+      if (_compMemo && _compMemo.key === key) return _compMemo;
+      const plan = { key, cuts: {}, src: [] };
+      if (!on) return (_compMemo = plan);
+      const cuts = plan.cuts, raw = {}, kind = {};
+      const R = ds => { if (!(ds in raw)) { raw[ds] = hpRawTg(u, ds); kind[ds] = hpDayKind(ds); } return raw[ds]; };
+      const room = ds => { const tg = R(ds); if (!tg) return 0; const floor = Math.max(Math.round((tg.bmr || 0) / 50) * 50, u.gender === 'mujer' ? 1200 : 1500); return Math.max(0, Math.min(tg.kcal * COMP.cap[kind[ds]], tg.kcal - floor) - ((cuts[ds] && cuts[ds].kcal) || 0)); };
+      for (let ds = dlShift(td, -COMP.look); ds < td; ds = dlShift(ds, 1)) {
+        const tg = R(ds); if (!tg) continue;
+        const log = getDietLog(ds); if (!dlHasData(log)) continue;
+        const tgc = hpApplyCut(tg, cuts[ds], kind[ds]);
+        let e; try { e = applyDietLog(buildDiet(tgc, getDietPrefs()), tgc, JSON.parse(JSON.stringify(log))).eaten; } catch (er) { continue; }
+        const over = e.kcal - tg.kcal, fatOver = e.f - tg.fat;
+        if (over >= Math.max(COMP.minAbs, tg.kcal * COMP.minPct)) {
+          const n = over > tg.kcal * COMP.big ? 3 : 2, days = [1, 2, 3].slice(0, n).map(i => dlShift(ds, i));
+          let left = over; const got = {};
+          for (let it = 0; it < 4 && left > 5; it++) {
+            const act = days.filter(d => room(d) > 1); if (!act.length) break;
+            const W = act.reduce((a, d) => a + COMP.w[kind[d]], 0), pass = left;
+            act.forEach(d => { const a = Math.min(room(d), pass * COMP.w[kind[d]] / W); if (a <= 0) return; cuts[d] = cuts[d] || { kcal: 0, swap: 0, src: [] }; cuts[d].kcal += a; got[d] = (got[d] || 0) + a; left -= a; });
+          }
+          Object.keys(got).forEach(d => { got[d] = Math.round(got[d] / 10) * 10; cuts[d].kcal = Math.round(cuts[d].kcal / 10) * 10; cuts[d].src.push({ from: ds, kcal: got[d] }); });
+          plan.src.push({ from: ds, over: Math.round(over), fatOver: Math.max(0, Math.round(fatOver)), spread: Object.values(got).reduce((a, b) => a + b, 0), days: got });
+        } else if (fatOver >= Math.max(COMP.fatMin, tg.fat * COMP.fatPct)) {
+          const days = [1, 2].map(i => dlShift(ds, i)), got = {};
+          days.forEach(d => { R(d); const g = Math.round(fatOver / 2); cuts[d] = cuts[d] || { kcal: 0, swap: 0, src: [] }; cuts[d].swap += g; cuts[d].src.push({ from: ds, fat: g }); got[d] = g; });
+          plan.src.push({ from: ds, over: Math.max(0, Math.round(over)), fatOver: Math.round(fatOver), fatOnly: true, days: got });
+        } else if (e.kcal >= tg.kcal * 0.5) {
+          // comiste menos que el objetivo (ya recortado): eso ya compensa, así que se descuenta de lo que falta recortar
+          let under = tgc.kcal - e.kcal;
+          if (under > Math.max(200, tg.kcal * 0.05)) Object.keys(cuts).filter(d => d > ds).sort().forEach(d => { if (under <= 0 || !cuts[d].kcal) return; const r = Math.min(cuts[d].kcal, under); cuts[d].kcal -= r; under -= r; cuts[d].less = (cuts[d].less || 0) + r; });
+        }
+      }
+      plan.kind = kind;
+      _compMemo = plan;
+      // copia en la nube (por usuario) solo cuando cambia el plan de hoy en adelante
+      try { if (window._hpCloudLoaded && currentUser) { const fut = {}; Object.keys(cuts).filter(d => d >= td && (cuts[d].kcal || cuts[d].swap)).forEach(d => { fut[d] = { kcal: cuts[d].kcal, swap: cuts[d].swap, src: cuts[d].src }; }); const sig = JSON.stringify(fut);
+        if (sig !== _compSaved) { const prev = cloudStore.getItem(`hp_compplan_${currentUser}`); _compSaved = sig; if (!(prev === null && sig === '{}') && prev !== JSON.stringify({ days: fut })) cloudStore.setItem(`hp_compplan_${currentUser}`, JSON.stringify({ days: fut })); } } } catch (e) { }
+      return plan;
+    }
+    function hpCompFor(u, ds, tg) {
+      if (!currentUser || !window._hpCloudLoaded || !tg) return tg;
+      let p; try { p = hpCompPlan(u); } catch (e) { console.warn('comp', e); return tg; }
+      const c = p.cuts[ds]; return c ? hpApplyCut(tg, c, (p.kind && p.kind[ds]) || hpDayKind(ds)) : tg;
+    }
+    function hpCompCard(u, tg, ds) {
+      const c = tg && tg.comp; if (!c || (!c.kcal && !c.fat)) return '';
+      const td = dlToday(), y = dlShift(ds, -1), froms = [...new Set(c.src.map(x => x.from))];
+      const fromTxt = froms.length === 1 ? (froms[0] === y ? t('cp.fromY') : t('cp.fromD', { d: dlFmtDay(froms[0]) })) : t('cp.fromM');
+      const when = ds === td ? t('cp.today') : t('cp.thatDay');
+      const head = c.swap && !c.kcal ? t('cp.swap', { from: fromTxt, f: fmtN(c.fat), c: fmtN(-c.carbs), when })
+        : t('cp.head', { from: fromTxt, k: fmtN(c.kcal), when, f: fmtN(c.fat), c: fmtN(Math.max(0, c.carbs)) });
+      const p = hpCompPlan(u), K = { heavy: '🏋️', train: '💪', rest: '😴' };
+      const srcs = p.src.filter(s => froms.includes(s.from));
+      const rows = srcs.map(s => {
+        const days = Object.keys(s.days).sort().map(d => `<li><span>${K[p.kind[d]] || ''} ${d === td ? t('dd.today') : dlFmtDay(d)}</span><b>${s.fatOnly ? '−' + fmtN(s.days[d]) + ' g ' + t('cp.fat') : '−' + fmtN(s.days[d]) + ' kcal'}</b></li>`).join('');
+        const drop = s.fatOnly ? 0 : Math.max(0, s.over - s.spread);
+        return `<p class="cp-src">${t(s.fatOnly ? 'cp.srcFat' : 'cp.src', { d: dlFmtDay(s.from), k: fmtN(s.over), f: fmtN(s.fatOver) })}</p><ul class="cp-days">${days}</ul>${drop > 0 ? `<small>${t('cp.drop', { k: fmtN(drop) })}</small>` : ''}`;
+      }).join('');
+      return `<details class="cp-card"><summary><span>⚖️ ${head} ${t('cp.prot')}</span></summary><div class="cp-body">${rows}<small>${t('cp.rules')}</small></div></details>`;
     }
     function calculateCalories(user) { const t = computeTargets(user); return t ? t.kcal : null; }
     function waterL(user) {
@@ -7062,7 +7220,7 @@ ${timedSecs ? `
     function checkWeightAlert() {
       const box = document.getElementById('smart-alert'); if (!box || !currentUser) return;
       box.style.display = 'none'; box.innerHTML = '';
-      const u = getUsersDB()[currentUser] || {}, s = getSettings(), tg = computeTargets(u); if (!tg) return;
+      const u = getUsersDB()[currentUser] || {}, s = getSettings(), tg = computeTargets(u, { raw: true }); if (!tg) return;
       const tr = weightTrend(); if (!tr || tr.insufficient) return;
       const today = getTodayISO();
       if (s.alertSnoozeUntil && s.alertSnoozeUntil > today) return;
@@ -7182,6 +7340,7 @@ ${timedSecs ? `
       o.meals = o.meals || {}; o.items = o.items || {}; o.extra = o.extra || []; o.undo = o.undo || []; o.times = o.times || {}; o.supp = o.supp || {}; o.water = Array.isArray(o.water) ? o.water : []; return o;
     }
     function saveDietLog(o) {
+      _compVer++;
       const date = o.date || dlToday(), R = dlRolling();
       if (date === dlToday() || (R && R.date === date)) {
         // al empezar un día nuevo, el registro del día anterior se guarda aparte (así se puede ver y completar después)
@@ -7204,7 +7363,7 @@ ${timedSecs ? `
     function dlYesterdayGap(u) {
       const y = dlShift(dlToday(), -1); const o = getDietLog(y);
       if (Object.values(o.meals || {}).some(v => v === 'done' || v === 'ate')) return null;
-      const tg = computeTargets(u, { day: hpIsRestDay(new Date(y + 'T12:00:00')) ? 'rest' : 'train' }); if (!tg) return null;
+      const tg = computeTargets(u, { day: hpIsRestDay(new Date(y + 'T12:00:00')) ? 'rest' : 'train', date: y }); if (!tg) return null;
       const k = (o.extra || []).reduce((a, e) => a + (Number(e.kcal) || 0), 0);
       return k < tg.kcal * 0.5 ? y : null;
     }
@@ -7223,7 +7382,7 @@ ${timedSecs ? `
     }
     function dlRemClose() { _dlRemSess = 'x' + dlToday(); renderDiet(); }
     function dlRemGo() { _dlRemSess = 'x' + dlToday(); dlGoDay(dlShift(dlToday(), -1)); }
-    function dlDayBar(u) {
+    function dlDayBar(u, tg) {
       const tab = document.getElementById('diet-tab'); if (!tab) return;
       let bar = document.getElementById('dl-daybar');
       if (!bar) { bar = document.createElement('div'); bar.id = 'dl-daybar'; bar.className = 'dl-daybar'; tab.insertBefore(bar, tab.firstChild); }
@@ -7237,6 +7396,7 @@ ${timedSecs ? `
           <button type="button" class="dlb-arr" onclick="dlStep(1)" ${!past ? 'disabled' : ''} aria-label="${t('dd.next')}">›</button>
         </div>
         ${past ? `<div class="dlb-ban"><span>📅 ${t('dd.editing', { d: (ds === dlShift(td, -1) ? t('dd.yest').toLowerCase() + ' (' + dlFmtDay(ds) + ')' : dlFmtDay(ds)) })}</span><button type="button" class="dl-btn" onclick="dlGoDay(null)">${t('dd.back')}</button></div>` : ''}
+        ${hpCompCard(u, tg, ds)}
         ${!past && dlShowRem(u) ? `<div class="dlb-rem"><span>🤔 ${t('dd.remQ')}</span><button type="button" class="dl-btn dl-ok" onclick="dlRemGo()">${t('dd.remGo')}</button><button type="button" class="dlr-x" aria-label="${t('dd.close')}" onclick="dlRemClose()">✕</button></div>` : ''}`;
     }
     document.addEventListener('visibilitychange', () => {
@@ -7538,9 +7698,9 @@ ${timedSecs ? `
     function renderDiet() {
       const box = document.getElementById('diet-content'); if (!box || !currentUser) return;
       const u = getUsersDB()[currentUser] || {}; const dSel = dlDate(), past = dSel !== dlToday();
-      const tg = computeTargets(u, past ? { day: hpIsRestDay(new Date(dSel + 'T12:00:00')) ? 'rest' : 'train' } : undefined); // v61: calorías del día elegido (descanso o entrenamiento)
+      const tg = computeTargets(u, past ? { day: hpIsRestDay(new Date(dSel + 'T12:00:00')) ? 'rest' : 'train', date: dSel } : undefined); // v61: calorías del día elegido (descanso o entrenamiento)
       if (!tg) { const b0 = document.getElementById('dl-daybar'); if (b0) b0.remove(); box.innerHTML = `<p class="pc-note">${t('diet.noData')}</p>`; return; }
-      dlDayBar(u);
+      dlDayBar(u, tg);
       const d = buildDiet(tg, getDietPrefs()); const ph = PHASES[tg.phase];
       const lg = applyDietLog(d, tg, getDietLog()); d._left = Math.max(0, tg.kcal - lg.eaten.kcal);
       const P = t('m.p'), C = t('m.c'), F = t('m.f'); const dlo = getDietLog(), sug = dlSuggestTimes(d.meals, dlo); const sbm = suppByMeal(d.meals, Object.assign({}, sug, dlo.times || {}), u, getSettings(), tg);
@@ -7674,6 +7834,7 @@ ${timedSecs ? `
         <small>${t('mr.help')}</small>
         ${wp.length ? `<details class="field-more"><summary>💧 ${t('wr.plan', { l: fmtN(L, 1), n: wp.length, ml: fmtN(wp[0].ml) })}</summary><p class="field-hint">${wp.map(x => x.t).join(' · ')}</p></details>` : ''}
         <div class="dp-row"><button type="button" class="dl-btn mr-btn${pr.lact ? ' on' : ''}" onclick="dietPrefToggle('lact')">${t(pr.lact ? 'lact.on' : 'lact.off')}</button><button type="button" class="dl-btn mr-btn${pr.ret ? ' on' : ''}" onclick="dietPrefToggle('ret')">${t(pr.ret ? 'ret.on' : 'ret.off')}</button></div>
+        <div class="dp-row"><button type="button" class="dl-btn mr-btn${!pr.compOff ? ' on' : ''}" onclick="dietPrefToggle('compOff')">${t(pr.compOff ? 'comp.off' : 'comp.on')}</button></div>
         ${pr.ret ? `<details class="field-more"><summary>${t('ret.more')}</summary><p class="field-hint">${t('ret.tips')}</p></details>` : ''}
         ${d && computeTargets(u) && computeTargets(u).bc ? `<small>⚖️ ${t('bc.using', { bf: fmtN(computeTargets(u).bc.bf, 1), lean: fmtN(computeTargets(u).bc.lean, 1) })}</small>` : ''}
       </div>`;
@@ -8915,9 +9076,9 @@ ${timedSecs ? `
   })();
   </script>
   <script src="anim.js?v=3"></script>
-  <script src="pro.js?v=9"></script>
+  <script src="pro.js?v=10"></script>
   <script src="cues.js?v=2"></script>
-  <script src="pro2.js?v=22"></script>
+  <script src="pro2.js?v=23"></script>
   <script src="superset.js?v=8"></script>
   <script src="features.js?v=5"></script>
   <script src="guide.js?v=5"></script>

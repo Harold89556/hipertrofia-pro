@@ -309,7 +309,7 @@
     }
   }
   function shoppingList() {
-    const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u); if (!tg) return null;
+    const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u, { raw: true }); if (!tg) return null; // lista semanal: objetivo base (sin compensación de excesos)
     const d = buildDiet(tg, getDietPrefs()); const cfg = dietCfg(); const g = {};
     d.meals.forEach(m => m.items.forEach(it => { g[it.key] = (g[it.key] || 0) + it.g * 7; }));
     return Object.entries(g).map(([k, grams]) => {

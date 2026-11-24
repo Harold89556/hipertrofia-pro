@@ -153,8 +153,23 @@
   window._hpCoach = { MOT, pick, oneCue, fullCues, PH, TECH };
   // Voz natural: frases fijas pregrabadas con voces neuronales (MP3 en voice/<idioma>/, sin Gemini).
   // Lo que no está pregrabado (pesos raros, textos nuevos) usa la mejor voz del teléfono, por oraciones y con pausas cortas.
-  const au = new Audio(); au.preload = 'auto';
-  const audio = { pause() { try { au.pause(); } catch (e) {} } };
+  // v62: los MP3 suenan por Web Audio (AudioContext), que en Android no toma el «foco de audio»: tu música sigue sonando.
+  // (un <audio> sí puede pausar Spotify/YouTube Music). Solo si el navegador no tiene Web Audio se usa <audio>.
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let au = null; const AU = () => { if (!au) { au = new Audio(); au.preload = 'auto'; } return au; };
+  let actx = null, curSrc = null, idleT = null; const bufs = new Map();
+  function ctx() { if (!AC) return null; if (!actx) { try { actx = new AC({ latencyHint: 'playback' }); } catch (e) { try { actx = new AC(); } catch (e2) { actx = null; } } } return actx; }
+  function ctxIdle() { clearTimeout(idleT); idleT = setTimeout(() => { try { if (actx && actx.state === 'running' && !curSrc) actx.suspend(); } catch (e) {} }, 4000); } // libera el audio al terminar
+  function getBuf(url) {
+    if (bufs.has(url)) return bufs.get(url);
+    const c = ctx(); const pr = fetch(url).then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.arrayBuffer(); })
+      .then(ab => new Promise((ok, ko) => { const r = c.decodeAudioData(ab, ok, ko); if (r && r.then) r.then(ok, ko); }));
+    pr.catch(() => bufs.delete(url)); bufs.set(url, pr);
+    if (bufs.size > 80) bufs.delete(bufs.keys().next().value);
+    return pr;
+  }
+  function stopSrc() { const s0 = curSrc; curSrc = null; if (s0) { try { s0.onended = null; s0.stop(); } catch (e) {} } }
+  const audio = { pause() { stopSrc(); try { au && au.pause(); } catch (e) {} ctxIdle(); } };
   window._hpVoice = { log: [] };
   const neuralOn = () => localStorage.getItem('hp_vneural') !== '0';
   let VM = null, vmLoading = null;
@@ -176,7 +191,9 @@
   }
   let unlocked = false;
   function unlock() { // debe correr dentro del toque del usuario (Android/iOS bloquean audio sin gesto)
-    try { au.muted = true; au.src = 'voice/silence.mp3'; const pr = au.play(); if (pr && pr.then) pr.then(() => { au.pause(); au.muted = false; }).catch(() => { au.muted = false; }); else au.muted = false; unlocked = true; } catch (e) { au.muted = false; }
+    const c = ctx();
+    if (c) { try { if (c.state !== 'running') c.resume(); const b = c.createBuffer(1, 1, 22050), s0 = c.createBufferSource(); s0.buffer = b; s0.connect(c.destination); s0.start(0); unlocked = true; ctxIdle(); } catch (e) {} }
+    else { const a = AU(); try { a.muted = true; a.src = 'voice/silence.mp3'; const pr = a.play(); if (pr && pr.then) pr.then(() => { a.pause(); a.muted = false; }).catch(() => { a.muted = false; }); else a.muted = false; unlocked = true; } catch (e) { a.muted = false; } }
     try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
   }
   document.addEventListener('pointerdown', () => { if (voiceOn() && !unlocked) unlock(); }, { capture: true });
@@ -231,10 +248,20 @@
   function playClips(urls, id, done, fail) {
     const one = k => {
       if (id !== playId) return; if (k >= urls.length) { done(); return; }
-      let fin = false; const next = ok => { if (fin) return; fin = true; clearTimeout(tm); au.onended = au.onerror = null; if (!ok) { fail(k); return; } setTimeout(() => one(k + 1), 40); };
+      const c = ctx();
+      let fin = false; const next = ok => { if (fin) return; fin = true; clearTimeout(tm); if (au) au.onended = au.onerror = null; if (!ok) { fail(k); return; } setTimeout(() => one(k + 1), 40); };
       const tm = setTimeout(() => next(false), 15000);
-      au.onended = () => next(true); au.onerror = () => next(false);
-      try { au.muted = false; au.src = urls[k]; const pr = au.play(); if (pr && pr.catch) pr.catch(() => next(false)); } catch (e) { next(false); }
+      if (c) {
+        clearTimeout(idleT);
+        Promise.all([getBuf(urls[k]), c.state === 'running' ? null : c.resume().catch(() => {})]).then(([b]) => {
+          if (id !== playId || fin) return; if (c.state !== 'running') { next(false); return; }
+          stopSrc(); const s0 = c.createBufferSource(); s0.buffer = b; s0.connect(c.destination); curSrc = s0;
+          s0.onended = () => { if (curSrc === s0) curSrc = null; if (k + 1 >= urls.length) ctxIdle(); next(true); }; s0.start(0);
+        }).catch(() => next(false));
+        return;
+      }
+      const a = AU(); a.onended = () => next(true); a.onerror = () => next(false);
+      try { a.muted = false; a.src = urls[k]; const pr = a.play(); if (pr && pr.catch) pr.catch(() => next(false)); } catch (e) { next(false); }
     };
     one(0);
   }
@@ -245,7 +272,7 @@
     const list = (Array.isArray(t) ? t : [t]).filter(Boolean);
     if (!list.length || (!voiceOn() && !force)) return;
     const id = ++playId; busy = true;
-    try { au.pause(); } catch (e) {}
+    audio.pause();
     try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
     if (neuralOn() && !VM) { try { await Promise.race([loadVM(), new Promise(r => setTimeout(r, 1500))]); } catch (e) {} }
     if (id !== playId) return;
@@ -261,6 +288,7 @@
   // precarga los audios que vienen (quedan en la caché del service worker)
   const prefetch = list => { try { (Array.isArray(list) ? list : [list]).forEach(ph => (clipsFor(VL(), ph) || []).forEach(u => fetch(u).catch(() => {}))); } catch (e) {} };
   window.hpSay = say;
+  window._hpVoiceCtxState = () => (actx ? actx.state : 'none');
   window.hpUnlock = unlock;
   window.hpHush = function () { playId++; busy = false; audio.pause(); try { speechSynthesis.cancel(); } catch (e) {} };
   const fixed = () => { const x = P(); return [x.on, x.test, x.ten, x.cd, x.go, x.done, x.exDone, ...[30, 45, 60, 90, 120, 150, 180].map(x.rest), ...(motOn() ? MOT[VL()].set.slice(0, 4) : [])]; };
@@ -399,7 +427,7 @@
       if (pro() && s.autoDiet !== false && box && box.style.display !== 'none') {
         const btn = box.querySelector('[onclick^="acceptKcalAdjust"]'); const d = btn && +btn.getAttribute('onclick').match(/-?\d+/)[0];
         if (d) {
-          const tr = weightTrend(); const tg = computeTargets(getUsersDB()[currentUser] || {});
+          const tr = weightTrend(); const tg = computeTargets(getUsersDB()[currentUser] || {}, { raw: true }); // base, sin la compensación de excesos (no se ajusta dos veces)
           acceptKcalAdjust(d);
           const log = store.get('hp_autodiet', []); log.push({ date: today(), delta: d, pct: tr.pctWeek, kg: tr.kgWeek, lo: tg.rate[0], hi: tg.rate[1], from: tg.kcal, to: tg.kcal + d }); store.set('hp_autodiet', log.slice(-20));
           toast(`Dieta adaptada automáticamente: ${d > 0 ? '+' : ''}${d} kcal`);
@@ -499,7 +527,7 @@
     const ws = weekKey(); const from = new Date(Date.parse(ws) - 7 * 864e5).toISOString().slice(0, 10);
     const H = hist().filter(h => String(h.date).slice(0, 10) >= from && String(h.date).slice(0, 10) < ws);
     const byEx = {}; H.forEach(h => { const k = h.exercise; byEx[k] = byEx[k] || { sets: 0, best: 0 }; byEx[k].sets++; byEx[k].best = Math.max(byEx[k].best, (+h.weight || 0) * (1 + (+h.reps || 0) / 30)); });
-    const days = new Set(H.map(h => String(h.date).slice(0, 10))).size; const s = getSettings(); const tr = weightTrend(); const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u);
+    const days = new Set(H.map(h => String(h.date).slice(0, 10))).size; const s = getSettings(); const tr = weightTrend(); const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u, { raw: true });
     const rd = store.get('hp_ready', {}); const rv = Object.entries(rd).filter(([d]) => d >= from && d < ws).map(([, v]) => v);
     const da = Object.entries(store.get('hp_dadh', {})).filter(([d]) => d >= from && d < ws).map(([, v]) => +v || 0); // v61: adherencia a la dieta por fecha real (incluye días cargados después)
     return { semana: `${from} a ${ws}`, categoria: typeof goalLabel === 'function' ? goalLabel(u.goal) : u.goal, fase: s.phase, dias_planificados: s.frequency, dias_entrenados: days, series_totales: H.length,
