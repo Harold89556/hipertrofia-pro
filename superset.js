@@ -3,18 +3,20 @@
   const VJ = () => (window._hpVJ ? window._hpVJ.J : (...a) => a.filter(Boolean).join(', '));
   const rt = r => (window._hpVJ ? window._hpVJ.repTxt(r, L()) : String(r));
   const L = () => (typeof LANG !== 'undefined' && ({ es: 1, en: 1, pt: 1 })[LANG] ? LANG : 'es');
+  // v60: en peso corporal la voz dice «con peso corporal» (y el lastre si hay)
+  const KW = (w, l) => { if (w && typeof w === 'object') { const k = +w.w > 0 ? num(w.w) : ''; return ({ es: k ? `con peso corporal más ${k} kilos` : 'con peso corporal', en: k ? `with bodyweight plus ${k} kilos` : 'with bodyweight', pt: k ? `com peso corporal mais ${k} quilos` : 'com peso corporal' })[l]; } return w ? ({ es: `con ${num(w)} kilos`, en: `with ${num(w)} kilos`, pt: `com ${num(w)} quilos` })[l] : ''; };
   const TX = {
     es: { badge: 'Sin descanso entre ejercicios', flow: (a, s) => `${a} sin pausa · descanso ${s} al terminar cada ronda`, round: (r, n) => `Ronda ${r} de ${n}`, more: 'Técnica, notas y cambiar ejercicio',
-      noRest: (ex, r, w) => VJ()(`¡Sin descanso! Ahora ${ex}`, r ? `${rt(r)} repeticiones` : '', w ? `con ${num(w)} kilos` : ''),
-      roundDone: r => `¡Ronda ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Siguiente ronda, la ${r}`, ex, rp ? `${rt(rp)} repeticiones` : '', w ? `con ${num(w)} kilos` : '', '¡Vamos!'),
+      noRest: (ex, r, w) => VJ()(`¡Sin descanso! Ahora ${ex}`, r ? `${rt(r)} repeticiones` : '', KW(w, 'es')),
+      roundDone: r => `¡Ronda ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Siguiente ronda, la ${r}`, ex, rp ? `${rt(rp)} repeticiones` : '', KW(w, 'es'), '¡Vamos!'),
       lastRound: '¡Última ronda, dejá todo!', ssDone: '¡Superserie terminada! Excelente trabajo.', bisDone: '¡Biserie terminada! Excelente trabajo.', nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!`, sess: '¡Entrenamiento completo! Estoy orgullosa de vos.', go: '¡A trabajar!', toast: ex => `⚡ Sin descanso → ${ex}` },
     en: { badge: 'No rest between exercises', flow: (a, s) => `${a} back to back · rest ${s} after each round`, round: (r, n) => `Round ${r} of ${n}`, more: 'Technique, notes and swap',
-      noRest: (ex, r, w) => VJ()(`No rest! Now ${ex}`, r ? `${rt(r)} reps` : '', w ? `with ${num(w)} kilos` : ''),
-      roundDone: r => `Round ${r} complete!`, nextRound: (r, ex, rp, w) => VJ()(`Next round, number ${r}`, ex, rp ? `${rt(rp)} reps` : '', w ? `with ${num(w)} kilos` : '', 'Let\'s go!'),
+      noRest: (ex, r, w) => VJ()(`No rest! Now ${ex}`, r ? `${rt(r)} reps` : '', KW(w, 'en')),
+      roundDone: r => `Round ${r} complete!`, nextRound: (r, ex, rp, w) => VJ()(`Next round, number ${r}`, ex, rp ? `${rt(rp)} reps` : '', KW(w, 'en'), 'Let\'s go!'),
       lastRound: 'Last round, give it everything!', ssDone: 'Superset finished! Excellent work.', bisDone: 'Bi-set finished! Excellent work.', nextEx: ex => `Next up: ${ex}. Let's go!`, sess: 'Workout complete! I\'m proud of you.', go: 'Let\'s work!', toast: ex => `⚡ No rest → ${ex}` },
     pt: { badge: 'Sem descanso entre exercícios', flow: (a, s) => `${a} sem pausa · descanso ${s} ao terminar cada rodada`, round: (r, n) => `Rodada ${r} de ${n}`, more: 'Técnica, notas e trocar exercício',
-      noRest: (ex, r, w) => VJ()(`Sem descanso! Agora ${ex}`, r ? `${rt(r)} repetições` : '', w ? `com ${num(w)} quilos` : ''),
-      roundDone: r => `Rodada ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Próxima rodada, a ${r}`, ex, rp ? `${rt(rp)} repetições` : '', w ? `com ${num(w)} quilos` : '', 'Vamos!'),
+      noRest: (ex, r, w) => VJ()(`Sem descanso! Agora ${ex}`, r ? `${rt(r)} repetições` : '', KW(w, 'pt')),
+      roundDone: r => `Rodada ${r} completa!`, nextRound: (r, ex, rp, w) => VJ()(`Próxima rodada, a ${r}`, ex, rp ? `${rt(rp)} repetições` : '', KW(w, 'pt'), 'Vamos!'),
       lastRound: 'Última rodada, dê tudo!', ssDone: 'Supersérie concluída! Excelente trabalho.', bisDone: 'Bi-set concluído! Excelente trabalho.', nextEx: ex => `Agora vem ${ex}. Vamos!`, sess: 'Treino completo! Estou orgulhosa de você.', go: 'Bora trabalhar!', toast: ex => `⚡ Sem descanso → ${ex}` } };
   const T = () => TX[L()];
   window._hpSSTX = TX;
@@ -43,6 +45,7 @@
     const w = document.getElementById(`w_${dk}_${j}_${s}`), r = document.getElementById(`r_${dk}_${j}_${s}`);
     let reps = tg && !tg.first ? tg.reps : (r && r.value) || (tg && tg.lo) || (String(ex.target || '').match(/\d+(?:-\d+)?/) || [''])[0];
     let kg = (w && parseFloat(w.value) > 0) ? parseFloat(w.value) : (tg && !tg.first ? tg.w : 0); // primero el peso que vas a usar
+    if (window.hpBW && window.hpBW(ex.name)) kg = { bw: 1, w: kg || 0 };
     return { reps: String(reps || ''), kg };
   }
   function focusRow(dk, j, s) {

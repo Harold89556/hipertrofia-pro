@@ -34,6 +34,17 @@
   function rirLog() { return store.get('hp_rir', {}); }
   function nextTarget(ex) {
     const m = String(ex.target || '').match(/(\d+)\s*[-–]\s*(\d+)/); const lo = m ? +m[1] : 8, hi = m ? +m[2] : 12;
+    const bwT = window.hpBW && window.hpBW(ex.name);
+    if (bwT) { // v60 peso corporal: se progresa por reps; el número es lastre (solo registros v60+ con bw:1)
+      const T = (k, o) => (typeof t === 'function' ? t(k, o) : k);
+      const Lx = window.hpMaxKg ? window.hpMaxKg(ex.name) || 0 : 0;
+      const A = hist().filter(h => h.exercise === ex.name && +h.reps > 0), H0 = A.filter(h => String(h.date).slice(0, 10) !== today());
+      if (!H0.length) return Lx ? { w: Lx, bw: bwT, reps: lo, lo, hi, why: T('bw.whyMax', { w: Lx }), last: today(), prevW: Lx, maxW: Lx } : { first: true, bw: bwT, w: 0, lo, hi };
+      const last = H0.map(h => String(h.date).slice(0, 10)).sort().pop(), S = H0.filter(h => String(h.date).slice(0, 10) === last);
+      const minR = Math.min(...S.map(x => +x.reps)), maxR = Math.max(...S.map(x => +x.reps));
+      const up = minR >= hi, nr = up ? hi : Math.min(hi, Math.max(lo, maxR + 1));
+      return { w: Lx, bw: bwT, maxW: Lx, reps: nr, lo, hi, why: up ? T('bw.whyUp', { hi }) : Lx ? T('bw.whyMax', { w: Lx }) : T('bw.whyReps', { lo, hi }), last, prevW: Lx };
+    }
     const HA = hist().filter(h => h.exercise === ex.name && +h.weight > 0 && +h.reps > 0);
     const HW = HA.map(h => +h.weight).filter(v => v > 0 && v < 1000).sort((x, y) => x - y), hmed = HW[Math.floor((HW.length - 1) / 2)] || 0;
     const mx0 = Math.max(0, ...HW.filter(v => v <= hmed * 2.5)); // ignora errores de tipeo (808 por 80)
@@ -72,13 +83,15 @@
       const box = document.createElement('div'); box.className = 'ap-box';
       if (!/reps/i.test(ex.target || '') || /\bs\b|seg/.test(ex.target || '') && !/reps/.test(ex.target)) return;
       const tg = nextTarget(ex); const sets = Math.max(1, ex.sets + (rd ? rd.f.sets : 0));
+      const bwl = tg.bw && window.hpBWLabel ? window.hpBWLabel(ex.name, tg.w) : '';
+      if (tg.bw) { box.innerHTML = tg.first ? t('bw.goalFirst', { s: sets, lo: tg.lo, hi: tg.hi, l: bwl }) : t('bw.goal', { s: sets, r: tg.reps, l: bwl }) + `<small>${E(tg.why)}</small>`; card.dataset.bwl = bwl; } else
       box.innerHTML = tg.first ? `🎯 <b>Objetivo:</b> ${sets}×${tg.lo}-${tg.hi} reps · elegí una carga que te deje 1-2 reps en reserva` :
         `🎯 <b>Objetivo hoy:</b> ${sets}×${tg.reps} reps @ <b>${tg.w} kg</b><small>${E(tg.why)} (última vez ${tg.prevW} kg)</small>`;
       const rirSel = `<div class="ap-rir">¿Cuántas reps te sobraron en la última serie? ${[0, 1, 2, 3].map(v => `<button type="button" data-rir="${v}" class="${rirLog()[today() + '|' + ex.name] === v ? 'on' : ''}">${v}${v === 3 ? '+' : ''}</button>`).join('')}</div>`;
       box.innerHTML += rirSel;
       box.querySelectorAll('[data-rir]').forEach(b => b.onclick = () => { const r = rirLog(); r[today() + '|' + ex.name] = +b.dataset.rir; const ks = Object.keys(r); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(k => delete r[k]); store.set('hp_rir', r); decorateWorkout(); toast('RIR guardado: se usa para tu próxima sesión'); });
       let head = card.querySelector('table') || card.firstChild; while (head && head.parentNode !== card) head = head.parentNode; card.insertBefore(box, head || null);
-      if (!tg.first) for (let s = 1; s <= ex.sets; s++) { const w = $(`w_${dk}_${i}_${s}`), r = $(`r_${dk}_${i}_${s}`); if (w && !w.value) w.placeholder = String(tg.w); if (r && !r.value) r.placeholder = String(tg.reps); }
+      if (!tg.first) for (let s = 1; s <= ex.sets; s++) { const w = $(`w_${dk}_${i}_${s}`), r = $(`r_${dk}_${i}_${s}`); if (w && !w.value) w.placeholder = tg.bw ? String(tg.w || 0) : String(tg.w); if (r && !r.value) r.placeholder = String(tg.reps); }
       if (rd && rd.f.sets < 0) for (let s = sets + 1; s <= ex.sets; s++) { const row = $(`row_${dk}_${i}_${s}`); if (row) row.classList.add('rd-skip'); }
       window._apTargets = window._apTargets || {}; window._apTargets[dk + '_' + i] = { name: ex.name, ...tg };
       const hits = Object.entries(INJ).filter(([k, v]) => inj[k] && v[1].test(ex.name + ' ' + (ex.origName || '')));
@@ -99,13 +112,13 @@
   const PH = {
     es: { on: 'Coach de voz activado. ¡Vamos con todo!', test: 'Hola, soy tu coach de voz. ¡Vamos a entrenar juntos!', ten: 'Diez segundos', cd: 'Tres, dos, uno', go: '¡A trabajar!', done: 'Serie completada. ¡Muy bien!', exDone: '¡Ejercicio terminado! Excelente trabajo.',
       rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('es') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
-      next: (ex, r, w) => J(`Siguiente serie de ${ex}`, `${repTxt(r, 'es')} repeticiones`, w ? `con ${num(w, 'es')} kilos` : '', '¡Vamos!'), nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!` },
+      next: (ex, r, w, bw) => J(`Siguiente serie de ${ex}`, `${repTxt(r, 'es')} repeticiones`, bw ? (w ? `con peso corporal más ${num(w, 'es')} kilos` : 'con peso corporal') : w ? `con ${num(w, 'es')} kilos` : '', '¡Vamos!'), nextEx: ex => `Ahora sigue ${ex}. ¡Vamos!` },
     en: { on: 'Voice coach activated. Let\'s go!', test: 'Hi, I\'m your voice coach. Let\'s train together!', ten: 'Ten seconds', cd: 'Three, two, one', go: 'Let\'s work!', done: 'Set complete. Great job!', exDone: 'Exercise finished! Excellent work.',
       rest: s => `Rest for ${s >= 60 && s % 30 === 0 ? (s / 60) + (s === 60 ? ' minute' : ' minutes') : s + ' seconds'}`,
-      next: (ex, r, w) => J(`Next set of ${ex}`, `${repTxt(r, 'en')} reps`, w ? `with ${num(w, 'en')} kilos` : '', 'Let\'s go!'), nextEx: ex => `Next up: ${ex}. Let's go!` },
+      next: (ex, r, w, bw) => J(`Next set of ${ex}`, `${repTxt(r, 'en')} reps`, bw ? (w ? `with bodyweight plus ${num(w, 'en')} kilos` : 'with bodyweight') : w ? `with ${num(w, 'en')} kilos` : '', 'Let\'s go!'), nextEx: ex => `Next up: ${ex}. Let's go!` },
     pt: { on: 'Coach de voz ativado. Vamos com tudo!', test: 'Olá, sou sua coach de voz. Vamos treinar juntos!', ten: 'Dez segundos', cd: 'Três, dois, um', go: 'Bora trabalhar!', done: 'Série concluída. Muito bem!', exDone: 'Exercício concluído! Excelente trabalho.',
       rest: s => `Descanso de ${s >= 60 && s % 30 === 0 ? (s / 60).toLocaleString('pt') + (s === 60 ? ' minuto' : ' minutos') : s + ' segundos'}`,
-      next: (ex, r, w) => J(`Próxima série de ${ex}`, `${repTxt(r, 'pt')} repetições`, w ? `com ${num(w, 'pt')} quilos` : '', 'Vamos!'), nextEx: ex => `Agora vem ${ex}. Vamos!` },
+      next: (ex, r, w, bw) => J(`Próxima série de ${ex}`, `${repTxt(r, 'pt')} repetições`, bw ? (w ? `com peso corporal mais ${num(w, 'pt')} quilos` : 'com peso corporal') : w ? `com ${num(w, 'pt')} quilos` : '', 'Vamos!'), nextEx: ex => `Agora vem ${ex}. Vamos!` },
   };
   const P = () => PH[VL()];
   // frases de ánimo variadas (cortas y fijas => cacheables)
@@ -269,8 +282,8 @@
     const msg = [];
     if (motOn() && tg && tg.w && tg.prevW && tg.w > tg.prevW && !prSaid[ls.dk + ls.i]) { prSaid[ls.dk + ls.i] = 1; msg.push(pick('pr')); }
     if (motOn() && sets && ls.s === sets - 1) msg.push(pick('lastSet'));
-    const nw = document.getElementById(`w_${ls.dk}_${ls.i}_${ls.s + 1}`); const nkg = (nw && parseFloat(nw.value) > 0) ? parseFloat(nw.value) : (tg && tg.w); // el peso que vas a usar (el que arrastraste) antes que la sugerencia
-    msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, nkg) : P().go);
+    const nw = document.getElementById(`w_${ls.dk}_${ls.i}_${ls.s + 1}`); const nkg = (nw && parseFloat(nw.value) > 0) ? parseFloat(nw.value) : (tg && tg.w); const nbw = !!(tg && tg.bw) || !!(window.hpBW && window.hpBW(curName)); // el peso que vas a usar (el que arrastraste) antes que la sugerencia
+    msg.push(tg ? P().next(nm(tg.name), tg.reps || tg.lo, nkg, nbw) : P().go);
     return { last: false, lastEx: false, msg, curName, nextName };
   }
   const origST = window.startTimer;
@@ -489,7 +502,7 @@
     const days = new Set(H.map(h => String(h.date).slice(0, 10))).size; const s = getSettings(); const tr = weightTrend(); const u = getUsersDB()[currentUser] || {}; const tg = computeTargets(u);
     const rd = store.get('hp_ready', {}); const rv = Object.entries(rd).filter(([d]) => d >= from && d < ws).map(([, v]) => v);
     return { semana: `${from} a ${ws}`, categoria: typeof goalLabel === 'function' ? goalLabel(u.goal) : u.goal, fase: s.phase, dias_planificados: s.frequency, dias_entrenados: days, series_totales: H.length,
-      ejercicios: Object.entries(byEx).slice(0, 25).map(([k, v]) => `${k}: ${v.sets} series, e1RM ${Math.round(v.best)} kg`), tendencia_peso: tr && !tr.insufficient ? `${tr.kgWeek} kg/sem` : 'sin datos', kcal: tg && tg.kcal, objetivo_ritmo: tg && tg.rate, readiness_promedio: rv.length ? (rv.reduce((a, r) => a + ((r.sleep || 3) + (r.sore || 3) + (r.stress || 3) + (r.energy || 3)) / 4, 0) / rv.length).toFixed(1) : 'sin datos', molestias: Object.keys(injuries()).filter(k => injuries()[k]) };
+      ejercicios: Object.entries(byEx).slice(0, 25).map(([k, v]) => window.hpBW && window.hpBW(k) ? `${k}: ${v.sets} series, peso corporal (${window.hpBW(k) === 'full' ? 'completo' : 'parcial'})` : `${k}: ${v.sets} series, e1RM ${Math.round(v.best)} kg`), tendencia_peso: tr && !tr.insufficient ? `${tr.kgWeek} kg/sem` : 'sin datos', kcal: tg && tg.kcal, objetivo_ritmo: tg && tg.rate, readiness_promedio: rv.length ? (rv.reduce((a, r) => a + ((r.sleep || 3) + (r.sore || 3) + (r.stress || 3) + (r.energy || 3)) / 4, 0) / rv.length).toFixed(1) : 'sin datos', molestias: Object.keys(injuries()).filter(k => injuries()[k]) };
   }
   async function renderReport(force) {
     const box = $('report-tab-body'); if (!pro()) { box.innerHTML = lockHTML(); return; }

@@ -1300,6 +1300,9 @@
     .hp-rot{margin:0 0 14px;padding:14px;border-radius:14px;border:1px solid rgba(255,107,26,.55);background:rgba(255,107,26,.10)}
     .hp-rot p{margin:6px 0 10px;font-size:.9rem;opacity:.9}
     .hp-rot .btn-3d{margin:4px 6px 0 0}
+      .bw-box{display:flex;flex-direction:column;gap:3px}
+    .bw-box small{font-size:.8rem;opacity:.85;line-height:1.3}
+    .bw-old{opacity:.6;font-size:.72rem}
   </style>
   <script>
     // PWA: registrar service worker (necesario para instalar y para la app de Android)
@@ -2311,6 +2314,20 @@
   "set.prevSecs": "Anterior: {v} s",
   "set.noPrev": "Sin registro previo",
   "set.prevKg": "Ant: {v} kg",
+  "bw.full": "Peso corporal",
+  "bw.partial": "Peso corporal parcial",
+  "bw.short": "PC",
+  "bw.noteFull": "Peso corporal completo{w} + lastre opcional",
+  "bw.notePartial": "Peso corporal parcial (parte de tu peso queda apoyado en las piernas o el banco) + lastre opcional",
+  "bw.tip": "Progresá sumando reps. Lastre = peso extra (disco, cinturón o mancuerna); dejá 0 si es solo tu cuerpo.",
+  "bw.prev": "Ant: {v}",
+  "bw.legacy": "anotado {w} kg antes",
+  "bw.goal": "🎯 <b>Objetivo hoy:</b> {s}×{r} reps · <b>{l}</b>",
+  "bw.goalFirst": "🎯 <b>Objetivo:</b> {s}×{lo}-{hi} reps · <b>{l}</b>",
+  "bw.whyReps": "sumá 1 rep (rango {lo}-{hi})",
+  "bw.whyUp": "llegaste a {hi} reps en todas las series: podés sumar 2,5-5 kg de lastre",
+  "bw.whyMax": "tu lastre más alto registrado es {w} kg: mantenelo hasta superarlo",
+  "th.lastre": "Lastre (kg)",
   "set.prevReps": "Ant: {v} reps",
   "ex.searchSuffix": " técnica biomecánica hipertrofia",
   "badge.done": "LISTO",
@@ -2922,6 +2939,20 @@
   "set.prevSecs": "Previous: {v} s",
   "set.noPrev": "No previous record",
   "set.prevKg": "Prev: {v} kg",
+  "bw.full": "Bodyweight",
+  "bw.partial": "Partial bodyweight",
+  "bw.short": "BW",
+  "bw.noteFull": "Full bodyweight{w} + optional added weight",
+  "bw.notePartial": "Partial bodyweight (part of your weight rests on your legs or the bench) + optional added weight",
+  "bw.tip": "Progress by adding reps. Added weight = plate, dip belt or dumbbell; leave 0 if it's just your body.",
+  "bw.prev": "Prev: {v}",
+  "bw.legacy": "logged {w} kg before",
+  "bw.goal": "🎯 <b>Today's goal:</b> {s}×{r} reps · <b>{l}</b>",
+  "bw.goalFirst": "🎯 <b>Goal:</b> {s}×{lo}-{hi} reps · <b>{l}</b>",
+  "bw.whyReps": "add 1 rep (range {lo}-{hi})",
+  "bw.whyUp": "you hit {hi} reps on every set: you can add 2.5-5 kg",
+  "bw.whyMax": "your heaviest added weight is {w} kg: keep it until you beat it",
+  "th.lastre": "Added (kg)",
   "set.prevReps": "Prev: {v} reps",
   "ex.searchSuffix": " proper form technique hypertrophy",
   "badge.done": "DONE",
@@ -3777,6 +3808,20 @@
   "set.prevSecs": "Anterior: {v} s",
   "set.noPrev": "Sem registro anterior",
   "set.prevKg": "Ant.: {v} kg",
+  "bw.full": "Peso corporal",
+  "bw.partial": "Peso corporal parcial",
+  "bw.short": "PC",
+  "bw.noteFull": "Peso corporal completo{w} + carga extra opcional",
+  "bw.notePartial": "Peso corporal parcial (parte do seu peso fica apoiada nas pernas ou no banco) + carga extra opcional",
+  "bw.tip": "Progrida somando repetições. Carga extra = anilha, cinto ou halter; deixe 0 se for só o seu corpo.",
+  "bw.prev": "Ant.: {v}",
+  "bw.legacy": "anotado {w} kg antes",
+  "bw.goal": "🎯 <b>Meta de hoje:</b> {s}×{r} reps · <b>{l}</b>",
+  "bw.goalFirst": "🎯 <b>Meta:</b> {s}×{lo}-{hi} reps · <b>{l}</b>",
+  "bw.whyReps": "some 1 rep (faixa {lo}-{hi})",
+  "bw.whyUp": "você chegou a {hi} reps em todas as séries: pode somar 2,5-5 kg de carga extra",
+  "bw.whyMax": "sua carga extra mais alta registrada é {w} kg: mantenha até superá-la",
+  "th.lastre": "Carga extra (kg)",
   "set.prevReps": "Ant.: {v} reps",
   "ex.searchSuffix": " técnica execução hipertrofia",
   "badge.done": "FEITO",
@@ -5260,6 +5305,26 @@
       if (setNum < 2) startTimer(30, 'timer.warmupRest');
     }
 
+    // ---- v60: ejercicios con peso corporal ----
+    // 'full' = levantás casi todo tu peso (fondos en paralelas, dominadas, colgado); 'partial' = parte del peso queda apoyado
+    // (fondos entre bancos, flexiones, hiperextensiones, plancha, abdominales). Máquinas con placas/contrapeso NO cuentan.
+    // En estos ejercicios el número que anotás es el LASTRE (peso extra). Los registros de antes de v60 (sin bw:1) no se toman como lastre.
+    const HP_BW_FULL = /^(Fondos en Paralelas|Dominadas|Elevaciones de Piernas Colgado)/i;
+    const HP_BW_PART = /^(Fondos entre Bancos|Flexiones de Brazos|Hiperextensi[oó]n|Plancha|Rueda Abdominal|Elevaciones de Piernas en Banco|Vac[ií]o Abdominal|Curl N[oó]rdico|Sentadilla Sissy)/i;
+    function hpBW(n) { n = String(n || ''); if (/m[aá]quina|polea|multipower|smith/i.test(n)) return null; return HP_BW_FULL.test(n) ? 'full' : HP_BW_PART.test(n) ? 'partial' : null; }
+    window.hpBW = hpBW;
+    function hpBWLabel(n, kg) { const b = hpBW(n); if (!b) return ''; const l = t(b === 'full' ? 'bw.full' : 'bw.partial'); return kg > 0 ? `${l} + ${fmtN(kg)} kg` : l; }
+    window.hpBWLabel = hpBWLabel;
+    function hpBodyKg() { const u = (getUsersDB()[currentUser]) || {}; let w = parseFloat(u.weight) || 0; try { const h = JSON.parse(cloudStore.getItem(`body_metrics_${currentUser}`) || '[]').filter(x => parseFloat(x.weight) > 0).sort((a, b) => String(a.date).localeCompare(String(b.date))); if (h.length) w = parseFloat(h[h.length - 1].weight); } catch (e) {} return w; }
+    function hpBWNote(n) { const b = hpBW(n); if (!b) return ''; const w = hpBodyKg(); return b === 'full' ? t('bw.noteFull', { w: w ? ` (~${fmtN(Math.round(w))} kg)` : '' }) : t('bw.notePartial'); }
+    // texto de una serie en Progreso / «Ant:»: «Peso corporal × 12», «PC + 20 kg × 12», segundos en plancha
+    function hpSetTxt(it, withReps) {
+      const b = hpBW(it.exercise), w = parseFloat(String(it.weight).replace(',', '.')) || 0, r = withReps === false ? '' : (/plancha|vac[ií]o|isom/i.test(it.exercise) ? ` × ${catEsc(it.reps)} s` : ` × ${catEsc(it.reps)}`);
+      if (!b) return `${fmtN(it.weight)} kg${r}`;
+      if (it.bw === 1) return (w > 0 ? `${t('bw.short')} + ${fmtN(w)} kg` : t(b === 'full' ? 'bw.full' : 'bw.partial')) + r;
+      return t(b === 'full' ? 'bw.full' : 'bw.partial') + r + (w > 0 && withReps !== false ? ` <small class="bw-old">(${t('bw.legacy', { w: fmtN(w) })})</small>` : '');
+    }
+    window.hpSetTxt = hpSetTxt;
     // Carga más alta registrada para un ejercicio (todas las sesiones). La sugerencia nunca baja de esto hasta que levantes más.
     function hpMaxKg(exName) {
       if (!currentUser || !exName) return 0;
@@ -5267,7 +5332,7 @@
       if (hpMaxKg._raw !== raw) { // se recalcula solo cuando cambia el historial
         let h = []; try { h = JSON.parse(raw); } catch (e) { h = []; }
         // solo series reales (reps > 0) y sin errores de tipeo (p. ej. 808 en vez de 80: más de 2,5× la mediana del ejercicio)
-        const L = {}; (Array.isArray(h) ? h : []).forEach(it => { const w = parseFloat(String(it && it.weight).replace(',', '.')), r = parseInt(it && it.reps, 10); if (it && it.exercise && w > 0 && w < 1000 && r > 0) (L[it.exercise] = L[it.exercise] || []).push(w); });
+        const L = {}; (Array.isArray(h) ? h : []).forEach(it => { const w = parseFloat(String(it && it.weight).replace(',', '.')), r = parseInt(it && it.reps, 10); if (it && it.exercise && w > 0 && w < 1000 && r > 0 && (!hpBW(it.exercise) || it.bw === 1)) (L[it.exercise] = L[it.exercise] || []).push(w); });
         const m = {}; Object.keys(L).forEach(k => { const a = L[k].slice().sort((x, y) => x - y), med = a[Math.floor((a.length - 1) / 2)]; m[k] = Math.max(...a.filter(w => w <= med * 2.5)); });
         hpMaxKg._raw = raw; hpMaxKg._m = m;
       }
@@ -5325,7 +5390,7 @@
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
       if (pastRecords.length > 0) {
-        return { weight: pastRecords[0].weight, reps: pastRecords[0].reps };
+        return { weight: pastRecords[0].weight, reps: pastRecords[0].reps, rec: pastRecords[0] };
       }
       return { weight: '-', reps: '-' };
     }
@@ -5357,6 +5422,7 @@
         const recommended = getRecommendedWeight(ex.name, ex.baseMultiplier, userData.weight);
         const timedSecs = getTimedSeconds(ex);
         const exLabel = exName(ex.name);
+        const bwT = hpBW(ex.name), bwKg = bwT ? hpMaxKg(ex.name) : 0;
         for (let s = 1; s <= ex.sets; s++) {
           const savedData = getSavedSetData(dayKey, exIdx, s);
           const prevData = getPreviousExerciseData(ex.name, s);
@@ -5375,8 +5441,8 @@ ${timedSecs ? `
               <td>
                 <button type="button" class="btn-3d btn-secondary btn-small" ${isDone ? 'disabled' : ''} onclick="startHoldTimer('${dayKey}', ${exIdx}, ${s}, ${timedSecs})">${t('wu.start')}</button>
               </td>` : `
-                <span class="prev-ref">${prevData.weight !== '-' ? t('set.prevKg', { v: fmtN(prevData.weight) }) : t('set.noPrev')}</span>
-                <input type="number" step="0.5" inputmode="decimal" id="w_${dayKey}_${exIdx}_${s}" value="${savedData.weight}" placeholder="kg">
+                <span class="prev-ref">${prevData.weight !== '-' ? (bwT ? t('bw.prev', { v: hpSetTxt(prevData.rec, false) }) : t('set.prevKg', { v: fmtN(prevData.weight) })) : t('set.noPrev')}</span>
+                <input type="number" step="0.5" min="0" inputmode="decimal" id="w_${dayKey}_${exIdx}_${s}" value="${savedData.weight}" placeholder="${bwT ? '0' : 'kg'}"${bwT ? ' data-bw="1"' : ''}>
               </td>
               <td>
                 <span class="prev-ref">${prevData.reps !== '-' ? t('set.prevReps', { v: prevData.reps }) : '&nbsp;'}</span>
@@ -5412,7 +5478,7 @@ ${timedSecs ? `
           ${angle ? `<span class="angle-chip">${catEsc(angle)}</span>` : ''}${ex.swapped ? `<span class="angle-chip swapped">${t('swap.swapped', { o: catEsc(exName(ex.origName)) })}</span>` : ''}
           ${typeof hpAnimHtml === 'function' ? hpAnimHtml(ex.name) : ''}
           <div class="exercise-meta">${ex.target} | ${ex.rest}</div>
-          ${timedSecs ? `<div class="rec-box">${t('ex.timed', { s: timedSecs })}</div>` : `<div class="rec-box">${t('ex.suggested', { w: recommended })}</div>`}
+          ${timedSecs ? `<div class="rec-box">${t('ex.timed', { s: timedSecs })}</div>` : bwT ? `<div class="rec-box bw-box"><b>🏋️ ${catEsc(hpBWLabel(ex.name, bwKg))}</b><small>${catEsc(hpBWNote(ex.name))}</small><small>${catEsc(t('bw.tip'))}</small></div>` : `<div class="rec-box">${t('ex.suggested', { w: recommended })}</div>`}
           <div class="exercise-note">💡 ${ex.note}</div>
           <div style="margin-bottom: 12px;">
             ${(!window.hpAnimApprox || hpAnimApprox(ex.name)) ? `<a href="${searchUrl}" target="_blank" rel="noopener" class="btn-3d btn-secondary btn-small" style="text-decoration:none; width:100%;">${t('ex.google')}</a>` : ''}
@@ -5420,11 +5486,12 @@ ${timedSecs ? `
           </div>
           <div class="sets-table-wrapper">
             <table>
-              <thead><tr><th>${t('th.set')}</th><th>${timedSecs ? t('th.duration') : t('th.load')}</th><th>${timedSecs ? t('th.timer') : t('th.reps')}</th><th>${t('th.state')}</th></tr></thead>
+              <thead><tr><th>${t('th.set')}</th><th>${timedSecs ? t('th.duration') : bwT ? t('th.lastre') : t('th.load')}</th><th>${timedSecs ? t('th.timer') : t('th.reps')}</th><th>${t('th.state')}</th></tr></thead>
               <tbody>${setsRows}</tbody>
             </table>
           </div>
         `;
+        if (bwT) { card.dataset.bw = bwT; card.dataset.bwl = hpBWLabel(ex.name, bwKg); }
         container.appendChild(card);
       });
       if (dayData.volume) { const v = document.createElement('div'); v.className = 'session-volume'; v.textContent = '📊 ' + dayData.volume; container.appendChild(v); }
@@ -5522,6 +5589,7 @@ ${timedSecs ? `
         weight: weight || '0',
         reps: reps || '0'
       };
+      if (hpBW(exObj.name)) newEntry.bw = 1; // v60: en peso corporal lo anotado es lastre (0 = solo tu cuerpo)
 
       if (existingIdx !== -1) {
         history[existingIdx] = newEntry;
@@ -5557,9 +5625,9 @@ ${timedSecs ? `
       }).sort((a, b) => b.last.localeCompare(a.last) || a.k.localeCompare(b.k));
       tbody.innerHTML = arr.map(g => {
         const days = new Map(); g.rows.forEach(r => { const d = r.date + '|' + (r.dayName || ''); if (!days.has(d)) days.set(d, []); days.get(d).push(r); });
-        const lastDay = g.rows.filter(r => r.date === g.rows[0].date), top = lastDay.reduce((a, r) => (parseFloat(r.weight) || 0) >= (parseFloat(a.weight) || 0) ? r : a, lastDay[0]);
+        const lastDay = g.rows.filter(r => r.date === g.rows[0].date), top = lastDay.reduce((a, r) => (hpBW(r.exercise) && r.bw !== 1 ? 0 : parseFloat(r.weight) || 0) >= (hpBW(a.exercise) && a.bw !== 1 ? 0 : parseFloat(a.weight) || 0) ? r : a, lastDay[0]);
         const op = isOpen(g.k);
-        return `<div class="wh-ex ux-sec ${op ? 'ux-open' : 'ux-closed'}" data-uxg="wh" data-uxk="${catEsc(g.k)}"><button type="button" class="ux-h" aria-expanded="${op}"><span class="ux-tt"><b>${catEsc(g.k)}</b><small>${U('last', { d: formatDateES(top.date).slice(0, 5), w: fmtN(top.weight), r: catEsc(top.reps) })} · ${U('series', { n: g.rows.length })}</small></span><span class="ux-cv" aria-hidden="true">▸</span></button><div class="ux-b">${[...days.entries()].map(([d, rs]) => `<div class="wh-day"><b>${formatDateES(d.split('|')[0])} · ${catEsc(tc(d.split('|')[1]))}</b>${rs.sort((a, b) => a.setNum - b.setNum).map(r => `<span class="wh-set"><em>${t('hist.set', { n: r.setNum })}</em>${fmtN(r.weight)} kg × ${catEsc(r.reps)}</span>`).join('')}</div>`).join('')}</div></div>`;
+        return `<div class="wh-ex ux-sec ${op ? 'ux-open' : 'ux-closed'}" data-uxg="wh" data-uxk="${catEsc(g.k)}"><button type="button" class="ux-h" aria-expanded="${op}"><span class="ux-tt"><b>${catEsc(g.k)}</b><small>${hpBW(top.exercise) ? U('lastBw', { d: formatDateES(top.date).slice(0, 5), x: hpSetTxt(top) }) : U('last', { d: formatDateES(top.date).slice(0, 5), w: fmtN(top.weight), r: catEsc(top.reps) })} · ${U('series', { n: g.rows.length })}</small></span><span class="ux-cv" aria-hidden="true">▸</span></button><div class="ux-b">${[...days.entries()].map(([d, rs]) => `<div class="wh-day"><b>${formatDateES(d.split('|')[0])} · ${catEsc(tc(d.split('|')[1]))}</b>${rs.sort((a, b) => a.setNum - b.setNum).map(r => `<span class="wh-set"><em>${t('hist.set', { n: r.setNum })}</em>${hpSetTxt(r)}</span>`).join('')}</div>`).join('')}</div></div>`;
       }).join('');
     }
 
@@ -8713,10 +8781,10 @@ ${timedSecs ? `
   <script src="anim.js?v=3"></script>
   <script src="pro.js?v=8"></script>
   <script src="cues.js?v=2"></script>
-  <script src="pro2.js?v=20"></script>
-  <script src="superset.js?v=7"></script>
+  <script src="pro2.js?v=21"></script>
+  <script src="superset.js?v=8"></script>
   <script src="features.js?v=4"></script>
   <script src="guide.js?v=5"></script>
-  <script src="ux.js?v=4"></script>
+  <script src="ux.js?v=5"></script>
 </body>
 </html>

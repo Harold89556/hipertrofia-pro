@@ -5,15 +5,15 @@
   const LT = {
     es: { sum: 'Resumen del día', water: 'Agua', meals: 'Comidas del día', left: 'Te faltan {k} kcal', over: 'Pasaste {k} kcal', done: '{d}/{n} cumplidas',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Grasa', w: 'Agua', det: 'Tocá para ver gramos', hide: 'Tocá para ocultar', items: '{n} registrados', series: '{n} series',
-      last: 'Último: {d} · {w} kg × {r}', coach: 'Coach de voz', on: 'Activado', off: 'Desactivado', warm: 'Calentamiento', phases: '{n} fases', block: 'Bloque combinado',
+      last: 'Último: {d} · {w} kg × {r}', lastBw: 'Último: {d} · {x}', wuBw: 'peso corporal: sin lastre, reps fáciles', wuB1: 'Sin lastre · 8-10 reps fáciles', wuB2: 'Sin lastre · 4-5 reps, rango completo', coach: 'Coach de voz', on: 'Activado', off: 'Desactivado', warm: 'Calentamiento', phases: '{n} fases', block: 'Bloque combinado',
       goals: 'Objetivos de hoy', wuEx: 'Ejercicio:', wuWork: 'carga de trabajo {w} kg', wuFirst: 'Hacelas con el primer ejercicio del día', wuPct: '{p}% de tu carga', topT: 'Tus objetivos y categoría', next: 'Próxima: {m}', noHist: 'Sin registros guardados.', rest: 'Descanso', open: 'Abrir', close: 'Cerrar' },
     en: { sum: "Today's summary", water: 'Water', meals: "Today's meals", left: '{k} kcal to go', over: '{k} kcal over', done: '{d}/{n} done',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Fat', w: 'Water', det: 'Tap to see grams', hide: 'Tap to hide', items: '{n} logged', series: '{n} sets',
-      last: 'Last: {d} · {w} kg × {r}', coach: 'Voice coach', on: 'On', off: 'Off', warm: 'Warm-up', phases: '{n} phases', block: 'Combined block',
+      last: 'Last: {d} · {w} kg × {r}', lastBw: 'Last: {d} · {x}', wuBw: 'bodyweight: no added weight, easy reps', wuB1: 'No added weight · 8-10 easy reps', wuB2: 'No added weight · 4-5 reps, full range', coach: 'Voice coach', on: 'On', off: 'Off', warm: 'Warm-up', phases: '{n} phases', block: 'Combined block',
       goals: "Today's goals", wuEx: 'Exercise:', wuWork: 'working load {w} kg', wuFirst: "Do them on the day's first exercise", wuPct: '{p}% of your load', topT: 'Your targets and category', next: 'Next: {m}', noHist: 'No saved records.', rest: 'Rest', open: 'Open', close: 'Close' },
     pt: { sum: 'Resumo do dia', water: 'Água', meals: 'Refeições do dia', left: 'Faltam {k} kcal', over: 'Passou {k} kcal', done: '{d}/{n} feitas',
       kcal: 'Kcal', p: 'Prot', c: 'Carb', f: 'Gord', w: 'Água', det: 'Toque para ver gramas', hide: 'Toque para ocultar', items: '{n} registrados', series: '{n} séries',
-      last: 'Último: {d} · {w} kg × {r}', coach: 'Coach de voz', on: 'Ativado', off: 'Desativado', warm: 'Aquecimento', phases: '{n} fases', block: 'Bloco combinado',
+      last: 'Último: {d} · {w} kg × {r}', lastBw: 'Último: {d} · {x}', wuBw: 'peso corporal: sem carga extra, reps fáceis', wuB1: 'Sem carga extra · 8-10 reps fáceis', wuB2: 'Sem carga extra · 4-5 reps, amplitude completa', coach: 'Coach de voz', on: 'Ativado', off: 'Desativado', warm: 'Aquecimento', phases: '{n} fases', block: 'Bloco combinado',
       goals: 'Metas de hoje', wuEx: 'Exercício:', wuWork: 'carga de trabalho {w} kg', wuFirst: 'Faça no primeiro exercício do dia', wuPct: '{p}% da sua carga', topT: 'Suas metas e categoria', next: 'Próxima: {m}', noHist: 'Sem registros salvos.', rest: 'Descanso', open: 'Abrir', close: 'Fechar' }
   };
   const lang = () => (typeof LANG !== 'undefined' && LT[LANG]) ? LANG : 'es';
@@ -386,7 +386,7 @@
     const mt = txt(c.querySelector('.exercise-meta')); const parts = [];
     const m = /(\d+)\s*\S*\s*x\s*([\d\-–]+)/i.exec(mt); if (m) parts.push(`${m[1]}×${m[2]}`);
     const rir = /RIR\s*[\d\-–]+/.exec(mt); const ap = /@\s*([\d.,]+\s*kg)/i.exec(txt(c.querySelector('.ap-box'))); const rb = txt(c.querySelector('.rec-box strong')); const kg = ap ? [0, ap[1]] : /^([\d.,]+\s*kg)/.exec(rb);
-    if (kg) parts.push('🎯 ' + kg[1]); if (rir) parts.push(rir[0]);
+    if (c.dataset && c.dataset.bwl) parts.push('🎯 ' + c.dataset.bwl); else if (kg) parts.push('🎯 ' + kg[1]); if (rir) parts.push(rir[0]);
     return parts.join(' · ');
   }
   function topFold() {
@@ -412,18 +412,20 @@
     const r1 = $('#warmup-row-1'); if (!r1) return; const card = r1.closest('.warmup-phase-card'); if (!card) return;
     const c0 = $('#exercises-container .exercise-card[id$="_0"][id^="card_"]') || $('#exercises-container .exercise-card[id^="card_"]');
     const nm = c0 ? exName(c0) : '';
-    let w = 0; if (c0) { const ap = c0.querySelector('.ap-box'); const at = ap ? /@\s*([\d.,]+\s*kg)/i.exec(txt(ap)) : null; w = at ? kgNum(at[1]) : kgNum(txt(c0.querySelector('.rec-box strong'))); }
+    const bw = !!(c0 && c0.dataset.bw);
+    let w = 0; if (c0 && !bw) { const ap = c0.querySelector('.ap-box'); const at = ap ? /@\s*([\d.,]+\s*kg)/i.exec(txt(ap)) : null; w = at ? kgNum(at[1]) : kgNum(txt(c0.querySelector('.rec-box strong'))); }
     let info = $('#ux-wu-ex', card);
     if (!info) { info = document.createElement('div'); info.id = 'ux-wu-ex'; info.className = 'ux-wu-ex'; const tw = card.querySelector('.sets-table-wrapper'); card.insertBefore(info, tw); }
-    const html = nm ? `<span class="ux-wu-l">🏋️ ${esc(L('wuEx'))}</span><b>${esc(nm)}</b>${w ? `<small>${esc(L('wuWork', { w: NK(w) }))}</small>` : ''}` : `<small>${esc(L('wuFirst'))}</small>`;
+    const html = nm ? `<span class="ux-wu-l">🏋️ ${esc(L('wuEx'))}</span><b>${esc(nm)}</b>${bw ? `<small>${esc(L('wuBw'))}</small>` : w ? `<small>${esc(L('wuWork', { w: NK(w) }))}</small>` : ''}` : `<small>${esc(L('wuFirst'))}</small>`;
     if (info._html !== html) { info.innerHTML = html; info._html = html; }
     [[1, 0.4], [2, 0.6]].forEach(([i, f]) => {
       const row = $('#warmup-row-' + i); if (!row) return; const td = row.cells[0], inp = $('#wu-w-' + i); const kg = w ? r25(w * f) : 0;
-      const lab = `<span class="ux-wu-s">S${i}</span><span class="ux-wu-p">${kg ? '~' + NK(kg) + ' kg' : esc(L('wuPct', { p: Math.round(f * 100) }))}</span>`;
+      const lab = `<span class="ux-wu-s">S${i}</span><span class="ux-wu-p">${bw ? esc(L(i === 1 ? 'wuB1' : 'wuB2')) : kg ? '~' + NK(kg) + ' kg' : esc(L('wuPct', { p: Math.round(f * 100) }))}</span>`;
       if (td && td._html !== lab) { td.innerHTML = lab; td._html = lab; }
       if (inp) {
-        const ph = kg ? String(kg) : 'kg'; if (inp.placeholder !== ph) inp.placeholder = ph;
+        const ph = bw ? '0' : kg ? String(kg) : 'kg'; if (inp.placeholder !== ph) inp.placeholder = ph;
         if (kg && (inp.value === '' || inp.dataset.uxAuto === '1') && inp.value !== String(kg)) { inp.value = String(kg); inp.dataset.uxAuto = '1'; }
+        else if (!kg && inp.dataset.uxAuto === '1' && inp.value !== '') { inp.value = ''; inp.dataset.uxAuto = ''; } // peso corporal: sin kilos automáticos
         if (!inp._uxL) { inp._uxL = 1; inp.addEventListener('input', () => { inp.dataset.uxAuto = ''; }); }
       }
     });
